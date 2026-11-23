@@ -29,12 +29,13 @@ test('notificações, alternância de conversa e privacidade da confirmação de
     await charlie.getByRole('button', { name: 'Criar conversa' }).click();
     await expect(bob.locator('.conversation-list .conversation').filter({ hasText: 'Notificação Gama' })).toBeVisible();
     await bob.locator('.conversation-list .conversation').filter({ hasText: 'Notificação Gama' }).click();
+    await expect(bob.getByRole('heading', { name: 'Notificação Gama' })).toBeVisible();
 
     await bob.getByText('Notificações de mensagens', { exact: true }).click();
     await alice.locator('#message-text').fill('Aviso novo ' + suffix);
     await alice.getByRole('button', { name: 'Enviar', exact: true }).click();
-    await expect(bob.getByRole('button', { name: /1 não lidas/ })).toBeVisible();
-    await bob.getByRole('button', { name: /1 não lidas/ }).click();
+    await expect(bob.locator('.unread-line').filter({ hasText: '1 não lidas' })).toBeVisible();
+    await bob.locator('.unread-line').filter({ hasText: '1 não lidas' }).click();
     await expect(bob.getByText('Aviso novo ' + suffix, { exact: true })).toBeVisible();
     await expect(bob.locator('.unread-line').filter({ hasText: '0 não lidas' }).first()).toBeVisible();
     await expect(alice.locator('.message.outgoing .message-meta')).toContainText('Lida');
