@@ -11,6 +11,12 @@ service cloud.firestore {
         && exists(/databases/$(database)/documents/conversations/$(conversationId))
         && request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.memberIds;
     }
+    function blockedBetween(a, b) {
+      return (exists(/databases/$(database)/documents/userPrivate/$(a))
+          && b in get(/databases/$(database)/documents/userPrivate/$(a)).data.blockedUids)
+        || (exists(/databases/$(database)/documents/userPrivate/$(b))
+          && a in get(/databases/$(database)/documents/userPrivate/$(b)).data.blockedUids);
+    }
     function validText(data) {
       return data.body is string
         && data.body.size() > 0
@@ -30,6 +36,42 @@ service cloud.firestore {
         && validName(request.resource.data.displayName);
       allow delete: if false;
     }
+    match /userPrivate/{uid} {
+      allow get: if own(uid);
+      allow list: if false;
+      allow create, update: if own(uid)
+        && request.resource.data.keys().hasOnly(['blockedUids', 'notificationsEnabled', 'readReceiptsEnabled'])
+        && request.resource.data.keys().hasAll(['blockedUids', 'notificationsEnabled', 'readReceiptsEnabled'])
+        && request.resource.data.blockedUids is list
+        && request.resource.data.blockedUids.size() <= 100
+        && request.resource.data.notificationsEnabled is bool
+        && request.resource.data.readReceiptsEnabled is bool;
+      allow delete: if false;
+    }
+    match /reports/{reportId} {
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly(['reporterId','reportedUid','conversationId','reason','status','createdAt'])
+        && request.resource.data.keys().hasAll(['reporterId','reportedUid','conversationId','reason','status','createdAt'])
+        && request.resource.data.reporterId == request.auth.uid
+        && request.resource.data.reportedUid is string
+        && request.resource.data.reportedUid != request.auth.uid
+        && request.resource.data.conversationId is string
+        && isMember(request.resource.data.conversationId)
+        && request.resource.data.reportedUid in get(/databases/$(database)/documents/conversations/$(request.resource.data.conversationId)).data.memberIds
+        && request.resource.data.reason is string
+        && request.resource.data.reason.size() >= 10
+        && request.resource.data.reason.size() <= 500
+        && request.resource.data.status == 'open'
+        && request.resource.data.createdAt == request.time;
+      allow get: if signedIn() && (resource.data.reporterId == request.auth.uid
+        || request.auth.token.moderator == true || request.auth.token.admin == true);
+      allow list: if signedIn() && (request.auth.token.moderator == true || request.auth.token.admin == true);
+      allow update: if signedIn()
+        && (request.auth.token.moderator == true || request.auth.token.admin == true)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','resolvedAt'])
+        && request.resource.data.status in ['reviewed','closed'];
+      allow delete: if false;
+    }
     match /conversations/{conversationId} {
       allow get, list: if signedIn() && request.auth.uid in resource.data.memberIds;
       allow create: if signedIn()
@@ -46,6 +88,7 @@ service cloud.firestore {
         && conversationId == 'dm_' + request.resource.data.memberIds[0] + '_' + request.resource.data.memberIds[1]
         && exists(/databases/$(database)/documents/profiles/$(request.resource.data.memberIds[0]))
         && exists(/databases/$(database)/documents/profiles/$(request.resource.data.memberIds[1]))
+        && !blockedBetween(request.resource.data.memberIds[0], request.resource.data.memberIds[1])
         && request.resource.data.createdAt == request.time
         || (signedIn()
           && request.resource.data.keys().hasOnly(['kind', 'title', 'createdBy', 'adminIds', 'memberIds', 'createdAt'])
@@ -100,6 +143,7 @@ service cloud.firestore {
           && request.resource.data.status == 'pending'
           && request.resource.data.createdAt == request.time
           && exists(/databases/$(database)/documents/profiles/$(targetUid))
+          && !blockedBetween(targetUid, request.auth.uid)
           && !(targetUid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.memberIds);
         allow update: if own(targetUid)
           && resource.data.status == 'pending'
@@ -113,6 +157,10 @@ service cloud.firestore {
           && request.resource.data.keys().hasOnly(['senderId', 'body', 'createdAt', 'replyToId'])
           && request.resource.data.keys().hasAll(['senderId', 'body', 'createdAt'])
           && request.resource.data.senderId == request.auth.uid
+          && (get(/databases/$(database)/documents/conversations/$(conversationId)).data.kind == 'group'
+            || !blockedBetween(
+              get(/databases/$(database)/documents/conversations/$(conversationId)).data.memberIds[0],
+              get(/databases/$(database)/documents/conversations/$(conversationId)).data.memberIds[1]))
           && validText(request.resource.data)
           && request.resource.data.createdAt == request.time
           && (!('replyToId' in request.resource.data)
