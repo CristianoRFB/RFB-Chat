@@ -1,5 +1,5 @@
 import {
-  collection, deleteDoc, doc, endBefore, getDocs, limitToLast, onSnapshot,
+  collection, deleteDoc, doc, endBefore, getDoc, getDocs, limitToLast, onSnapshot,
   orderBy, query, serverTimestamp, setDoc, updateDoc,
   type DocumentData, type FirestoreError, type QueryDocumentSnapshot, type Unsubscribe
 } from 'firebase/firestore';
@@ -92,7 +92,11 @@ export async function setReaction(
 ): Promise<void> {
   const ref = doc(db, 'conversations', conversationId, 'messages', messageId, 'reactions', uid);
   if (emoji === null) await deleteDoc(ref);
-  else await setDoc(ref, { emoji, createdAt: serverTimestamp() });
+  else {
+    const existing = await getDoc(ref);
+    if (existing.exists()) await updateDoc(ref, { emoji });
+    else await setDoc(ref, { emoji, createdAt: serverTimestamp() });
+  }
 }
 
 export type ReadReceipt = Record<string, Date>;

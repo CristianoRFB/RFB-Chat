@@ -42,3 +42,16 @@ button,input{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allow
 .visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 @media(max-width:760px){.app-shell{padding:0 10px}.topbar{flex-wrap:wrap;padding:12px 0;gap:10px}.badge-local{font-size:.6rem;margin-left:auto}.chat-layout{grid-template-columns:1fr;margin:12px 0;overflow:visible;gap:0}.chat-sidebar{border-right:0;border-bottom:1px solid #314257}.conversation-list{max-height:190px}.chat-panel{min-height:500px}.messages{max-height:55vh;padding:14px}.chat-header{padding:12px}.composer{padding:10px}.message{max-width:91%}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+.chat-body-empty{flex:1;min-height:300px;display:flex;align-items:center;justify-content:center}
+.message-actions{display:flex;gap:9px;margin-top:8px}
+.message-actions button,.reply-banner button,.older-button{background:transparent;color:#b4cfff;border:0;text-decoration:underline;font-size:.74rem;padding:4px}
+.reaction-list{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}.reaction{font-size:.76rem;color:#d6e5f7;background:#172b42;border:1px solid #43546b;border-radius:8px;padding:3px 5px}
+.reaction.active{border-color:#8eb8fd;background:#314d6c}
+.reply-context{margin:0 0 9px!important;font-size:.78rem;border-left:3px solid #94baff;padding-left:8px;color:#b5c9e0}
+.reply-banner{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:9px 20px;font-size:.78rem;color:#d4e1f3;border-top:1px solid #3d4d61}
+.reply-banner span{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.edit-form{display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:12px;border-top:1px solid #3b4c65}
+.edit-form input{flex:1;min-width:180px;background:#0e1725;color:#fff;border:1px solid #566a88;border-radius:8px;padding:10px}
+.edit-form label{font-size:.8rem}.edit-form button{border:1px solid #6881aa;border-radius:8px;padding:9px;color:#fff;background:#233f60}
+.older-button{display:block;margin:0 auto 12px;color:#b8d4ff}

@@ -1,15 +1,13 @@
-import { useEffect, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import {
   createUserWithEmailAndPassword, onAuthStateChanged,
   signInWithEmailAndPassword, signOut, type User
 } from 'firebase/auth';
 import { doc, onSnapshot, serverTimestamp, setDoc } from 'firebase/firestore';
 import { auth, db, isLocalEmulator } from './firebase';
-import {
-  createConversation, lookupName, sendText, watchConversations,
-  watchMessages, type ChatConversation, type ChatMessage
-} from './chat-data';
-import { MAX_MESSAGE_LENGTH, otherMember } from './chat-model';
+import { createConversation, lookupName, watchConversations, type ChatConversation } from './chat-data';
+import { MessageCenter } from './MessageCenter';
+import { otherMember } from './chat-model';
 
 function errorText(error: unknown): string {
   const code = (error as { code?: string })?.code;
@@ -87,10 +85,8 @@ function Workspace({ user }: { user: User }) {
   const [profileReady, setProfileReady] = useState(false);
   const [conversations, setConversations] = useState<ChatConversation[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [names, setNames] = useState<Record<string, string>>({});
   const [target, setTarget] = useState('');
-  const [draft, setDraft] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
 
@@ -127,12 +123,6 @@ function Workspace({ user }: { user: User }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [conversations, user.uid]);
 
-  useEffect(() => {
-    setMessages([]);
-    if (!selectedId) return;
-    return watchMessages(selectedId, setMessages, err => setError(errorText(err)));
-  }, [selectedId]);
-
   async function newConversation(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError('');
@@ -148,20 +138,7 @@ function Workspace({ user }: { user: User }) {
     }
   }
 
-  async function send(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!selectedId || busy) return;
-    setError('');
-    setBusy(true);
-    try {
-      await sendText(user.uid, selectedId, draft);
-      setDraft('');
-    } catch (err) {
-      setError(errorText(err));
-    } finally {
-      setBusy(false);
-    }
-  }
+  const onChildError = useCallback((error: unknown) => setError(errorText(error)), []);
 
   const current = conversations.find(item => item.id === selectedId);
   const other = current ? otherMember(current.memberIds, user.uid) : '';
@@ -205,21 +182,8 @@ function Workspace({ user }: { user: User }) {
         <div><h2>{title}</h2><p>{selectedId ? 'Mensagens gravadas no emulador' : 'Conversa individual em tempo real'}</p></div>
       </header>
       {error && <div className="feedback error" role="alert">{error} <button className="dismiss" type="button" onClick={() => setError('')}>Fechar</button></div>}
-      <div className="messages" aria-label="Histórico de mensagens">
-        {!selectedId && <div className="empty-state"><h3>Conversas que acompanham sua equipe.</h3><p>Inicie uma conversa pela barra lateral. Nenhuma mensagem é fictícia nesta tela.</p></div>}
-        {selectedId && messages.length === 0 && <div className="empty-state"><h3>A conversa começou.</h3><p>Envie a primeira mensagem para testar a sincronização entre navegadores.</p></div>}
-        {messages.map(message => <article key={message.id} className={'message ' + (message.senderId === user.uid ? 'outgoing' : 'incoming')}>
-          <p>{message.body}</p>
-          <span className="message-meta">{message.createdAt ? message.createdAt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '—'} · {message.pending ? 'Enviando' : 'Gravado'}</span>
-        </article>)}
-      </div>
-      <form className="composer" onSubmit={send}>
-        <label htmlFor="message-text" className="visually-hidden">Digite sua mensagem</label>
-        <input id="message-text" value={draft} onChange={e => setDraft(e.target.value)} disabled={!selectedId || busy}
-          placeholder={selectedId ? 'Escreva uma mensagem…' : 'Selecione uma conversa'} maxLength={MAX_MESSAGE_LENGTH} />
-        <button type="submit" disabled={!selectedId || busy || !draft.trim()}>{busy ? 'Enviando…' : 'Enviar'}</button>
-      </form>
-      <p className="legal-note">Sem confirmação de leitura, chamadas, arquivos ou criptografia ponta a ponta neste MVP.</p>
+      <MessageCenter key={selectedId ?? 'empty'} conversationId={selectedId} uid={user.uid} otherUid={other}
+        onError={onChildError} />
     </section>
   </main>;
 }
