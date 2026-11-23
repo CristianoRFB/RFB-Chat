@@ -10,13 +10,14 @@ export function ReportPanel({ uid, conversation, onError }: {
   const [notice, setNotice] = useState('');
   const [busy, setBusy] = useState(false);
   if (!conversation) return null;
+  const activeConversation = conversation;
   const targets = conversation.memberIds.filter(member => member !== uid);
   const recipient = conversation.kind === 'dm' ? (targets[0] ?? '') : target;
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setBusy(true); setNotice('');
     try {
-      await sendReport(uid, conversation.id, recipient, reason);
+      await sendReport(uid, activeConversation.id, recipient, reason);
       setReason(''); setNotice('Denúncia registrada para revisão por moderador autorizado.');
     } catch (error) { onError(error); }
     finally { setBusy(false); }
