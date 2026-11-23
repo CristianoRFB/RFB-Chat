@@ -210,6 +210,30 @@ describe('Firestore Rules: isolamento de conversas', () => {
       ...payload, senderId: 'mallory'
     }));
   });
+  it('arquivo temporário limitado a membro, tamanho e 24 horas', async () => {
+    const alice = testEnv.authenticatedContext('alice').firestore();
+    const bob = testEnv.authenticatedContext('bob').firestore();
+    const mallory = testEnv.authenticatedContext('mallory').firestore();
+    const file = doc(alice, 'conversations', conversationId, 'attachments', 'test-file-01');
+    const payload = {
+      ownerId: 'alice', filename: 'relatorio.txt', mimeType: 'text/plain',
+      dataUrl: 'data:text/plain;base64,VGVzdGU=', byteSize: 5,
+      createdAt: serverTimestamp(), expiresAt: new Date(Date.now() + 30 * 60 * 1000)
+    };
+    await assertSucceeds(setDoc(file, payload));
+    await assertSucceeds(getDoc(doc(bob, 'conversations', conversationId, 'attachments', 'test-file-01')));
+    await assertFails(getDoc(doc(mallory, 'conversations', conversationId, 'attachments', 'test-file-01')));
+    await assertFails(getDocs(collection(alice, 'conversations', conversationId, 'attachments')));
+    await assertFails(setDoc(doc(alice, 'conversations', conversationId, 'attachments', 'expired-file'), {
+      ...payload, expiresAt: new Date(Date.now() - 60 * 1000)
+    }));
+    await assertFails(setDoc(doc(alice, 'conversations', conversationId, 'attachments', 'too-long'), {
+      ...payload, expiresAt: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000)
+    }));
+    await assertFails(setDoc(doc(alice, 'conversations', conversationId, 'attachments', 'bad-mime'), {
+      ...payload, mimeType: 'text/html', dataUrl: 'data:text/html;base64,PHNjcmlwdD4='
+    }));
+  });
   it('nega visitante sem autenticação', async () => {
     const visitor = testEnv.unauthenticatedContext().firestore();
     await assertFails(getDoc(doc(visitor, 'profiles', 'alice')));
