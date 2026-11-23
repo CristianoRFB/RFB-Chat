@@ -4,7 +4,7 @@ import {
   assertFails, assertSucceeds, initializeTestEnvironment,
   type RulesTestEnvironment
 } from '@firebase/rules-unit-testing';
-import { collection, deleteDoc, doc, getDoc, getDocs, query, setDoc, updateDoc, where, serverTimestamp } from 'firebase/firestore';
+import { arrayUnion, collection, deleteDoc, doc, getDoc, getDocs, query, setDoc, updateDoc, where, serverTimestamp } from 'firebase/firestore';
 
 let testEnv: RulesTestEnvironment;
 const projectId = 'demo-rfb-chat';
@@ -131,6 +131,33 @@ describe('Firestore Rules: isolamento de conversas', () => {
     await assertFails(setDoc(doc(mallory, 'conversations', conversationId, 'reads', 'mallory'), {
       lastReadAt: serverTimestamp()
     }));
+  });
+  it('grupo exige convite aceito para tornar usuário membro', async () => {
+    const alice = testEnv.authenticatedContext('alice').firestore();
+    const bob = testEnv.authenticatedContext('bob').firestore();
+    const mallory = testEnv.authenticatedContext('mallory').firestore();
+    const groupId = 'group_123456789012';
+    const groupAlice = doc(alice, 'conversations', groupId);
+    await assertSucceeds(setDoc(groupAlice, {
+      kind: 'group', title: 'Equipe de QA', createdBy: 'alice',
+      adminIds: ['alice'], memberIds: ['alice'], createdAt: serverTimestamp()
+    }));
+    await assertFails(getDoc(doc(bob, 'conversations', groupId)));
+    await assertFails(updateDoc(doc(bob, 'conversations', groupId), { memberIds: arrayUnion('bob') }));
+    const inviteAlice = doc(alice, 'conversations', groupId, 'invites', 'bob');
+    await assertSucceeds(setDoc(inviteAlice, {
+      targetUid: 'bob', invitedBy: 'alice', status: 'pending', createdAt: serverTimestamp()
+    }));
+    await assertSucceeds(getDoc(doc(bob, 'conversations', groupId, 'invites', 'bob')));
+    await assertFails(updateDoc(inviteAlice, { status: 'accepted' }));
+    await assertSucceeds(updateDoc(doc(bob, 'conversations', groupId, 'invites', 'bob'), { status: 'accepted' }));
+    await assertSucceeds(updateDoc(doc(bob, 'conversations', groupId), { memberIds: arrayUnion('bob') }));
+    await assertSucceeds(getDoc(doc(bob, 'conversations', groupId)));
+    await assertFails(getDoc(doc(mallory, 'conversations', groupId)));
+    await assertFails(updateDoc(doc(bob, 'conversations', groupId), { memberIds: arrayUnion('mallory') }));
+    await assertSucceeds(updateDoc(groupAlice, { adminIds: arrayUnion('bob') }));
+    await assertFails(updateDoc(doc(bob, 'conversations', groupId), { adminIds: arrayUnion('mallory') }));
+    await assertSucceeds(updateDoc(doc(bob, 'conversations', groupId), { title: 'Equipe de testes' }));
   });
   it('nega visitante sem autenticação', async () => {
     const visitor = testEnv.unauthenticatedContext().firestore();

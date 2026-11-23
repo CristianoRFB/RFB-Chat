@@ -1,6 +1,6 @@
 import {
-  addDoc, collection, doc, getDoc, limitToLast, onSnapshot, orderBy,
-  query, serverTimestamp, setDoc, where,
+  addDoc, arrayRemove, arrayUnion, collection, doc, getDoc, limitToLast, onSnapshot, orderBy,
+  query, serverTimestamp, setDoc, updateDoc, where,
   type DocumentData, type FirestoreError, type QueryDocumentSnapshot,
   type Unsubscribe
 } from 'firebase/firestore';
@@ -9,7 +9,9 @@ import { dmId, normalizeMessage } from './chat-model';
 
 export type ChatConversation = {
   id: string;
-  kind: 'dm';
+  kind: 'dm' | 'group';
+  title?: string;
+  adminIds?: string[];
   createdBy: string;
   memberIds: string[];
 };
@@ -28,7 +30,9 @@ function toConversation(snapshot: QueryDocumentSnapshot<DocumentData>): ChatConv
   const d = snapshot.data();
   return {
     id: snapshot.id,
-    kind: 'dm',
+    kind: d.kind === 'group' ? 'group' : 'dm',
+    title: typeof d.title === 'string' ? d.title : undefined,
+    adminIds: Array.isArray(d.adminIds) ? d.adminIds.map(String) : undefined,
     createdBy: String(d.createdBy),
     memberIds: Array.isArray(d.memberIds) ? d.memberIds.map(String) : []
   };
@@ -95,5 +99,52 @@ export async function sendText(uid: string, conversationId: string, raw: string)
     senderId: uid,
     body: normalizeMessage(raw),
     createdAt: serverTimestamp()
+  });
+}
+
+// Grupos começam somente com seu criador. Convites exigem aceitação explícita.
+export async function createGroup(uid: string, rawTitle: string): Promise<string> {
+  const title = rawTitle.trim();
+  if (title.length < 2 || title.length > 80) throw new Error('O grupo precisa de 2 a 80 caracteres.');
+  const id = 'group_' + doc(collection(db, 'conversations')).id;
+  await setDoc(doc(db, 'conversations', id), {
+    kind: 'group', title, createdBy: uid, adminIds: [uid],
+    memberIds: [uid], createdAt: serverTimestamp()
+  });
+  return id;
+}
+
+export async function sendGroupInvite(groupId: string, uid: string, rawTargetUid: string): Promise<void> {
+  const targetUid = rawTargetUid.trim();
+  if (!targetUid || targetUid === uid) throw new Error('Informe o UID de outra pessoa.');
+  await lookupName(targetUid);
+  await setDoc(doc(db, 'conversations', groupId, 'invites', targetUid), {
+    targetUid, invitedBy: uid, status: 'pending', createdAt: serverTimestamp()
+  });
+}
+
+export async function acceptGroupInvite(groupId: string, uid: string): Promise<void> {
+  const invite = doc(db, 'conversations', groupId.trim(), 'invites', uid);
+  const snapshot = await getDoc(invite);
+  if (!snapshot.exists()) throw new Error('Convite não encontrado para esta conta.');
+  if (snapshot.data().status === 'declined') throw new Error('Convite recusado anteriormente.');
+  if (snapshot.data().status === 'pending') await updateDoc(invite, { status: 'accepted' });
+  // A Rules confirma a existência do convite aceito, em vez de confiar no navegador.
+  await updateDoc(doc(db, 'conversations', groupId.trim()), { memberIds: arrayUnion(uid) });
+}
+
+export async function declineGroupInvite(groupId: string, uid: string): Promise<void> {
+  await updateDoc(doc(db, 'conversations', groupId.trim(), 'invites', uid), { status: 'declined' });
+}
+
+export async function editGroupTitle(groupId: string, rawTitle: string): Promise<void> {
+  const title = rawTitle.trim();
+  if (title.length < 2 || title.length > 80) throw new Error('O grupo precisa de 2 a 80 caracteres.');
+  await updateDoc(doc(db, 'conversations', groupId), { title });
+}
+
+export async function setGroupAdmin(groupId: string, uid: string, enabled: boolean): Promise<void> {
+  await updateDoc(doc(db, 'conversations', groupId), {
+    adminIds: enabled ? arrayUnion(uid) : arrayRemove(uid)
   });
 }
