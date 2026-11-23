@@ -1,20 +1,18 @@
-# Handoff — RFB Chat (RFB Method)
+# Handoff RFB Chat — 22/11/2026
 
-Atualizado em 22/11/2026, PR draft #1: https://github.com/CristianoRFB/RFB-Chat/pull/1. Branch `feature/rfb-starter-pack-v1`. HEAD anterior ao checkpoint: `5ac833843306709f84bbd50c1e7a9ceb7ae6dddc`.
+## Estado ao encerrar a rodada
+Repo https://github.com/CristianoRFB/RFB-Chat; branch `feature/rfb-starter-pack-v1`; PR #1 DRAFT. SHA de **código testado**: `bf87e5988e02ea93b9c5082fb33686a7a211a0ca`, run https://github.com/CristianoRFB/RFB-Chat/actions/runs/45092464389.
 
-## Entregue como código, ainda sem validação real
-- `d7248d50`: Firebase SDK conectado apenas aos emuladores locais, Firestore Rules, testes unitários de modelo e testes de regras.
-- `b247abdc`: UI React responsiva, cadastro/login local, procurar outra pessoa por UID, criar DM, enviar textos e observar mudanças em tempo real, reload via Firestore.
-- `5ac83384`: workflow Actions para instalar deps, typecheck, unit tests, build e Rules no Firestore Emulator.
+- Implementado Auth+Firestore **somente com emuladores** e uma UI React para dois usuários trocarem DMs, `onSnapshot` e reload.
+- CI: npm install, typecheck, 6 testes unitários, build, 6 testes Firestore Rules PASS.
+- Playwright: E2E duas contas passou na retry, primeira falhou em observar resposta da segunda conta no primeiro contexto; mobile PASS na primeira. **FLAKY, issue #2 aberta**.
+- Sem deployed production, Firebase real, billing, Cloudflare, E2EE, read receipts, grupo/arquivo/chamada, nem dados reais.
 
-## Pendências obrigatórias
-- Inspecionar resultado real de CI em SHA exato e registrar PASS/FAIL. No checkpoint, duas execuções foram iniciadas, sem conclusão registrada.
-- Criar `package-lock.json` a partir de instalação íntegra; executar E2E em dois perfis com contas sintéticas; testar outsider e 401/403, mobile, teclado, offline e retry.
-- Revisar UX e atualização de indicadores; ainda **não há confirmação de entregue/lido**, nem E2EE, upload ou moderação.
-- Meta R$0 adicional; sem produção, Cloudflare, Blaze, domínios, segredos ou usuários reais. **Nunca mesclar PR por ser mergeable**.
+## Recuperação imediata
+1. Inspecionar branch HEAD e comparar com `docs/rfb/STATE.json`, PR #1, issue #2, checks, comentários e reviews.
+2. Analisar run 45092464389: falha em `expect(first.getByText(messageB)).toBeVisible()`, e possível causa em envio, listener, seleção da conversa ou sincronização. O timeout não prova o defeito.
+3. Executar o teste isolado 3 vezes com retries=0; coletar trace real em falha, sem credenciais. Aplicar AntiLoop STOP em caso de repetição sem nova hipótese.
+4. Gerar package-lock e usar npm ci, depois QA segurança, offline, mobile e aprovação humana. Não mesclar PR #1 nem implantar por padrão.
 
-## Como retomar
-1. GitHub first: comparar PR #1 HEAD/branch/checks/reviews/Issues com `docs/rfb/STATE.json`.
-2. Se CI falhar, ler logs da etapa concreta, aplicar uma única correção rastreável; não marcar PASS sem execução.
-3. Depois, `npm install`, `npm run emulators`, `npm run dev`, `npm run test:rules` e QA browser em duas janelas isoladas.
-4. Salvar SHA, testes e relatório em `docs/rfb/`, mantendo PR draft.
+## Fontes
+`docs/ADR-001-LOCAL-MVP.md`, `docs/BENCHMARK-UX-2026.md`, `docs/ESPECIFICACAO-RFB.txt`, `docs/rfb/QA-2026-11-22.md`, `docs/rfb/GITHUB-TRIAGE.md`.
