@@ -1,13 +1,27 @@
 # RFBChat — RFB Labs
 
-> **Projeto em planejamento.** Repositório inicial do produto RFBChat; **ainda não é uma aplicação pronta nem um serviço publicado.**
+> **Em planejamento.** Starter Pack G0 e scaffold G1 ilustrativo; não é um aplicativo de mensagens em produção.
 
-Comunicação e colaboração com conversas, grupos, mensagens e histórico.
+Conceito para comunicação e colaboração, conversas, grupos e mensagens. Nenhum dado real, conta, backend, entrega de mensagens ou upload é usado na UI de demonstração.
 
-Este repositório foi iniciado em 22/11/2026 para receber um Starter Pack técnico derivado das especificações RFB. O conteúdo em preparação ficará em uma branch e PR próprios antes da integração na `main`.
+## Documentação
 
-**Fonte do Starter Pack:** [RFB Method GPT — 01-rfbchat](https://github.com/CristianoRFB/rfb-method-gpt/tree/feature/portfolio-seven-labs-14-starter-v1/portfolio/projetos/01-rfbchat). A coleção contém 14 produtos, mas este repo é independente.
+- [Especificação RFB](docs/ESPECIFICACAO-RFB.txt)
+- [Starter Pack](docs/STARTER-PACK.md)
+- [Diagramas](docs/DIAGRAMAS.md) — 7 Mermaid
+- [UX](docs/UX-DESIGN-AND-QA.md) — 58 telas planejadas
+- [Roadmap](docs/ROADMAP.md) — gates G0–G6
+- [Proveniência](docs/PROVENIENCIA.md)
+- [Estado](PROJECT_STATUS.json)
 
-**Estado declarado:** `G0_PLANNING / APP_NOT_IMPLEMENTED / TESTS_NOT_RUN / DEPLOY_NOT_DONE`.
+### Iniciar UI ilustrativa (não executado nesta importação)
 
-Meta de infraestrutura: R$0 de custo recorrente adicional, sem ativar cobranças/contas/serviços em produção. Nunca usar dados reais nos protótipos antes de revisão de privacidade.
+```sh
+npm install
+npm run typecheck
+npm run test
+npm run build
+npm run dev
+```
+
+**Meta de custo:** R$0/mês adicional, sujeito a cotas. Sem deploy nem Firebase nesta rodada.
