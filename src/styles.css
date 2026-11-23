@@ -55,3 +55,11 @@ button,input{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allow
 .edit-form input{flex:1;min-width:180px;background:#0e1725;color:#fff;border:1px solid #566a88;border-radius:8px;padding:10px}
 .edit-form label{font-size:.8rem}.edit-form button{border:1px solid #6881aa;border-radius:8px;padding:9px;color:#fff;background:#233f60}
 .older-button{display:block;margin:0 auto 12px;color:#b8d4ff}
+
+.group-controls{padding:12px 20px;border-bottom:1px solid #33445d;max-height:330px;overflow:auto}.group-controls details{border-top:1px solid #2a3c53;padding:7px 0}.group-controls summary{cursor:pointer;font-size:.81rem;color:#c6daff;font-weight:600}
+.group-form{display:flex;flex-direction:column;gap:7px;margin:9px 0}.group-form label{font-size:.77rem;color:#a9bcd6}
+.group-form input,.group-form select,.group-management input{max-width:100%;background:#0e1725;color:#ecf2fc;border:1px solid #4b5c73;border-radius:8px;padding:10px}
+.group-form button{padding:9px;background:#3a5985;border:0;border-radius:8px;color:#eaf2ff;font-weight:600;font-size:.78rem}
+.group-management{padding-top:8px;border-top:1px solid #394b62}.group-management #group-code{width:100%;font-size:.72rem}
+.group-notice{font-size:.76rem;color:#add6f7}.sidebar-search{display:flex;flex-direction:column;gap:6px;padding:13px 20px;font-size:.75rem;color:#b9c9dd;border-bottom:1px solid #314257}
+.sidebar-search input{width:100%;background:#0e1725;color:#fff;padding:10px;border-radius:8px;border:1px solid #485b74}

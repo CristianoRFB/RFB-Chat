@@ -7,6 +7,7 @@ import { doc, onSnapshot, serverTimestamp, setDoc } from 'firebase/firestore';
 import { auth, db, isLocalEmulator } from './firebase';
 import { createConversation, lookupName, watchConversations, type ChatConversation } from './chat-data';
 import { MessageCenter } from './MessageCenter';
+import { GroupControls } from './GroupControls';
 import { otherMember } from './chat-model';
 
 function errorText(error: unknown): string {
@@ -87,6 +88,7 @@ function Workspace({ user }: { user: User }) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [names, setNames] = useState<Record<string, string>>({});
   const [target, setTarget] = useState('');
+  const [search, setSearch] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
 
@@ -142,7 +144,7 @@ function Workspace({ user }: { user: User }) {
 
   const current = conversations.find(item => item.id === selectedId);
   const other = current ? otherMember(current.memberIds, user.uid) : '';
-  const title = names[other] ?? (other ? other.slice(0, 12) : 'Selecione uma conversa');
+  const title = current?.kind === 'group' ? (current.title ?? 'Grupo') : names[other] ?? (other ? other.slice(0, 12) : 'Selecione uma conversa');
 
   if (!profileReady) return <main className="profile-sync" id="conteudo" role="status">
     <p>Sincronizando o perfil de teste no Firestore Emulator…</p>
@@ -164,14 +166,24 @@ function Workspace({ user }: { user: User }) {
         <input id="target-uid" value={target} onChange={e => setTarget(e.target.value)} placeholder="UID da outra conta" required />
         <button type="submit" disabled={busy || !target.trim()}>Criar conversa</button>
       </form>
+      <GroupControls uid={user.uid} current={current} onCreated={setSelectedId} onError={onChildError} />
+      <label className="sidebar-search" htmlFor="search-conversations">Buscar conversa
+        <input id="search-conversations" placeholder="Nome da pessoa ou grupo" value={search}
+          onChange={e => setSearch(e.target.value)} />
+      </label>
       <div className="conversation-list" role="group" aria-label="Suas conversas">
         {conversations.length === 0 && <p className="empty-side">Nenhuma conversa ainda. Crie duas contas em navegadores separados e compartilhe o UID.</p>}
-        {conversations.map(item => {
+        {conversations.filter(item => {
+          const otherUid = otherMember(item.memberIds, user.uid);
+          const name = item.kind === 'group' ? (item.title ?? '') : (names[otherUid] ?? otherUid);
+          return name.toLocaleLowerCase('pt-BR').includes(search.trim().toLocaleLowerCase('pt-BR'));
+        }).map(item => {
           const recipient = otherMember(item.memberIds, user.uid);
           return <button key={item.id} type="button" className={'conversation' + (item.id === selectedId ? ' active' : '')}
             aria-pressed={item.id === selectedId} onClick={() => setSelectedId(item.id)}>
-            <span className="avatar" aria-hidden="true">{(names[recipient] ?? recipient).slice(0, 1).toUpperCase()}</span>
-            <span><strong>{names[recipient] ?? recipient.slice(0, 12)}</strong><small>Conversa individual</small></span>
+            <span className="avatar" aria-hidden="true">{(item.kind === 'group' ? item.title ?? 'G' : names[recipient] ?? recipient).slice(0, 1).toUpperCase()}</span>
+            <span><strong>{item.kind === 'group' ? item.title : names[recipient] ?? recipient.slice(0, 12)}</strong>
+              <small>{item.kind === 'group' ? item.memberIds.length + ' participantes' : 'Conversa individual'}</small></span>
           </button>;
         })}
       </div>
@@ -179,10 +191,10 @@ function Workspace({ user }: { user: User }) {
     <section className="chat-panel" aria-label="Mensagens">
       <header className="chat-header">
         <span className="avatar" aria-hidden="true">{title.slice(0, 1).toUpperCase()}</span>
-        <div><h2>{title}</h2><p>{selectedId ? 'Mensagens gravadas no emulador' : 'Conversa individual em tempo real'}</p></div>
+        <div><h2>{title}</h2><p>{current?.kind === 'group' ? current.memberIds.length + ' membros · Grupo local' : selectedId ? 'Mensagens gravadas no emulador' : 'Conversa individual em tempo real'}</p></div>
       </header>
       {error && <div className="feedback error" role="alert">{error} <button className="dismiss" type="button" onClick={() => setError('')}>Fechar</button></div>}
-      <MessageCenter key={selectedId ?? 'empty'} conversationId={selectedId} uid={user.uid} otherUid={other}
+      <MessageCenter key={selectedId ?? 'empty'} conversationId={selectedId} uid={user.uid} otherUid={current?.kind === 'group' ? '' : other}
         onError={onChildError} />
     </section>
   </main>;

@@ -73,3 +73,28 @@ test('layout mobile mantém fluxo básico acessível', async ({ browser }) => {
     await context.close();
   }
 });
+
+test('grupo só adiciona segundo membro depois do aceite do convite', async ({ browser }) => {
+  const a = await browser.newContext();
+  const b = await browser.newContext();
+  try {
+    const first = await a.newPage();
+    const second = await b.newPage();
+    const id = String(Date.now());
+    await createTestAccount(first, 'Gestor Grupo', 'gestor-' + id + '@example.test');
+    const uidB = await createTestAccount(second, 'Membro Grupo', 'membro-' + id + '@example.test');
+    await first.getByText('Criar grupo', { exact: true }).first().click();
+    await first.locator('#group-create-title').fill('Grupo de Testes');
+    await first.getByRole('button', { name: 'Criar grupo' }).click();
+    await expect(first.getByRole('heading', { name: 'Grupo de Testes' })).toBeVisible();
+    const code = await first.locator('#group-code').inputValue();
+    await first.locator('#invite-uid').fill(uidB);
+    await first.getByRole('button', { name: 'Enviar convite' }).click();
+    await expect(first.getByText('Convite enviado.')).toBeVisible();
+    await second.getByText('Aceitar convite', { exact: true }).click();
+    await second.locator('#join-group-code').fill(code);
+    await second.getByRole('button', { name: 'Entrar no grupo' }).click();
+    await expect(second.getByRole('heading', { name: 'Grupo de Testes' })).toBeVisible();
+    await expect(first.getByText('2 participantes')).toBeVisible();
+  } finally { await a.close(); await b.close(); }
+});
