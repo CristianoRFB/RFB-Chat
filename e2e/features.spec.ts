@@ -38,6 +38,7 @@ test('responder, editar, reagir, buscar, bloquear e denunciar com duas contas', 
     await alice.locator('#message-text').fill('Olá único ' + suffix);
     await alice.getByRole('button', { name: 'Enviar', exact: true }).click();
     await expect(bob.getByText('Olá único ' + suffix, { exact: true })).toBeVisible();
+    await expect(alice.locator('.message.outgoing .message-meta')).toContainText('Lida');
     await bob.locator('.message.incoming').getByRole('button', { name: 'Reagir com 👍' }).click();
     await expect(alice.locator('.message.outgoing').getByRole('button', { name: 'Reagir com 👍' })).toContainText('1');
 
@@ -95,4 +96,33 @@ test('arquivo TXT pequeno gera link temporário acessível só a um membro', asy
     await bob.getByText('Arquivos privados e links temporários', { exact: true }).click();
     await expect(bob.getByRole('link', { name: 'Baixar arquivo privado' })).toBeVisible();
   } finally { await a.close(); await b.close(); }
+});
+
+
+test('paginação recupera mensagens fora da janela de 50 após recarga', async ({ browser }) => {
+  test.setTimeout(120_000);
+  const ctx = await browser.newContext();
+  try {
+    const page = await ctx.newPage();
+    const id = String(Date.now());
+    await register(page, 'Carga Paginada', 'page-' + id + '@example.test');
+    const other = await browser.newContext();
+    try {
+      const second = await other.newPage();
+      const uid = await register(second, 'Pessoa Destino', 'target-' + id + '@example.test');
+      await page.locator('#target-uid').fill(uid);
+      await page.getByRole('button', { name: 'Criar conversa' }).click();
+      await expect(page.getByRole('heading', { name: 'Pessoa Destino' })).toBeVisible();
+      for (let i = 1; i <= 52; i++) {
+        await page.locator('#message-text').fill('Item de paginação ' + i + '/' + id);
+        await page.getByRole('button', { name: 'Enviar', exact: true }).click();
+        await expect(page.locator('#message-text')).toHaveValue('');
+      }
+      await page.reload();
+      await expect(page.getByText('Item de paginação 52/' + id, { exact: true })).toBeVisible();
+      await expect(page.getByText('Item de paginação 1/' + id, { exact: true })).toHaveCount(0);
+      await page.getByRole('button', { name: 'Carregar mensagens anteriores' }).click();
+      await expect(page.getByText('Item de paginação 1/' + id, { exact: true })).toBeVisible();
+    } finally { await other.close(); }
+  } finally { await ctx.close(); }
 });

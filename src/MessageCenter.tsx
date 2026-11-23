@@ -1,6 +1,4 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
-import { getDoc, doc } from 'firebase/firestore';
-import { db } from './firebase';
 import { sendText, type ChatMessage } from './chat-data';
 import {
   editMessage, loadOlderMessages, markRead, mergeMessages, REACTION_OPTIONS,
@@ -69,6 +67,8 @@ export function MessageCenter({ conversationId, uid, otherUid, readEnabled, onEr
   const [editing, setEditing] = useState<ChatMessage | null>(null);
   const [editDraft, setEditDraft] = useState('');
   const [busy, setBusy] = useState(false);
+  const previousLatest = useRef<ChatMessage[]>([]);
+  const olderPageLoaded = useRef(false);
   const deliveredSeen = useRef<string>('');
   const readSeen = useRef<string>('');
 
@@ -78,13 +78,22 @@ export function MessageCenter({ conversationId, uid, otherUid, readEnabled, onEr
     setCursor(null);
     setMore(false);
     setReads({});
+    previousLatest.current = [];
+    olderPageLoaded.current = false;
     deliveredSeen.current = '';
     readSeen.current = '';
     if (!conversationId) return;
     const messagesOff = watchLatest(conversationId, (items, first) => {
+      // O limite de 50 avança quando novas mensagens chegam. Preserva apenas
+      // mensagens já confirmadas que saíram da janela atual.
+      const currentIds = new Set(items.map(message => message.id));
+      const evicted = previousLatest.current.filter(message =>
+        !currentIds.has(message.id) && !message.pending && message.createdAt);
+      if (evicted.length) setOlder(previous => mergeMessages(previous, evicted));
+      previousLatest.current = items;
       setLatest(items);
-      setCursor(previous => previous ?? first);
-      setMore(previous => previous || items.length === 50);
+      if (!olderPageLoaded.current) setCursor(first);
+      setMore(previous => olderPageLoaded.current ? previous : items.length === 50);
     }, onError);
     const readsOff = watchReads(conversationId, setReads, onError);
     return () => { messagesOff(); readsOff(); };
@@ -115,6 +124,7 @@ export function MessageCenter({ conversationId, uid, otherUid, readEnabled, onEr
     setLoadingMore(true);
     try {
       const result = await loadOlderMessages(conversationId, cursor);
+      olderPageLoaded.current = true;
       setOlder(previous => mergeMessages(result.messages, previous));
       if (result.cursor) setCursor(result.cursor);
       setMore(result.hasMore);
