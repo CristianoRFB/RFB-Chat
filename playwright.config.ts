@@ -3,8 +3,9 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: false,
+  workers: 1, // Um único emulador Auth/Firestore compartilhado por job CI.
   forbidOnly: Boolean(process.env.CI),
-  retries: process.env.CI ? 1 : 0,
+  retries: 0, // Falhas intermitentes não são encobertas por uma segunda tentativa.
   reporter: 'list',
   timeout: 60_000,
   expect: { timeout: 15_000 },
