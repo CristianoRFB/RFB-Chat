@@ -152,6 +152,47 @@ service cloud.firestore {
         allow delete: if false;
       }
       // Chamada de voz WebRTC local: somente sinalização, sem TURN/SFU externo.
+      match /channels/{channelId} {
+        allow get, list: if isMember(conversationId)
+          && get(/databases/$(database)/documents/conversations/$(conversationId)).data.kind == 'group';
+        allow create: if isMember(conversationId)
+          && get(/databases/$(database)/documents/conversations/$(conversationId)).data.kind == 'group'
+          && request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.adminIds
+          && request.resource.data.keys().hasOnly(['name','description','createdBy','createdAt'])
+          && request.resource.data.keys().hasAll(['name','description','createdBy','createdAt'])
+          && request.resource.data.name is string
+          && request.resource.data.name.size() >= 2
+          && request.resource.data.name.size() <= 40
+          && request.resource.data.description is string
+          && request.resource.data.description.size() <= 300
+          && request.resource.data.createdBy == request.auth.uid
+          && request.resource.data.createdAt == request.time;
+        allow update: if isMember(conversationId)
+          && request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.adminIds
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name','description'])
+          && request.resource.data.name is string
+          && request.resource.data.name.size() >= 2
+          && request.resource.data.name.size() <= 40
+          && request.resource.data.description is string
+          && request.resource.data.description.size() <= 300;
+        allow delete: if false;
+        match /messages/{messageId} {
+          allow get, list: if isMember(conversationId);
+          allow create: if isMember(conversationId)
+            && exists(/databases/$(database)/documents/conversations/$(conversationId)/channels/$(channelId))
+            && request.resource.data.keys().hasOnly(['senderId','body','createdAt'])
+            && request.resource.data.keys().hasAll(['senderId','body','createdAt'])
+            && request.resource.data.senderId == request.auth.uid
+            && validText(request.resource.data)
+            && request.resource.data.createdAt == request.time;
+          allow update: if isMember(conversationId)
+            && resource.data.senderId == request.auth.uid
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['body','editedAt'])
+            && validText(request.resource.data)
+            && request.resource.data.editedAt == request.time;
+          allow delete: if false;
+        }
+      }
       match /calls/{callId} {
         allow get, list: if isMember(conversationId);
         allow create: if isMember(conversationId)

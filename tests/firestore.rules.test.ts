@@ -273,6 +273,33 @@ describe('Firestore Rules: isolamento de conversas', () => {
     await assertSucceeds(updateDoc(call, { status: 'ended', endedAt: serverTimestamp() }));
     await assertFails(updateDoc(call, { status: 'connected', answer: 'nova-resposta', answeredAt: serverTimestamp() }));
   });
+  it('canais de grupo requerem admin para criar e membro para conversar', async () => {
+    const alice = testEnv.authenticatedContext('alice').firestore();
+    const bob = testEnv.authenticatedContext('bob').firestore();
+    const id = 'group_456789012345';
+    await assertSucceeds(setDoc(doc(alice, 'conversations', id), {
+      kind: 'group', title: 'Canais do teste', createdBy: 'alice',
+      adminIds: ['alice'], memberIds: ['alice'], createdAt: serverTimestamp()
+    }));
+    const channel = doc(alice, 'conversations', id, 'channels', 'channel-01');
+    await assertSucceeds(setDoc(channel, {
+      name: 'Avisos', description: 'Canal de avisos de testes',
+      createdBy: 'alice', createdAt: serverTimestamp()
+    }));
+    await assertFails(getDoc(doc(bob, 'conversations', id, 'channels', 'channel-01')));
+    await assertFails(setDoc(doc(bob, 'conversations', id, 'channels', 'channel-02'), {
+      name: 'Inválido', description: '', createdBy: 'bob', createdAt: serverTimestamp()
+    }));
+    const message = doc(alice, 'conversations', id, 'channels', 'channel-01', 'messages', 'm1');
+    await assertSucceeds(setDoc(message, {
+      senderId: 'alice', body: 'Anúncio para membros', createdAt: serverTimestamp()
+    }));
+    await assertFails(setDoc(doc(bob, 'conversations', id, 'channels', 'channel-01', 'messages', 'm2'), {
+      senderId: 'bob', body: 'Sem acesso', createdAt: serverTimestamp()
+    }));
+    await assertFails(updateDoc(doc(bob, 'conversations', id, 'channels', 'channel-01'), { name: 'Invasão' }));
+    await assertSucceeds(updateDoc(channel, { name: 'Informações' }));
+  });
   it('nega visitante sem autenticação', async () => {
     const visitor = testEnv.unauthenticatedContext().firestore();
     await assertFails(getDoc(doc(visitor, 'profiles', 'alice')));
