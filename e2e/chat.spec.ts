@@ -95,6 +95,6 @@ test('grupo só adiciona segundo membro depois do aceite do convite', async ({ b
     await second.locator('#join-group-code').fill(code);
     await second.getByRole('button', { name: 'Entrar no grupo' }).click();
     await expect(second.getByRole('heading', { name: 'Grupo de Testes' })).toBeVisible();
-    await expect(first.getByText('2 participantes')).toBeVisible();
+    await expect(first.locator('.conversation-list .conversation').filter({ hasText: 'Grupo de Testes' }).getByText('2 participantes')).toBeVisible();
   } finally { await a.close(); await b.close(); }
 });

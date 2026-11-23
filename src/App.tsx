@@ -96,7 +96,7 @@ function Workspace({ user }: { user: User }) {
     // A criação no Auth Emulator dispara onAuthStateChanged antes de terminar
     // a gravação do perfil. Liberar o UID apenas após confirmação do servidor.
     return onSnapshot(doc(db, 'profiles', user.uid), { includeMetadataChanges: true }, snapshot => {
-      setProfileReady(snapshot.exists() && !snapshot.metadata.hasPendingWrites && !snapshot.metadata.fromCache);
+      setProfileReady(snapshot.exists() && !snapshot.metadata.hasPendingWrites);
     }, err => setError(errorText(err)));
   }, [user.uid]);
 
