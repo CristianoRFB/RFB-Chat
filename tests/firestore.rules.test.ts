@@ -247,6 +247,32 @@ describe('Firestore Rules: isolamento de conversas', () => {
       lastDeliveredAt: new Date(2000, 0, 1)
     }, { merge: true }));
   });
+  it('chamadas WebRTC locais exigem membro, papel correto e oferta/resposta validada', async () => {
+    const alice = testEnv.authenticatedContext('alice').firestore();
+    const bob = testEnv.authenticatedContext('bob').firestore();
+    const mallory = testEnv.authenticatedContext('mallory').firestore();
+    const call = doc(alice, 'conversations', conversationId, 'calls', 'call-001');
+    await assertSucceeds(setDoc(call, {
+      initiatorId: 'alice', calleeId: 'bob', status: 'ringing',
+      offer: 'sdp-oferta-teste', createdAt: serverTimestamp()
+    }));
+    await assertSucceeds(getDoc(doc(bob, 'conversations', conversationId, 'calls', 'call-001')));
+    await assertFails(getDoc(doc(mallory, 'conversations', conversationId, 'calls', 'call-001')));
+    await assertFails(updateDoc(call, {
+      status: 'connected', answer: 'fake-offer', answeredAt: serverTimestamp()
+    }));
+    await assertSucceeds(updateDoc(doc(bob, 'conversations', conversationId, 'calls', 'call-001'), {
+      status: 'connected', answer: 'sdp-resposta', answeredAt: serverTimestamp()
+    }));
+    await assertSucceeds(setDoc(doc(collection(alice, 'conversations', conversationId, 'calls', 'call-001', 'ice')), {
+      senderId: 'alice', candidate: 'candidato-de-teste', createdAt: serverTimestamp()
+    }));
+    await assertFails(setDoc(doc(collection(mallory, 'conversations', conversationId, 'calls', 'call-001', 'ice')), {
+      senderId: 'mallory', candidate: 'candidato-indevido', createdAt: serverTimestamp()
+    }));
+    await assertSucceeds(updateDoc(call, { status: 'ended', endedAt: serverTimestamp() }));
+    await assertFails(updateDoc(call, { status: 'connected', answer: 'nova-resposta', answeredAt: serverTimestamp() }));
+  });
   it('nega visitante sem autenticação', async () => {
     const visitor = testEnv.unauthenticatedContext().firestore();
     await assertFails(getDoc(doc(visitor, 'profiles', 'alice')));

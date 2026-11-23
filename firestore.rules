@@ -151,6 +151,51 @@ service cloud.firestore {
           && request.resource.data.status in ['accepted', 'declined'];
         allow delete: if false;
       }
+      // Chamada de voz WebRTC local: somente sinalização, sem TURN/SFU externo.
+      match /calls/{callId} {
+        allow get, list: if isMember(conversationId);
+        allow create: if isMember(conversationId)
+          && get(/databases/$(database)/documents/conversations/$(conversationId)).data.kind == 'dm'
+          && request.resource.data.keys().hasOnly(['initiatorId','calleeId','status','offer','createdAt'])
+          && request.resource.data.keys().hasAll(['initiatorId','calleeId','status','offer','createdAt'])
+          && request.resource.data.initiatorId == request.auth.uid
+          && request.resource.data.calleeId in get(/databases/$(database)/documents/conversations/$(conversationId)).data.memberIds
+          && request.resource.data.calleeId != request.auth.uid
+          && request.resource.data.status == 'ringing'
+          && request.resource.data.offer is string
+          && request.resource.data.offer.size() > 0
+          && request.resource.data.offer.size() <= 20000
+          && request.resource.data.createdAt == request.time;
+        allow update: if isMember(conversationId)
+          && (
+            (request.auth.uid == resource.data.calleeId
+              && resource.data.status == 'ringing'
+              && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','answer','answeredAt'])
+              && request.resource.data.status == 'connected'
+              && request.resource.data.answer is string
+              && request.resource.data.answer.size() > 0
+              && request.resource.data.answer.size() <= 20000
+              && request.resource.data.answeredAt == request.time)
+            || (resource.data.status in ['ringing','connected']
+              && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','endedAt'])
+              && request.resource.data.status == 'ended'
+              && request.resource.data.endedAt == request.time)
+          );
+        allow delete: if false;
+        match /ice/{candidateId} {
+          allow get, list: if isMember(conversationId);
+          allow create: if isMember(conversationId)
+            && exists(/databases/$(database)/documents/conversations/$(conversationId)/calls/$(callId))
+            && request.resource.data.keys().hasOnly(['senderId','candidate','createdAt'])
+            && request.resource.data.keys().hasAll(['senderId','candidate','createdAt'])
+            && request.resource.data.senderId == request.auth.uid
+            && request.resource.data.candidate is string
+            && request.resource.data.candidate.size() > 0
+            && request.resource.data.candidate.size() <= 8000
+            && request.resource.data.createdAt == request.time;
+          allow update, delete: if false;
+        }
+      }
       match /attachments/{fileId} {
         allow get: if isMember(conversationId) && resource.data.expiresAt > request.time;
         allow list: if false;
