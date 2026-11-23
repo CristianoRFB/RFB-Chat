@@ -9,7 +9,7 @@ import {
 } from './chat-extras';
 import { MAX_MESSAGE_LENGTH } from './chat-model';
 
-type Props = { conversationId: string | null; uid: string; otherUid: string; onError: (error: unknown) => void };
+type Props = { conversationId: string | null; uid: string; otherUid: string; readEnabled: boolean; onError: (error: unknown) => void };
 function MessageCard({ conversationId, message, uid, receipt, original, onReply, onEdit, onError }: {
   conversationId: string; message: ChatMessage; uid: string; receipt?: Date; original?: string;
   onReply: (message: ChatMessage) => void; onEdit: (message: ChatMessage) => void;
@@ -50,7 +50,7 @@ function MessageCard({ conversationId, message, uid, receipt, original, onReply,
   </article>;
 }
 
-export function MessageCenter({ conversationId, uid, otherUid, onError }: Props) {
+export function MessageCenter({ conversationId, uid, otherUid, readEnabled, onError }: Props) {
   const [latest, setLatest] = useState<ChatMessage[]>([]);
   const [older, setOlder] = useState<ChatMessage[]>([]);
   const [cursor, setCursor] = useState<MessageCursor | null>(null);
@@ -85,11 +85,11 @@ export function MessageCenter({ conversationId, uid, otherUid, onError }: Props)
 
   useEffect(() => {
     const recent = [...latest].reverse().find(m => m.senderId !== uid && !m.pending && m.createdAt);
-    if (!recent || !conversationId || latestSeen.current === recent.id) return;
+    if (!readEnabled || !recent || !conversationId || latestSeen.current === recent.id) return;
     if (document.visibilityState !== 'visible') return;
     latestSeen.current = recent.id;
     void markRead(conversationId, uid).catch(onError);
-  }, [latest, conversationId, uid, onError]);
+  }, [latest, conversationId, uid, readEnabled, onError]);
 
   async function olderPage() {
     if (!conversationId || !cursor || loadingMore) return;

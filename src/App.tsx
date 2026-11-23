@@ -8,6 +8,10 @@ import { auth, db, isLocalEmulator } from './firebase';
 import { createConversation, lookupName, watchConversations, type ChatConversation } from './chat-data';
 import { MessageCenter } from './MessageCenter';
 import { GroupControls } from './GroupControls';
+import { PrivacyPanel } from './PrivacyPanel';
+import { ReportPanel } from './ReportPanel';
+import { NotificationsPanel } from './NotificationsPanel';
+import { DEFAULT_SETTINGS, type PrivateSettings } from './privacy-data';
 import { otherMember } from './chat-model';
 
 function errorText(error: unknown): string {
@@ -84,6 +88,7 @@ function Login() {
 
 function Workspace({ user }: { user: User }) {
   const [profileReady, setProfileReady] = useState(false);
+  const [privateSettings, setPrivateSettings] = useState<PrivateSettings>(DEFAULT_SETTINGS);
   const [conversations, setConversations] = useState<ChatConversation[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [names, setNames] = useState<Record<string, string>>({});
@@ -167,6 +172,9 @@ function Workspace({ user }: { user: User }) {
         <button type="submit" disabled={busy || !target.trim()}>Criar conversa</button>
       </form>
       <GroupControls uid={user.uid} current={current} onCreated={setSelectedId} onError={onChildError} />
+      <PrivacyPanel uid={user.uid} onSettings={setPrivateSettings} onError={onChildError} />
+      <NotificationsPanel conversations={conversations} uid={user.uid} enabled={privateSettings.notificationsEnabled}
+        onError={onChildError} onOpen={setSelectedId} />
       <label className="sidebar-search" htmlFor="search-conversations">Buscar conversa
         <input id="search-conversations" placeholder="Nome da pessoa ou grupo" value={search}
           onChange={e => setSearch(e.target.value)} />
@@ -195,7 +203,8 @@ function Workspace({ user }: { user: User }) {
       </header>
       {error && <div className="feedback error" role="alert">{error} <button className="dismiss" type="button" onClick={() => setError('')}>Fechar</button></div>}
       <MessageCenter key={selectedId ?? 'empty'} conversationId={selectedId} uid={user.uid} otherUid={current?.kind === 'group' ? '' : other}
-        onError={onChildError} />
+        readEnabled={privateSettings.readReceiptsEnabled} onError={onChildError} />
+      <ReportPanel uid={user.uid} conversation={current} onError={onChildError} />
     </section>
   </main>;
 }
