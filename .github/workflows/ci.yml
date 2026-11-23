@@ -17,20 +17,8 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
-      - name: Install dependencies (lockfile ainda pendente)
-        run: npm install --no-audit --no-fund
-      - name: Publish lockfile for deterministic dependency builds
-        uses: actions/upload-artifact@v4
-        with:
-          name: npm-lockfile
-          path: package-lock.json
-          if-no-files-found: error
-          retention-days: 3
-      - name: Export generated lockfile for versioning
-        run: |
-          echo BEGIN_RFB_LOCKFILE
-          base64 -w12000 package-lock.json
-          echo END_RFB_LOCKFILE
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
       - name: TypeScript
         run: npm run typecheck
       - name: Unit tests
