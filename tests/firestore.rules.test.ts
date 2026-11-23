@@ -159,6 +159,40 @@ describe('Firestore Rules: isolamento de conversas', () => {
     await assertFails(updateDoc(doc(bob, 'conversations', groupId), { adminIds: arrayUnion('mallory') }));
     await assertSucceeds(updateDoc(doc(bob, 'conversations', groupId), { title: 'Equipe de testes' }));
   });
+  it('preferências e bloqueio permanecem privados; bloqueio impede novas mensagens', async () => {
+    const alice = testEnv.authenticatedContext('alice').firestore();
+    const bob = testEnv.authenticatedContext('bob').firestore();
+    const privateRef = doc(alice, 'userPrivate', 'alice');
+    await assertSucceeds(setDoc(privateRef, {
+      blockedUids: ['bob'], notificationsEnabled: true, readReceiptsEnabled: false
+    }));
+    await assertFails(getDoc(doc(bob, 'userPrivate', 'alice')));
+    await assertSucceeds(getDoc(privateRef));
+    await assertFails(setDoc(doc(bob, 'userPrivate', 'alice'), {
+      blockedUids: [], notificationsEnabled: false, readReceiptsEnabled: true
+    }));
+    await assertFails(setDoc(doc(collection(bob, 'conversations', conversationId, 'messages')), {
+      senderId: 'bob', body: 'Mensagem bloqueada', createdAt: serverTimestamp()
+    }));
+    await assertSucceeds(updateDoc(privateRef, { blockedUids: [] }));
+  });
+  it('denúncia é criada pelo membro e só moderador pode listar', async () => {
+    const alice = testEnv.authenticatedContext('alice').firestore();
+    const bob = testEnv.authenticatedContext('bob').firestore();
+    const moderator = testEnv.authenticatedContext('moderator', { moderator: true }).firestore();
+    const report = doc(alice, 'reports', 'test-report-01');
+    await assertSucceeds(setDoc(report, {
+      reporterId: 'alice', reportedUid: 'bob', conversationId,
+      reason: 'Mensagem indevida dentro da conversa', status: 'open',
+      createdAt: serverTimestamp()
+    }));
+    await assertSucceeds(getDoc(report));
+    await assertFails(getDoc(doc(bob, 'reports', 'test-report-01')));
+    await assertFails(getDocs(collection(alice, 'reports')));
+    await assertSucceeds(getDocs(collection(moderator, 'reports')));
+    await assertSucceeds(updateDoc(doc(moderator, 'reports', 'test-report-01'), { status: 'reviewed' }));
+    await assertFails(updateDoc(report, { status: 'closed' }));
+  });
   it('nega visitante sem autenticação', async () => {
     const visitor = testEnv.unauthenticatedContext().firestore();
     await assertFails(getDoc(doc(visitor, 'profiles', 'alice')));
