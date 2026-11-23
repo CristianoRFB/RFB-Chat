@@ -71,14 +71,19 @@ export async function createConversation(uid: string, targetUid: string): Promis
   const id = dmId(uid, other);
   await lookupName(other);
   const ref = doc(db, 'conversations', id);
-  const existing = await getDoc(ref);
-  if (!existing.exists()) {
+  // A leitura de um documento inexistente é negada pelas Rules. Criar primeiro.
+  // Se duas sessões criarem a mesma DM, somente a primeira grava;
+  // a segunda confirma que o documento já existe e pode ser lido pelo membro.
+  try {
     await setDoc(ref, {
       kind: 'dm',
       createdBy: uid,
       memberIds: [uid, other].sort(),
       createdAt: serverTimestamp()
     });
+  } catch (error) {
+    const existing = await getDoc(ref).catch(() => null);
+    if (!existing?.exists()) throw error;
   }
   return id;
 }

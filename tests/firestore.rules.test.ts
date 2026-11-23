@@ -65,6 +65,18 @@ describe('Firestore Rules: isolamento de conversas', () => {
       senderId: 'alice', body: '', createdAt: serverTimestamp()
     }));
   });
+  it('cria conversa válida sem ler documento inexistente', async () => {
+    const alice = testEnv.authenticatedContext('alice').firestore();
+    const target = doc(alice, 'conversations', 'dm_alice_mallory');
+    await assertFails(getDoc(target));
+    await assertSucceeds(setDoc(target, {
+      kind: 'dm',
+      createdBy: 'alice',
+      memberIds: ['alice', 'mallory'],
+      createdAt: serverTimestamp()
+    }));
+    await assertSucceeds(getDoc(target));
+  });
   it('nega visitante sem autenticação', async () => {
     const visitor = testEnv.unauthenticatedContext().firestore();
     await assertFails(getDoc(doc(visitor, 'profiles', 'alice')));

@@ -52,7 +52,7 @@ test('layout mobile mantém fluxo básico acessível', async ({ browser }) => {
   try {
     const page = await context.newPage();
     await createTestAccount(page, 'Pessoa Móvel', 'movel-' + Date.now() + '@example.test');
-    await expect(page.getByRole('heading', { name: 'Conversas' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Conversas', exact: true })).toBeVisible();
     await expect(page.locator('#target-uid')).toBeVisible();
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1);
     expect(overflow).toBe(false);
