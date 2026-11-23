@@ -26,6 +26,11 @@ jobs:
           path: package-lock.json
           if-no-files-found: error
           retention-days: 3
+      - name: Export generated lockfile for versioning
+        run: |
+          echo BEGIN_RFB_LOCKFILE
+          base64 -w12000 package-lock.json
+          echo END_RFB_LOCKFILE
       - name: TypeScript
         run: npm run typecheck
       - name: Unit tests
