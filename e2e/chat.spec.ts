@@ -96,5 +96,17 @@ test('grupo só adiciona segundo membro depois do aceite do convite', async ({ b
     await second.getByRole('button', { name: 'Entrar no grupo' }).click();
     await expect(second.getByRole('heading', { name: 'Grupo de Testes' })).toBeVisible();
     await expect(first.locator('.conversation-list .conversation').filter({ hasText: 'Grupo de Testes' }).getByText('2 participantes')).toBeVisible();
+    await first.getByText('Canais do grupo').click();
+    await second.getByText('Canais do grupo').click();
+    await first.locator('#channel-name').fill('Avisos');
+    await first.locator('#channel-description').fill('Informações da equipe');
+    await first.getByRole('button', { name: 'Criar canal' }).click();
+    await expect(second.getByRole('button', { name: '# Avisos' })).toBeVisible();
+    await second.locator('#channel-message-text').fill('Canal recebido ' + id);
+    await second.getByRole('button', { name: 'Enviar ao canal' }).click();
+    await expect(first.getByText('Canal recebido ' + id)).toBeVisible();
+    await first.locator('#role-uid').selectOption(uidB);
+    await first.getByRole('button', { name: 'Alternar administrador' }).click();
+    await expect(first.getByText('2 participantes, 2 administradores')).toBeVisible();
   } finally { await a.close(); await b.close(); }
 });

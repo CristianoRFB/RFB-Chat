@@ -12,6 +12,7 @@ import { PrivacyPanel } from './PrivacyPanel';
 import { ReportPanel } from './ReportPanel';
 import { FilePanel } from './FilePanel';
 import { CallPanel } from './CallPanel';
+import { GroupChannels } from './GroupChannels';
 import { NotificationsPanel } from './NotificationsPanel';
 import { DEFAULT_SETTINGS, type PrivateSettings } from './privacy-data';
 import { otherMember } from './chat-model';
@@ -205,6 +206,8 @@ function Workspace({ user }: { user: User }) {
       </header>
       {current?.kind === 'dm' && other && <CallPanel conversationId={current.id} uid={user.uid} otherUid={other} onError={onChildError} />}
       {error && <div className="feedback error" role="alert">{error} <button className="dismiss" type="button" onClick={() => setError('')}>Fechar</button></div>}
+      {current?.kind === 'group' && <GroupChannels groupId={current.id} uid={user.uid}
+        admin={!!current.adminIds?.includes(user.uid)} onError={onChildError} />}
       <MessageCenter key={selectedId ?? 'empty'} conversationId={selectedId} uid={user.uid} otherUid={current?.kind === 'group' ? '' : other}
         readEnabled={privateSettings.readReceiptsEnabled} onError={onChildError} />
       <FilePanel uid={user.uid} conversationId={selectedId} onError={onChildError} />
