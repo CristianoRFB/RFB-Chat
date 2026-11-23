@@ -40,3 +40,7 @@ npm run test:rules
 - Sem anexos, chamadas, grupos, E2EE, bloqueio, moderação ou antiabuso. Não utilizar para dados reais.
 
 Consulte `docs/ADR-001-LOCAL-MVP.md`, `docs/rfb/STATE.json`, `docs/rfb/PROGRESS.md`, `docs/HANDOFF.md` e os documentos originais do Starter Pack. O projeto mantém a meta de **R$0/mês de custo recorrente**, condicionada a cotas e à futura revisão da infraestrutura.
+
+## Benchmark de UX
+
+- [Comparação documental Slack, Discord, Zulip, Element e Mattermost](docs/BENCHMARK-UX-2026.md) — fontes de 22/11/2026, hipóteses ainda sem validação de usuários.
