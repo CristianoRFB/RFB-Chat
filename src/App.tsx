@@ -3,7 +3,8 @@ import {
   createUserWithEmailAndPassword, onAuthStateChanged,
   signInWithEmailAndPassword, signOut, updateProfile, type User
 } from 'firebase/auth';
-import { doc, getDoc, onSnapshot, serverTimestamp, setDoc } from 'firebase/firestore';
+import { doc, onSnapshot } from 'firebase/firestore';
+import { ensureLocalProfile } from './profile-data';
 import { auth, db, isLocalEmulator } from './firebase';
 import { createConversation, lookupName, watchConversations, type ChatConversation } from './chat-data';
 import { MessageCenter } from './MessageCenter';
@@ -50,14 +51,15 @@ function Login() {
           throw new Error('Use um nome entre 2 e 40 caracteres.');
         }
         const result = await createUserWithEmailAndPassword(auth, email.trim(), password);
-        // Firestore é a fonte canônica do perfil; displayName facilita reparar
-        // um cadastro cujo documento falhou após o Auth já ter criado a conta.
-        try { await updateProfile(result.user, { displayName }); } catch { /* Recuperável pela UI */ }
-        await setDoc(doc(db, 'profiles', result.user.uid), {
-          uid: result.user.uid,
-          displayName,
-          createdAt: serverTimestamp()
-        });
+        // A gravação canônica vem ANTES do updateProfile; caso contrário
+        // onAuthStateChanged pode disparar recuperação simultânea e a segunda
+        // setDoc vira uma atualização proibida pelas Firestore Rules.
+        try {
+          await ensureLocalProfile(result.user.uid, displayName);
+        } finally {
+          // Se Firestore falhar, mantém o nome no Auth Emulator para reparo.
+          await updateProfile(result.user, { displayName }).catch(() => undefined);
+        }
       } else {
         await signInWithEmailAndPassword(auth, email.trim(), password);
       }
@@ -125,11 +127,7 @@ function Workspace({ user }: { user: User }) {
         if (!mounted || !missing) return;
         attempts += 1;
         recovering = true;
-        void setDoc(profileRef, {
-          uid: user.uid,
-          displayName,
-          createdAt: serverTimestamp()
-        }).catch(error => {
+        void ensureLocalProfile(user.uid, displayName).catch(error => {
           if (mounted) setError(errorText(error));
         }).finally(() => {
           recovering = false;
@@ -208,12 +206,9 @@ function Workspace({ user }: { user: User }) {
         setError('Use um nome entre 2 e 40 caracteres.'); return;
       }
       setRepairBusy(true); setError('');
-      void setDoc(doc(db, 'profiles', user.uid), {
-        uid: user.uid, displayName, createdAt: serverTimestamp()
-      }).catch(async err => {
-        const existing = await getDoc(doc(db, 'profiles', user.uid)).catch(() => null);
-        if (!existing?.exists()) setError(errorText(err));
-      }).finally(() => setRepairBusy(false));
+      void ensureLocalProfile(user.uid, displayName)
+        .catch(error => setError(errorText(error)))
+        .finally(() => setRepairBusy(false));
     }}>
       <label htmlFor="repair-profile-name">Nome de exibição</label>
       <input id="repair-profile-name" minLength={2} maxLength={40} required value={repairName}
