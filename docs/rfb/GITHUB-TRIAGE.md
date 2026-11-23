@@ -1,12 +1,11 @@
-# GitHub triage — RFB Chat
+# GitHub Triage — RFB Chat
+Revisão 22/11/2026 America/Sao_Paulo. Repo CristianoRFB/RFB-Chat; PR [#1 DRAFT](https://github.com/CristianoRFB/RFB-Chat/pull/1) aberto; branch `feature/rfb-starter-pack-v1`; base `main`.
 
-Revisado em **22/11/2026**, repositório `CristianoRFB/RFB-Chat`, base `main`, branch de trabalho `feature/rfb-starter-pack-v1`, código validado em `bf87e5988e02ea93b9c5082fb33686a7a211a0ca`.
+| Item | Classificação | Evidência/Ação |
+|---|---|---|
+| Issue #2 E2E intermitente | OPEN_ACTIONABLE · P1 | https://github.com/CristianoRFB/RFB-Chat/issues/2; perfil pode não sincronizar; não fechar sem três execuções limpas da última correção |
+| PR #1 Starter+MVP ampliado | IMPLEMENTED_PARTIAL_VERIFIED | https://github.com/CristianoRFB/RFB-Chat/pull/1; keep open draft, merge/deploy bloqueados |
+| CI verde de referência | VERIFIED_AT_SHA | https://github.com/CristianoRFB/RFB-Chat/actions/runs/45095871951; 9 unit, 17 Rules, 8 E2E |
+| CI da última revisão | NOT_VERIFIED | https://github.com/CristianoRFB/RFB-Chat/actions/runs/45096426299 |
 
-| Tipo | Referência | Classificação | Ação |
-|---|---|---|---|
-| Issue #2 | https://github.com/CristianoRFB/RFB-Chat/issues/2 | OPEN_ACTIONABLE · P1 (teste flakey da resposta DM) | KEEP_OPEN; reproduzir sem retry com trace |
-| PR #1 DRAFT | https://github.com/CristianoRFB/RFB-Chat/pull/1 | IMPLEMENTED_UNVERIFIED quanto a estabilidade e homologação completa | KEEP_OPEN_DRAFT; sem merge |
-| Outros Issues | Nenhum no inventário de abertura/antes do checkpoint | — | Não inventar problemas |
-| Outros PRs | Nenhum no inventário de abertura/antes do checkpoint | — | Não criar concorrentes |
-
-Run de teste `45092464389`: typecheck, unit, rules e build PASS; Playwright 1 cenário FLAKY (retry PASS), mobile PASS. Não fechar issue sem critérios, nem considerar "mergeable" suficiente. Sem alterações na `main` ou recursos externos.
+Sem merge, deleção de branch, fechamento automático ou ativação de serviços pagos. Verificar Issues/PRs novamente ao encerrar/retomar.

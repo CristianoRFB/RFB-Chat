@@ -1,46 +1,41 @@
 # RFB Chat — RFB Labs
+**Estado:** laboratório funcional em Firebase Auth/Firestore Emulator, com validação automatizada; **não publicado, não homologado para uso real**. Especificação original: `docs/ESPECIFICACAO-RFB.txt`. RFB Method e inventário de aceites em `docs/rfb/COVERAGE.md`.
 
-**Estado: IMPLEMENTADO_NAO_VERIFICADO (laboratório local).** Código para cadastro, duas contas, conversa individual, mensagens com `onSnapshot` e histórico local no Firestore Emulator. **Não está em produção**: sem deploy, sem CI executada, sem teste E2E e sem validação do runtime nesta sessão.
+## Funcionalidades do laboratório
+Login e recuperação de perfil local; conversas privadas e grupos; convites aceitos e cargos; canais de grupo; mensagens em tempo real; respostas, edição, reações, paginação e filtro de conversas; confirmação de entrega/leitura; notificações internas e privacidade; bloqueio e denúncias; moderação com custom claims; áudio WebM consentido até 20s; arquivos privados até 60KB com link até 23h; chamada de voz P2P **experimental** sem TURN/SFU.
 
-## Executar localmente
+**Atenção:** armazenamento inline e WebRTC local são limitados. Não existe criptografia ponta a ponta, hospedagem de mídia escalável, push, SLA, proteção completa antiabuso, backups ou deploy. A UI de moderação exige custom claims atribuídas em ambiente de confiança — não há concessão de privilégio no cliente. Nunca usar com conversas privadas reais.
 
-Pré-requisitos: Node.js compatível com Vite 7, npm, Java 21 e portas **9099** e **8080** livres.
+## Instalação local
+Requer Node 22, npm, Java 21, portas 8080 e 9099 livres. O lockfile está versionado; usar sempre `npm ci`.
 
 ```sh
-npm install
+npm ci
 npm run emulators
-```
-
-Em outro terminal:
-
-```sh
+# Em outro terminal:
 npm run dev
 ```
 
-Abra o localhost informado pelo Vite em duas sessões independentes (normal e privada) ou dois navegadores. Cadastre duas contas de teste (e-mails sintéticos), copie o UID visível da conta B, crie uma conversa na conta A, envie mensagens nos dois sentidos e recarregue. **Todos os dados são do emulador**; encerrar o processo pode apagá-los.
+Abra o endereço Vite informado e cadastre contas **sintéticas** em navegadores ou sessões independentes. O Firebase usa `demo-rfb-chat`, não um projeto real. O histórico do emulador pode desaparecer após encerrá-lo.
 
-## Validação obrigatória
-
+## QA
 ```sh
 npm run typecheck
 npm run test
-npm run build
 npm run test:rules
+npm run build
+npm run test:e2e
 ```
 
-`test:rules` inicia o Firestore Emulator separadamente. Execute somente após instalar dependências. O laboratório usa ID `demo-rfb-chat`, valores fictícios e portas fixas no loopback. Build de produção mostra um bloqueio informativo, não um chat conectado a produção.
+A suíte Playwright utiliza Chromium com microfone sintético em CI e **sem retries**. Testes de Rules exigem o Firestore Emulator disponível conforme o script `test:rules`. Uma execução verde verificou 9 testes unitários, 17 regras e 8 fluxos E2E sem retries: https://github.com/CristianoRFB/RFB-Chat/actions/runs/45095871951. Checkpoints posteriores podem ter QA ainda pendente; ver `docs/rfb/STATE.json`. O build de produção exibe uma tela de bloqueio intencional.
 
-## Proteções e limites
+## Controle e continuidade
+- [Escopo original e aceites](docs/ESPECIFICACAO-RFB.txt)
+- [Cobertura por AC e gates](docs/rfb/COVERAGE.md)
+- [Estado canônico](docs/rfb/STATE.json)
+- [Progresso e handoff](docs/rfb/PROGRESS.md)
+- [Segurança de moderação](docs/ADMIN-MODERATION.md)
+- [Benchmark UX](docs/BENCHMARK-UX-2026.md)
+- [PR #1 Draft](https://github.com/CristianoRFB/RFB-Chat/pull/1)
 
-- Login por e-mail/senha no Auth Emulator; autenticação de terceiros e produção desabilitadas neste recorte.
-- Conversas de dois membros; mensagens só podem ser lidas/escritas por membros conforme `firestore.rules`.
-- Listagem de perfis negada; descobrir a outra pessoa exige compartilhar UID conscientemente.
-- Até 50 mensagens recentes por conversa; sem paginação antiga neste recorte.
-- Status de mensagem `Enviando` / `Gravado` não significa entregue/lida.
-- Sem anexos, chamadas, grupos, E2EE, bloqueio, moderação ou antiabuso. Não utilizar para dados reais.
-
-Consulte `docs/ADR-001-LOCAL-MVP.md`, `docs/rfb/STATE.json`, `docs/rfb/PROGRESS.md`, `docs/HANDOFF.md` e os documentos originais do Starter Pack. O projeto mantém a meta de **R$0/mês de custo recorrente**, condicionada a cotas e à futura revisão da infraestrutura.
-
-## Benchmark de UX
-
-- [Comparação documental Slack, Discord, Zulip, Element e Mattermost](docs/BENCHMARK-UX-2026.md) — fontes de 22/11/2026, hipóteses ainda sem validação de usuários.
+**Meta de custo recorrente adicional: R$0**, sujeita a cotas. Nenhum Firebase real, Cloudflare de produção ou plano pago foi criado nesta rodada. Um PR aberto não significa que a branch main contém essas alterações.

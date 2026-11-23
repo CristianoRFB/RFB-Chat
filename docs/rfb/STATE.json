@@ -1,54 +1,56 @@
 {
   "schema": 1,
   "repo": "CristianoRFB/RFB-Chat",
-  "goal": "RFB-Chat MVP local: duas contas com conversa individual e mensagens em tempo real no Firebase Emulator",
-  "phase": "S004_MESSAGES_CODE_COMMITTED_UNVERIFIED",
-  "slice": "S004",
+  "goal": "RFBChat — implementar 12 AC com rastreabilidade, emuladores e custo adicional R$0/mês",
+  "phase": "G3_ADVANCED_FUNCTIONS_IMPLEMENTED_QA_PENDING",
+  "slice": "S004-S011",
   "baseline_sha": "b20f3887d9192ad10371ba8e8f0888ee93d09da4",
-  "last_commit_sha": "ee94cb3b77b606f0aae731ad502c483538da9b15",
-  "last_verified_sha": "ee94cb3b77b606f0aae731ad502c483538da9b15",
+  "last_commit_sha": "f7958c4fc123109633d8b9f0cdf296001acac2e8",
+  "last_verified_sha": "60b0453e23dd850997aa1ec7223e39f878df4134",
   "evidence": {
     "github_pr": "https://github.com/CristianoRFB/RFB-Chat/pull/1",
     "open_issues": 1,
     "open_prs": 1,
-    "test_run": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45092464389",
-    "npm_install": "PASS",
-    "typecheck": "PASS",
-    "unit_tests": "PASS_6_6",
-    "build": "PASS_WITH_CHUNK_SIZE_WARNING",
-    "firestore_rules_tests": "PASS_6_6",
-    "browser_e2e": "FLAKY_1_FAILED_INITIAL_1_PASSED_RETRY_1_MOBILE_PASSED",
+    "last_known_green_run": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45095871951",
+    "last_known_green_results": "npm ci/typecheck/build PASS, 9 unit, 17 Firestore Rules, 8 Playwright E2E without retries",
+    "current_head_ci": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45096426299",
+    "current_head_ci_status": "IN_PROGRESS_AT_CHECKPOINT",
+    "lockfile": "package-lock.json generated in CI and versioned, npm ci used",
+    "runtime_environment": "demo-rfb-chat Firebase Auth + Firestore Emulators; Node 22/Java21",
     "production_deploy": "NOT_DONE",
-    "source_tested_sha": "bf87e5988e02ea93b9c5082fb33686a7a211a0ca",
-    "qa_issue": "https://github.com/CristianoRFB/RFB-Chat/issues/2",
-    "last_approved_ci": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45092777777"
+    "media_transport": "CALL_SIGNALING_E2E_PASS_NO_REAL_AUDIO_PACKET_VALIDATION",
+    "qa_issue": "https://github.com/CristianoRFB/RFB-Chat/issues/2"
   },
   "completed": [
-    "Inventário GitHub: 21 arquivos no PR draft, PR sem reviews/comentários/checks",
-    "Leitura do contrato e gates RFB Method",
-    "Diagnóstico: UI demonstrativa sem backend real",
-    "S002: camada Firebase/Auth Emulator, regras por membro, testes de regras e modelo de dados escritos (NOT_RUN)",
-    "S003: UI responsiva com cadastro/login, conversas individuais, envio e onSnapshot escritos (NOT_RUN)",
-    "GitHub Actions workflow criado, duas execuções iniciadas; status PENDING no checkpoint",
-    "CI real em bf87e59: npm install/typecheck/build PASS, Vitest 6/6, Firestore Rules 6/6",
-    "Playwright: fluxo de duas contas concluiu em retry #1 e mobile passou; 1 tentativa E2E falhou e foi marcada FLAKY, não estabilidade total",
-    "Benchmark documental de Slack, Discord, Zulip, Element e Mattermost adicionado"
+    "Preservados 10 módulos, 12 features e catálogo histórico de 58 telas conceituais e 7 diagramas",
+    "S002-S003: duas contas, conversa individual, mensagens onSnapshot com histórico",
+    "S004: resposta, edição, reações, envio/entrega/leitura, paginação e busca por conversas",
+    "S005: grupos com convites aceitos, admins e canais com mensagens por grupo",
+    "S006: privacidade individual, bloqueio, denúncias e painel de moderação protegido por custom claims",
+    "S007: microfone com consentimento, mensagem WebM curta no emulador",
+    "S008: anexos inline limitados a 60KB, links privados com expiração verificada por Rules",
+    "S009: notificações internas de não lidas e preferências de privacidade",
+    "S010: chamada de voz P2P local experimental com offer/answer/ICE, sem TURN/SFU",
+    "S011: package-lock.json gerado no runner GH e versionado; npm ci determinístico",
+    "CI de referência em 60b0453: TypeScript, build, 9 unit, 17 security rules e 8 E2E first-pass",
+    "Adicionado teste de 3 contas para notificações e recuperação explícita de perfis faltantes; verificações posteriores ainda pendentes"
   ],
   "pending": [
-    "Validar S004: reply/edit/reactions/read receipts/pagination rules via CI; implementar interface antes de declarar F02-F05",
-    "QA #2: diagnosticar flakiness do listener/recebimento no E2E em 3 execuções sem retry; sem patches especulativos",
-    "Criar e versionar lockfile consistente e validar npm ci",
-    "Completar QA offline/concorrência, três usuários e testes de permissão",
-    "Revisar antiabuso, blocking, privacidade, políticas de retenção, backups e UX",
-    "Homologação humana, design/assets licenciados e decisão de preview isolado"
+    "Verificar em HEAD exato a CI de notificações/recuperação de perfil; corrigir somente falhas reproduzidas",
+    "Issue #2 de intermitência: 3 runs sem retry em SHA compatível e evidência limpa antes de fechar",
+    "Validar arquivos PNG conceituais originais, licenças, fidelidade das 58 telas e público real",
+    "Auditoria acessibilidade WCAG 2.2, offline/erro, teste em 320-1440px, performance e densidade de listeners",
+    "Limites de quota/rate limit antiabuso, LGPD/retencão, backups, exclusão, moderadores de verdade e política de conteúdo",
+    "Validar produção somente após autorização explícita: Firebase Spark, domínio Cloudflare e regras/backup revisados",
+    "WebRTC sem TURN/SFU não garante chamadas fora da rede; fluxo sinalizado em CI não prova transporte real de áudio"
   ],
   "blockers": [
-    "Falha intermitente real no E2E principal; issue #2 aberta",
-    "Sem lockfile no GitHub; execução local sem acesso ao registro npm",
-    "Prod e Cloudflare não autorizados; dados do emulador apenas"
+    "PR DRAFT não está mesclado e nenhum deploy/projeto Firebase real foi autorizado",
+    "E2E no contexto de múltiplas contas já apresentou falhas intermitentes de confirmação do perfil; recuperação adicionada, não declarada estável até CI atual",
+    "11/12 funcionalidades com fluxo local foram escritas, mas definição de 90% integral não pode ser homologada com ausência de QA externa e produção"
   ],
-  "next_action": "Investigar issue #2 com logs/trace reais, repetir 3 vezes sem retry; corrigir um defeito por rodada; depois gerar package-lock e homologar fluxo.",
-  "revision": 4,
+  "next_action": "Inspecionar CI HEAD 45096426299, corrigir teste/bug verdadeiro, executar suite 3 vezes sem retries e então marcar AC verificadas; manter PR Draft sem deploy.",
+  "revision": 5,
   "updated_at": "2026-11-23",
   "history": [
     {
@@ -71,6 +73,12 @@
     {
       "event": "S004_BACKEND_BEFORE_QA",
       "baseline_sha": "ee94cb3b77b606f0aae731ad502c483538da9b15"
+    },
+    {
+      "event": "ADVANCED_SLICES_COMMITTED_AND_PARTIAL_QA_VERIFIED",
+      "at": "2026-11-23",
+      "code_sha": "f7958c4fc123109633d8b9f0cdf296001acac2e8",
+      "verified_sha": "60b0453e23dd850997aa1ec7223e39f878df4134"
     }
   ]
 }
