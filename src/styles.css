@@ -121,3 +121,9 @@ button,input{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allow
 .moderator-report p{margin:4px 0;overflow-wrap:anywhere}
 .moderator-report blockquote{border-left:2px solid #93b8ef;margin:9px 0;padding:5px 8px;white-space:pre-wrap}
 .moderator-actions{display:flex;gap:7px}.moderator-actions button{border-radius:7px;border:0;background:#41628b;color:#fff;padding:7px}
+
+.profile-sync{padding:40px 24px;max-width:540px;margin:5vh auto;background:#172435;border:1px solid #3f5470;border-radius:15px;color:#c7d9f0}
+.profile-sync h2{color:#f3f7ff}
+.repair-form{display:flex;flex-direction:column;gap:9px;margin:14px 0}
+.repair-form input{background:#111d2c;color:#fff;border:1px solid #58708d;padding:12px;border-radius:9px}
+.repair-form button{padding:11px;border-radius:9px;background:#719fe4;color:#08172a;border:0;font-weight:700}

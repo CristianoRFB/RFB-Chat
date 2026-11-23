@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import {
   createUserWithEmailAndPassword, onAuthStateChanged,
-  signInWithEmailAndPassword, signOut, type User
+  signInWithEmailAndPassword, signOut, updateProfile, type User
 } from 'firebase/auth';
-import { doc, onSnapshot, serverTimestamp, setDoc } from 'firebase/firestore';
+import { doc, getDoc, onSnapshot, serverTimestamp, setDoc } from 'firebase/firestore';
 import { auth, db, isLocalEmulator } from './firebase';
 import { createConversation, lookupName, watchConversations, type ChatConversation } from './chat-data';
 import { MessageCenter } from './MessageCenter';
@@ -50,6 +50,9 @@ function Login() {
           throw new Error('Use um nome entre 2 e 40 caracteres.');
         }
         const result = await createUserWithEmailAndPassword(auth, email.trim(), password);
+        // Firestore é a fonte canônica do perfil; displayName facilita reparar
+        // um cadastro cujo documento falhou após o Auth já ter criado a conta.
+        try { await updateProfile(result.user, { displayName }); } catch { /* Recuperável pela UI */ }
         await setDoc(doc(db, 'profiles', result.user.uid), {
           uid: result.user.uid,
           displayName,
@@ -92,6 +95,9 @@ function Login() {
 
 function Workspace({ user }: { user: User }) {
   const [profileReady, setProfileReady] = useState(false);
+  const [profilePending, setProfilePending] = useState(false);
+  const [repairName, setRepairName] = useState(user.displayName || 'Pessoa de teste');
+  const [repairBusy, setRepairBusy] = useState(false);
   const [privateSettings, setPrivateSettings] = useState<PrivateSettings>(DEFAULT_SETTINGS);
   const [conversations, setConversations] = useState<ChatConversation[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -102,10 +108,12 @@ function Workspace({ user }: { user: User }) {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    // A criação no Auth Emulator dispara onAuthStateChanged antes de terminar
-    // a gravação do perfil. Liberar o UID apenas após confirmação do servidor.
+    // Um snapshot local pode existir enquanto o servidor confirma a escrita.
+    // Não prender o usuário indefinidamente por hasPendingWrites=true:
+    // a UI informa pendência e as Firestore Rules protegem operações remotas.
     return onSnapshot(doc(db, 'profiles', user.uid), { includeMetadataChanges: true }, snapshot => {
-      setProfileReady(snapshot.exists() && !snapshot.metadata.hasPendingWrites);
+      setProfileReady(snapshot.exists());
+      setProfilePending(snapshot.exists() && snapshot.metadata.hasPendingWrites);
     }, err => setError(errorText(err)));
   }, [user.uid]);
 
@@ -155,9 +163,28 @@ function Workspace({ user }: { user: User }) {
   const other = current ? otherMember(current.memberIds, user.uid) : '';
   const title = current?.kind === 'group' ? (current.title ?? 'Grupo') : names[other] ?? (other ? other.slice(0, 12) : 'Selecione uma conversa');
 
-  if (!profileReady) return <main className="profile-sync" id="conteudo" role="status">
-    <p>Sincronizando o perfil de teste no Firestore Emulator…</p>
-    <p>Se a mensagem persistir, confira o emulador e saia para tentar novamente.</p>
+  if (!profileReady) return <main className="profile-sync" id="conteudo">
+    <h2>Concluir perfil local</h2>
+    <p>Sua conta de autenticação existe, mas o perfil ainda não foi confirmado no Firestore Emulator.</p>
+    <form className="repair-form" onSubmit={event => {
+      event.preventDefault();
+      const displayName = repairName.trim();
+      if (displayName.length < 2 || displayName.length > 40) {
+        setError('Use um nome entre 2 e 40 caracteres.'); return;
+      }
+      setRepairBusy(true); setError('');
+      void setDoc(doc(db, 'profiles', user.uid), {
+        uid: user.uid, displayName, createdAt: serverTimestamp()
+      }).catch(async err => {
+        const existing = await getDoc(doc(db, 'profiles', user.uid)).catch(() => null);
+        if (!existing?.exists()) setError(errorText(err));
+      }).finally(() => setRepairBusy(false));
+    }}>
+      <label htmlFor="repair-profile-name">Nome de exibição</label>
+      <input id="repair-profile-name" minLength={2} maxLength={40} required value={repairName}
+        onChange={e => setRepairName(e.target.value)}/>
+      <button type="submit" disabled={repairBusy}>Recriar perfil local</button>
+    </form>
     {error && <p className="feedback error" role="alert">{error}</p>}
   </main>;
 
@@ -168,12 +195,13 @@ function Workspace({ user }: { user: User }) {
         <p className="account-email">{user.email}</p>
         <label className="mini-label" htmlFor="own-uid">Seu UID (compartilhe com a outra sessão)</label>
         <input className="uid-input" id="own-uid" value={user.uid} readOnly onFocus={event => event.currentTarget.select()} />
+        {profilePending && <p className="mini-label" role="status">Perfil ainda sincronizando com o emulador. Aguarde para convidar outra pessoa.</p>}
       </div>
       <div className="sidebar-head"><h2>Conversas</h2><span className="count">{conversations.length}</span></div>
       <form className="new-chat" onSubmit={newConversation}>
         <label htmlFor="target-uid">Iniciar conversa usando UID</label>
         <input id="target-uid" value={target} onChange={e => setTarget(e.target.value)} placeholder="UID da outra conta" required />
-        <button type="submit" disabled={busy || !target.trim()}>Criar conversa</button>
+        <button type="submit" disabled={busy || profilePending || !target.trim()}>Criar conversa</button>
       </form>
       <GroupControls uid={user.uid} current={current} onCreated={setSelectedId} onError={onChildError} />
       <PrivacyPanel uid={user.uid} onSettings={setPrivateSettings} onError={onChildError} />
