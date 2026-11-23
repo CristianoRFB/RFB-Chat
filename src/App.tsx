@@ -3,7 +3,7 @@ import {
   createUserWithEmailAndPassword, onAuthStateChanged,
   signInWithEmailAndPassword, signOut, type User
 } from 'firebase/auth';
-import { doc, serverTimestamp, setDoc } from 'firebase/firestore';
+import { doc, onSnapshot, serverTimestamp, setDoc } from 'firebase/firestore';
 import { auth, db, isLocalEmulator } from './firebase';
 import {
   createConversation, lookupName, sendText, watchConversations,
@@ -84,6 +84,7 @@ function Login() {
 }
 
 function Workspace({ user }: { user: User }) {
+  const [profileReady, setProfileReady] = useState(false);
   const [conversations, setConversations] = useState<ChatConversation[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -92,6 +93,14 @@ function Workspace({ user }: { user: User }) {
   const [draft, setDraft] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    // A criação no Auth Emulator dispara onAuthStateChanged antes de terminar
+    // a gravação do perfil. Liberar o UID apenas após confirmação do servidor.
+    return onSnapshot(doc(db, 'profiles', user.uid), { includeMetadataChanges: true }, snapshot => {
+      setProfileReady(snapshot.exists() && !snapshot.metadata.hasPendingWrites && !snapshot.metadata.fromCache);
+    }, err => setError(errorText(err)));
+  }, [user.uid]);
 
   useEffect(() => {
     setConversations([]);
@@ -157,6 +166,12 @@ function Workspace({ user }: { user: User }) {
   const current = conversations.find(item => item.id === selectedId);
   const other = current ? otherMember(current.memberIds, user.uid) : '';
   const title = names[other] ?? (other ? other.slice(0, 12) : 'Selecione uma conversa');
+
+  if (!profileReady) return <main className="profile-sync" id="conteudo" role="status">
+    <p>Sincronizando o perfil de teste no Firestore Emulator…</p>
+    <p>Se a mensagem persistir, confira o emulador e saia para tentar novamente.</p>
+    {error && <p className="feedback error" role="alert">{error}</p>}
+  </main>;
 
   return <main className="chat-layout" id="conteudo">
     <aside className="chat-sidebar" aria-label="Contas e conversas">

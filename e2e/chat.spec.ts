@@ -1,5 +1,18 @@
 import { test, expect, type Page } from '@playwright/test';
 
+test.beforeAll(async () => {
+  // O webServer espera o Firestore (8080), mas o Auth (9099) pode iniciar depois.
+  // Verificação concreta de disponibilidade HTTP antes da criação das contas.
+  await expect.poll(async () => {
+    const endpoints = ['http://127.0.0.1:8080/', 'http://127.0.0.1:9099/'];
+    const available = await Promise.all(endpoints.map(async url => {
+      try { await fetch(url, { signal: AbortSignal.timeout(1000) }); return true; }
+      catch { return false; }
+    }));
+    return available.every(Boolean);
+  }, { timeout: 30_000, intervals: [500, 1000, 2000] }).toBe(true);
+});
+
 async function createTestAccount(page: Page, name: string, email: string) {
   await page.goto('/');
   await page.getByRole('button', { name: 'Criar uma conta no emulador' }).click();
