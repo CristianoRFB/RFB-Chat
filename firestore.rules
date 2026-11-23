@@ -1,9 +1,8 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    function signedIn() {
-      return request.auth != null;
-    }
+    function signedIn() { return request.auth != null; }
+    function own(uid) { return signedIn() && request.auth.uid == uid; }
     function validName(name) {
       return name is string && name.size() >= 2 && name.size() <= 40;
     }
@@ -12,17 +11,21 @@ service cloud.firestore {
         && exists(/databases/$(database)/documents/conversations/$(conversationId))
         && request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.memberIds;
     }
+    function validText(data) {
+      return data.body is string
+        && data.body.size() > 0
+        && data.body.size() <= 2000;
+    }
     match /profiles/{uid} {
       allow get: if signedIn();
-      // Evita a enumeração pública de perfis; o usuário compartilha seu UID local.
       allow list: if false;
-      allow create: if signedIn() && request.auth.uid == uid
+      allow create: if own(uid)
         && request.resource.data.keys().hasOnly(['uid', 'displayName', 'createdAt'])
         && request.resource.data.keys().hasAll(['uid', 'displayName', 'createdAt'])
         && request.resource.data.uid == uid
         && validName(request.resource.data.displayName)
         && request.resource.data.createdAt == request.time;
-      allow update: if signedIn() && request.auth.uid == uid
+      allow update: if own(uid)
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['displayName'])
         && validName(request.resource.data.displayName);
       allow delete: if false;
@@ -48,14 +51,44 @@ service cloud.firestore {
       match /messages/{messageId} {
         allow get, list: if isMember(conversationId);
         allow create: if isMember(conversationId)
-          && request.resource.data.keys().hasOnly(['senderId', 'body', 'createdAt'])
+          && request.resource.data.keys().hasOnly(['senderId', 'body', 'createdAt', 'replyToId'])
           && request.resource.data.keys().hasAll(['senderId', 'body', 'createdAt'])
           && request.resource.data.senderId == request.auth.uid
-          && request.resource.data.body is string
-          && request.resource.data.body.size() > 0
-          && request.resource.data.body.size() <= 2000
-          && request.resource.data.createdAt == request.time;
-        allow update, delete: if false;
+          && validText(request.resource.data)
+          && request.resource.data.createdAt == request.time
+          && (!('replyToId' in request.resource.data)
+            || (request.resource.data.replyToId is string
+              && request.resource.data.replyToId.size() > 0
+              && request.resource.data.replyToId != messageId
+              && exists(/databases/$(database)/documents/conversations/$(conversationId)/messages/$(request.resource.data.replyToId))));
+        allow update: if isMember(conversationId)
+          && resource.data.senderId == request.auth.uid
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['body', 'editedAt'])
+          && request.resource.data.diff(resource.data).affectedKeys().hasAll(['body', 'editedAt'])
+          && validText(request.resource.data)
+          && request.resource.data.editedAt == request.time;
+        allow delete: if false;
+        match /reactions/{uid} {
+          allow get, list: if isMember(conversationId);
+          allow create: if own(uid) && isMember(conversationId)
+            && exists(/databases/$(database)/documents/conversations/$(conversationId)/messages/$(messageId))
+            && request.resource.data.keys().hasOnly(['emoji', 'createdAt'])
+            && request.resource.data.keys().hasAll(['emoji', 'createdAt'])
+            && request.resource.data.emoji in ['👍', '❤️', '😂', '🎉', '😮']
+            && request.resource.data.createdAt == request.time;
+          allow update: if own(uid) && isMember(conversationId)
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['emoji'])
+            && request.resource.data.emoji in ['👍', '❤️', '😂', '🎉', '😮'];
+          allow delete: if own(uid) && isMember(conversationId);
+        }
+      }
+      match /reads/{uid} {
+        allow get, list: if isMember(conversationId);
+        allow create, update: if own(uid) && isMember(conversationId)
+          && request.resource.data.keys().hasOnly(['lastReadAt'])
+          && request.resource.data.keys().hasAll(['lastReadAt'])
+          && request.resource.data.lastReadAt == request.time;
+        allow delete: if false;
       }
     }
     match /{document=**} { allow read, write: if false; }

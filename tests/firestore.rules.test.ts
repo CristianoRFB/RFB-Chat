@@ -4,7 +4,7 @@ import {
   assertFails, assertSucceeds, initializeTestEnvironment,
   type RulesTestEnvironment
 } from '@firebase/rules-unit-testing';
-import { collection, doc, getDoc, getDocs, query, setDoc, where, serverTimestamp } from 'firebase/firestore';
+import { collection, deleteDoc, doc, getDoc, getDocs, query, setDoc, updateDoc, where, serverTimestamp } from 'firebase/firestore';
 
 let testEnv: RulesTestEnvironment;
 const projectId = 'demo-rfb-chat';
@@ -76,6 +76,61 @@ describe('Firestore Rules: isolamento de conversas', () => {
       createdAt: serverTimestamp()
     }));
     await assertSucceeds(getDoc(target));
+  });
+  it('resposta e edição autorizada somente ao remetente', async () => {
+    const alice = testEnv.authenticatedContext('alice').firestore();
+    const bob = testEnv.authenticatedContext('bob').firestore();
+    const parent = doc(alice, 'conversations', conversationId, 'messages', 'original-test');
+    await assertSucceeds(setDoc(parent, {
+      senderId: 'alice', body: 'Mensagem original', createdAt: serverTimestamp()
+    }));
+    const reply = doc(bob, 'conversations', conversationId, 'messages', 'reply-test');
+    await assertSucceeds(setDoc(reply, {
+      senderId: 'bob', body: 'Resposta', replyToId: 'original-test',
+      createdAt: serverTimestamp()
+    }));
+    await assertFails(setDoc(doc(bob, 'conversations', conversationId, 'messages', 'invalid-reply'), {
+      senderId: 'bob', body: 'Sem pai', replyToId: 'nao-existe',
+      createdAt: serverTimestamp()
+    }));
+    await assertSucceeds(updateDoc(parent, { body: 'Mensagem corrigida', editedAt: serverTimestamp() }));
+    await assertFails(updateDoc(doc(bob, 'conversations', conversationId, 'messages', 'original-test'), {
+      body: 'Falsificada', editedAt: serverTimestamp()
+    }));
+    await assertFails(updateDoc(parent, { senderId: 'bob', editedAt: serverTimestamp() }));
+  });
+  it('reações exigem membro, identidade correta e emoji permitido', async () => {
+    const alice = testEnv.authenticatedContext('alice').firestore();
+    const mallory = testEnv.authenticatedContext('mallory').firestore();
+    const message = doc(alice, 'conversations', conversationId, 'messages', 'reaction-target');
+    await assertSucceeds(setDoc(message, {
+      senderId: 'alice', body: 'Reaja!', createdAt: serverTimestamp()
+    }));
+    const ownReaction = doc(alice, 'conversations', conversationId, 'messages', 'reaction-target', 'reactions', 'alice');
+    await assertSucceeds(setDoc(ownReaction, { emoji: '👍', createdAt: serverTimestamp() }));
+    await assertFails(setDoc(doc(alice, 'conversations', conversationId, 'messages', 'reaction-target', 'reactions', 'bob'), {
+      emoji: '🎉', createdAt: serverTimestamp()
+    }));
+    await assertFails(setDoc(doc(mallory, 'conversations', conversationId, 'messages', 'reaction-target', 'reactions', 'mallory'), {
+      emoji: '❤️', createdAt: serverTimestamp()
+    }));
+    await assertSucceeds(updateDoc(ownReaction, { emoji: '🎉' }));
+    await assertFails(updateDoc(ownReaction, { emoji: 'invalido' }));
+    await assertSucceeds(deleteDoc(ownReaction));
+  });
+  it('marcador de leitura só pode ser gravado pelo próprio membro', async () => {
+    const alice = testEnv.authenticatedContext('alice').firestore();
+    const bob = testEnv.authenticatedContext('bob').firestore();
+    const mallory = testEnv.authenticatedContext('mallory').firestore();
+    const self = doc(alice, 'conversations', conversationId, 'reads', 'alice');
+    await assertSucceeds(setDoc(self, { lastReadAt: serverTimestamp() }));
+    await assertSucceeds(getDoc(doc(bob, 'conversations', conversationId, 'reads', 'alice')));
+    await assertFails(setDoc(doc(alice, 'conversations', conversationId, 'reads', 'bob'), {
+      lastReadAt: serverTimestamp()
+    }));
+    await assertFails(setDoc(doc(mallory, 'conversations', conversationId, 'reads', 'mallory'), {
+      lastReadAt: serverTimestamp()
+    }));
   });
   it('nega visitante sem autenticação', async () => {
     const visitor = testEnv.unauthenticatedContext().firestore();

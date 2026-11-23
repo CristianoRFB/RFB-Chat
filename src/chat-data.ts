@@ -20,6 +20,8 @@ export type ChatMessage = {
   body: string;
   createdAt: Date | null;
   pending: boolean;
+  replyToId?: string;
+  editedAt?: Date | null;
 };
 
 function toConversation(snapshot: QueryDocumentSnapshot<DocumentData>): ChatConversation {

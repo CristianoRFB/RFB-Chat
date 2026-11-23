@@ -2,11 +2,11 @@
   "schema": 1,
   "repo": "CristianoRFB/RFB-Chat",
   "goal": "RFB-Chat MVP local: duas contas com conversa individual e mensagens em tempo real no Firebase Emulator",
-  "phase": "VERIFIED_WITH_FLAKY_E2E",
-  "slice": "S001-S003",
+  "phase": "S004_MESSAGES_CODE_COMMITTED_UNVERIFIED",
+  "slice": "S004",
   "baseline_sha": "b20f3887d9192ad10371ba8e8f0888ee93d09da4",
-  "last_commit_sha": "bf87e5988e02ea93b9c5082fb33686a7a211a0ca",
-  "last_verified_sha": "bf87e5988e02ea93b9c5082fb33686a7a211a0ca",
+  "last_commit_sha": "ee94cb3b77b606f0aae731ad502c483538da9b15",
+  "last_verified_sha": "ee94cb3b77b606f0aae731ad502c483538da9b15",
   "evidence": {
     "github_pr": "https://github.com/CristianoRFB/RFB-Chat/pull/1",
     "open_issues": 1,
@@ -20,7 +20,8 @@
     "browser_e2e": "FLAKY_1_FAILED_INITIAL_1_PASSED_RETRY_1_MOBILE_PASSED",
     "production_deploy": "NOT_DONE",
     "source_tested_sha": "bf87e5988e02ea93b9c5082fb33686a7a211a0ca",
-    "qa_issue": "https://github.com/CristianoRFB/RFB-Chat/issues/2"
+    "qa_issue": "https://github.com/CristianoRFB/RFB-Chat/issues/2",
+    "last_approved_ci": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45092777777"
   },
   "completed": [
     "Inventário GitHub: 21 arquivos no PR draft, PR sem reviews/comentários/checks",
@@ -34,6 +35,7 @@
     "Benchmark documental de Slack, Discord, Zulip, Element e Mattermost adicionado"
   ],
   "pending": [
+    "Validar S004: reply/edit/reactions/read receipts/pagination rules via CI; implementar interface antes de declarar F02-F05",
     "QA #2: diagnosticar flakiness do listener/recebimento no E2E em 3 execuções sem retry; sem patches especulativos",
     "Criar e versionar lockfile consistente e validar npm ci",
     "Completar QA offline/concorrência, três usuários e testes de permissão",
@@ -46,8 +48,8 @@
     "Prod e Cloudflare não autorizados; dados do emulador apenas"
   ],
   "next_action": "Investigar issue #2 com logs/trace reais, repetir 3 vezes sem retry; corrigir um defeito por rodada; depois gerar package-lock e homologar fluxo.",
-  "revision": 3,
-  "updated_at": "2026-11-23T01:07:46.576Z",
+  "revision": 4,
+  "updated_at": "2026-11-23",
   "history": [
     {
       "at": "2026-11-23T00:52:50.783Z",
@@ -65,6 +67,10 @@
       "event": "VERIFIED_WITH_FLAKY_E2E",
       "sha": "bf87e5988e02ea93b9c5082fb33686a7a211a0ca",
       "run_id": 45092464389
+    },
+    {
+      "event": "S004_BACKEND_BEFORE_QA",
+      "baseline_sha": "ee94cb3b77b606f0aae731ad502c483538da9b15"
     }
   ]
 }
