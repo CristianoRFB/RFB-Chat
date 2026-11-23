@@ -1,21 +1,22 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "product": "RFBChat",
   "repository": "CristianoRFB/RFB-Chat",
   "source_method_pr": 4,
   "source_slug": "01-rfbchat",
-  "stage": "G1_REACT_UI_SCAFFOLD",
+  "stage": "G2_LOCAL_MVP_CODE_WRITTEN_UNVERIFIED",
   "source_imported": true,
-  "scaffold": "PRESENT_NOT_BUILT",
-  "backend": "NOT_IMPLEMENTED",
-  "real_messages": false,
+  "scaffold": "REPLACED_WITH_LOCAL_CHAT_IMPLEMENTATION_UNVERIFIED",
+  "backend": "FIREBASE_EMULATOR_ONLY_CODE_WRITTEN",
+  "real_messages": "EMULATOR_IMPLEMENTED_NOT_TESTED",
   "real_payments": false,
   "production": false,
   "unit_tests": "NOT_RUN",
+  "firestore_rules_tests": "NOT_RUN",
   "typecheck": "NOT_RUN",
   "build": "NOT_RUN",
   "browser_qa": "NOT_RUN",
   "source_png_assets": "NOT_IMPORTED",
   "monthly_recurring_cost_added_brl": 0,
-  "next_action": "Run npm install, test, typecheck and build; then implement G2 real functionality safely."
+  "next_action": "Install dependencies and run npm run emulators, typecheck, test, build and test:rules; then browser E2E with two accounts."
 }

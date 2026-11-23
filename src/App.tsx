@@ -1,54 +1,243 @@
-import { useState, useEffect, type CSSProperties } from 'react';
-import product from './product.json';
-import { clampStep, nextStep, prevStep } from './flow';
+import { useEffect, useState, type FormEvent } from 'react';
+import {
+  createUserWithEmailAndPassword, onAuthStateChanged,
+  signInWithEmailAndPassword, signOut, type User
+} from 'firebase/auth';
+import { doc, serverTimestamp, setDoc } from 'firebase/firestore';
+import { auth, db, isLocalEmulator } from './firebase';
+import {
+  createConversation, lookupName, sendText, watchConversations,
+  watchMessages, type ChatConversation, type ChatMessage
+} from './chat-data';
+import { MAX_MESSAGE_LENGTH, otherMember } from './chat-model';
 
-const storageKey = 'rfb:' + product.slug + ':starter-step';
-const lastStep = product.steps.length - 1;
+function errorText(error: unknown): string {
+  const code = (error as { code?: string })?.code;
+  if (code === 'auth/email-already-in-use') return 'E-mail já cadastrado no emulador.';
+  if (code === 'auth/invalid-email') return 'Informe um e-mail válido.';
+  if (code === 'auth/weak-password') return 'A senha precisa ter pelo menos 6 caracteres.';
+  if (code === 'auth/invalid-credential') return 'Credenciais não encontradas no emulador.';
+  if (code === 'permission-denied') return 'Acesso negado pelas regras de segurança.';
+  if (code === 'unavailable' || code === 'auth/network-request-failed') {
+    return 'Emulador indisponível. Inicie npm run emulators em outro terminal.';
+  }
+  return error instanceof Error ? error.message : 'Ocorreu uma falha inesperada.';
+}
+
+function Login() {
+  const [register, setRegister] = useState(false);
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [busy, setBusy] = useState(false);
+
+  async function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setError('');
+    setBusy(true);
+    try {
+      if (register) {
+        const displayName = name.trim();
+        if (displayName.length < 2 || displayName.length > 40) {
+          throw new Error('Use um nome entre 2 e 40 caracteres.');
+        }
+        const result = await createUserWithEmailAndPassword(auth, email.trim(), password);
+        await setDoc(doc(db, 'profiles', result.user.uid), {
+          uid: result.user.uid,
+          displayName,
+          createdAt: serverTimestamp()
+        });
+      } else {
+        await signInWithEmailAndPassword(auth, email.trim(), password);
+      }
+    } catch (err) {
+      setError(errorText(err));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return <main className="auth-wrap" id="conteudo">
+    <section className="auth-card" aria-labelledby="auth-title">
+      <p className="eyebrow">RFB LABS / LABORATÓRIO LOCAL</p>
+      <h1 id="auth-title">{register ? 'Criar conta de teste' : 'Entrar no RFB Chat'}</h1>
+      <p className="muted">Converse entre duas sessões usando os emuladores do Firebase. Nenhuma conta real é criada.</p>
+      <form className="form" onSubmit={submit}>
+        {register && <label>Nome de exibição
+          <input autoComplete="nickname" value={name} minLength={2} maxLength={40} onChange={e => setName(e.target.value)} required />
+        </label>}
+        <label>E-mail de teste
+          <input type="email" autoComplete="email" value={email} onChange={e => setEmail(e.target.value)} required />
+        </label>
+        <label>Senha
+          <input type="password" autoComplete={register ? 'new-password' : 'current-password'} minLength={6} value={password} onChange={e => setPassword(e.target.value)} required />
+        </label>
+        {error && <p className="feedback error" role="alert">{error}</p>}
+        <button className="primary" type="submit" disabled={busy}>{busy ? 'Aguarde…' : register ? 'Criar conta local' : 'Entrar no laboratório'}</button>
+      </form>
+      <button className="link-button" type="button" onClick={() => { setRegister(!register); setError(''); }}>
+        {register ? 'Já tenho conta — entrar' : 'Criar uma conta no emulador'}
+      </button>
+    </section>
+  </main>;
+}
+
+function Workspace({ user }: { user: User }) {
+  const [conversations, setConversations] = useState<ChatConversation[]>([]);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [names, setNames] = useState<Record<string, string>>({});
+  const [target, setTarget] = useState('');
+  const [draft, setDraft] = useState('');
+  const [error, setError] = useState('');
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    setConversations([]);
+    setSelectedId(null);
+    return watchConversations(user.uid, setConversations, err => setError(errorText(err)));
+  }, [user.uid]);
+
+  useEffect(() => {
+    if (!selectedId && conversations.length > 0) setSelectedId(conversations[0].id);
+  }, [conversations, selectedId]);
+
+  useEffect(() => {
+    for (const conversation of conversations) {
+      const uid = otherMember(conversation.memberIds, user.uid);
+      if (!names[uid]) {
+        void lookupName(uid).then(name => {
+          setNames(previous => ({ ...previous, [uid]: name }));
+        }).catch(() => {
+          setNames(previous => ({ ...previous, [uid]: uid.slice(0, 10) }));
+        });
+      }
+    }
+    // Nome resolve uma vez por alteração de lista; cache do estado impede exibição em branco.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [conversations, user.uid]);
+
+  useEffect(() => {
+    setMessages([]);
+    if (!selectedId) return;
+    return watchMessages(selectedId, setMessages, err => setError(errorText(err)));
+  }, [selectedId]);
+
+  async function newConversation(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setError('');
+    setBusy(true);
+    try {
+      const id = await createConversation(user.uid, target);
+      setTarget('');
+      setSelectedId(id);
+    } catch (err) {
+      setError(errorText(err));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function send(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!selectedId || busy) return;
+    setError('');
+    setBusy(true);
+    try {
+      await sendText(user.uid, selectedId, draft);
+      setDraft('');
+    } catch (err) {
+      setError(errorText(err));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const current = conversations.find(item => item.id === selectedId);
+  const other = current ? otherMember(current.memberIds, user.uid) : '';
+  const title = names[other] ?? (other ? other.slice(0, 12) : 'Selecione uma conversa');
+
+  return <main className="chat-layout" id="conteudo">
+    <aside className="chat-sidebar" aria-label="Contas e conversas">
+      <div className="account-box">
+        <p className="mini-label">Conta de teste</p>
+        <p className="account-email">{user.email}</p>
+        <label className="mini-label" htmlFor="own-uid">Seu UID (compartilhe com a outra sessão)</label>
+        <input className="uid-input" id="own-uid" value={user.uid} readOnly onFocus={event => event.currentTarget.select()} />
+      </div>
+      <div className="sidebar-head"><h2>Conversas</h2><span className="count">{conversations.length}</span></div>
+      <form className="new-chat" onSubmit={newConversation}>
+        <label htmlFor="target-uid">Iniciar conversa usando UID</label>
+        <input id="target-uid" value={target} onChange={e => setTarget(e.target.value)} placeholder="UID da outra conta" required />
+        <button type="submit" disabled={busy || !target.trim()}>Criar conversa</button>
+      </form>
+      <div className="conversation-list" role="group" aria-label="Suas conversas">
+        {conversations.length === 0 && <p className="empty-side">Nenhuma conversa ainda. Crie duas contas em navegadores separados e compartilhe o UID.</p>}
+        {conversations.map(item => {
+          const recipient = otherMember(item.memberIds, user.uid);
+          return <button key={item.id} type="button" className={'conversation' + (item.id === selectedId ? ' active' : '')}
+            aria-pressed={item.id === selectedId} onClick={() => setSelectedId(item.id)}>
+            <span className="avatar" aria-hidden="true">{(names[recipient] ?? recipient).slice(0, 1).toUpperCase()}</span>
+            <span><strong>{names[recipient] ?? recipient.slice(0, 12)}</strong><small>Conversa individual</small></span>
+          </button>;
+        })}
+      </div>
+    </aside>
+    <section className="chat-panel" aria-label="Mensagens">
+      <header className="chat-header">
+        <span className="avatar" aria-hidden="true">{title.slice(0, 1).toUpperCase()}</span>
+        <div><h2>{title}</h2><p>{selectedId ? 'Mensagens gravadas no emulador' : 'Conversa individual em tempo real'}</p></div>
+      </header>
+      {error && <div className="feedback error" role="alert">{error} <button className="dismiss" type="button" onClick={() => setError('')}>Fechar</button></div>}
+      <div className="messages" aria-label="Histórico de mensagens">
+        {!selectedId && <div className="empty-state"><h3>Conversas que acompanham sua equipe.</h3><p>Inicie uma conversa pela barra lateral. Nenhuma mensagem é fictícia nesta tela.</p></div>}
+        {selectedId && messages.length === 0 && <div className="empty-state"><h3>A conversa começou.</h3><p>Envie a primeira mensagem para testar a sincronização entre navegadores.</p></div>}
+        {messages.map(message => <article key={message.id} className={'message ' + (message.senderId === user.uid ? 'outgoing' : 'incoming')}>
+          <p>{message.body}</p>
+          <span className="message-meta">{message.createdAt ? message.createdAt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '—'} · {message.pending ? 'Enviando' : 'Gravado'}</span>
+        </article>)}
+      </div>
+      <form className="composer" onSubmit={send}>
+        <label htmlFor="message-text" className="visually-hidden">Digite sua mensagem</label>
+        <input id="message-text" value={draft} onChange={e => setDraft(e.target.value)} disabled={!selectedId || busy}
+          placeholder={selectedId ? 'Escreva uma mensagem…' : 'Selecione uma conversa'} maxLength={MAX_MESSAGE_LENGTH} />
+        <button type="submit" disabled={!selectedId || busy || !draft.trim()}>{busy ? 'Enviando…' : 'Enviar'}</button>
+      </form>
+      <p className="legal-note">Sem confirmação de leitura, chamadas, arquivos ou criptografia ponta a ponta neste MVP.</p>
+    </section>
+  </main>;
+}
+
+function LocalChat() {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [fatal, setFatal] = useState('');
+  useEffect(() => onAuthStateChanged(auth, next => {
+    setUser(next);
+    setLoading(false);
+  }, err => {
+    setFatal(errorText(err));
+    setLoading(false);
+  }), []);
+
+  return <div className="app-shell">
+    <a href="#conteudo" className="skip">Pular para conteúdo</a>
+    <header className="topbar">
+      <span className="brand">RFB<span>Chat.</span></span>
+      <span className="badge-local">LOCAL / EMULADOR / NÃO É PRODUÇÃO</span>
+      {user && <button className="logout" type="button" onClick={() => void signOut(auth)}>Sair</button>}
+    </header>
+    {fatal ? <main id="conteudo" className="feedback error" role="alert">{fatal}</main>
+      : loading ? <main id="conteudo" className="loading">Conectando ao emulador…</main>
+      : user ? <Workspace key={user.uid} user={user} /> : <Login />}
+  </div>;
+}
 
 export default function App() {
-  const [step, setStep] = useState(() => {
-    try { return clampStep(Number(window.localStorage.getItem(storageKey) ?? 0), lastStep); }
-    catch { return 0; }
-  });
-  const [module, setModule] = useState(0);
-  useEffect(() => {
-    try { window.localStorage.setItem(storageKey, String(step)); }
-    catch { /* Browser storage may be unavailable. */ }
-  }, [step]);
-  const theme = { '--accent': product.accent } as CSSProperties;
-  return <div className="shell" style={theme}>
-    <a className="skip" href="#conteudo">Pular para o conteúdo</a>
-    <header className="topbar">
-      <a className="brand" href="#conteudo" aria-label={product.name + ' início'}>{product.name}<span>.</span></a>
-      <span className="status">RFB LABS · CONCEITO G1</span>
-    </header>
-    <main id="conteudo" className="layout">
-      <section className="intro">
-        <p className="eyebrow">Produto em planejamento</p>
-        <h1>{product.name}</h1>
-        <p className="slogan">{product.slogan}</p>
-        <p className="lead">{product.segment}. Esta é uma interface demonstrativa do roteiro de requisitos, não a operação real.</p>
-        <p className="disclaimer">Não há backend, usuários reais, pagamentos, modelos 3D funcionais ou mensagens entregues.</p>
-      </section>
-      <section className="workspace" aria-label="Jornada planejada">
-        <div className="summary"><span>Fluxo do blueprint</span><strong>Etapa {step + 1} de {product.steps.length}</strong></div>
-        <div className="progress" role="progressbar" aria-label="Progresso do roteiro" aria-valuenow={step+1} aria-valuemin={1} aria-valuemax={product.steps.length}><span style={{ width: String((step+1)/product.steps.length*100) + '%' }}/></div>
-        <h2 aria-live="polite">{product.steps[step]}</h2>
-        <p className="help">Esta etapa é apenas descrita. Os botões percorrem o roteiro e salvam localmente o número do passo.</p>
-        <div className="controls">
-          <button type="button" className="secondary" onClick={() => setStep(prevStep(step))} disabled={step===0}>Voltar</button>
-          <button type="button" onClick={() => setStep(nextStep(step,lastStep))} disabled={step===lastStep}>Próxima etapa</button>
-          <button type="button" className="secondary" onClick={() => setStep(0)}>Reiniciar</button>
-        </div>
-        <div className="modules">
-          <h3>Módulos previstos (a implementar)</h3>
-          <div className="chips" role="group" aria-label="Explorar módulos">
-            {product.modules.map((m, i) => <button type="button" key={m} onClick={() => setModule(i)} className={module===i?'chip chosen':'chip'} aria-pressed={module===i}>{m}</button>)}
-          </div>
-          <p aria-live="polite"><strong>{product.modules[module]}</strong> está documentado, mas ainda não funciona.</p>
-        </div>
-      </section>
-    </main>
-    <footer className="footer">RFB Method · Starter Pack · Dados sintéticos · Não publicado</footer>
-  </div>;
+  if (!isLocalEmulator) return <main className="production-stop">
+    <h1>RFB Chat — laboratório não publicado</h1>
+    <p>Este build não se conecta a serviços reais. Consulte o README para iniciar os emuladores locais.</p>
+  </main>;
+  return <LocalChat />;
 }
