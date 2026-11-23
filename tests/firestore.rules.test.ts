@@ -234,6 +234,19 @@ describe('Firestore Rules: isolamento de conversas', () => {
       ...payload, mimeType: 'text/html', dataUrl: 'data:text/html;base64,PHNjcmlwdD4='
     }));
   });
+  it('entrega e leitura exigem carimbo do servidor e dono do marcador', async () => {
+    const alice = testEnv.authenticatedContext('alice').firestore();
+    const bob = testEnv.authenticatedContext('bob').firestore();
+    const marker = doc(bob, 'conversations', conversationId, 'reads', 'bob');
+    await assertSucceeds(setDoc(marker, { lastDeliveredAt: serverTimestamp() }));
+    await assertSucceeds(setDoc(marker, { lastReadAt: serverTimestamp() }, { merge: true }));
+    await assertFails(setDoc(doc(alice, 'conversations', conversationId, 'reads', 'bob'), {
+      lastDeliveredAt: serverTimestamp()
+    }));
+    await assertFails(setDoc(doc(bob, 'conversations', conversationId, 'reads', 'bob'), {
+      lastDeliveredAt: new Date(2000, 0, 1)
+    }, { merge: true }));
+  });
   it('nega visitante sem autenticação', async () => {
     const visitor = testEnv.unauthenticatedContext().firestore();
     await assertFails(getDoc(doc(visitor, 'profiles', 'alice')));

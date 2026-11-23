@@ -4,7 +4,7 @@ import { db } from './firebase';
 import { sendText, type ChatMessage } from './chat-data';
 import {
   editMessage, loadOlderMessages, markRead, mergeMessages, REACTION_OPTIONS,
-  replyToMessage, setReaction, watchLatest, watchReactions, watchReads,
+  markDelivered, replyToMessage, setReaction, watchLatest, watchReactions, watchReads,
   type MessageCursor, type MessageReaction, type ReactionEmoji, type ReadReceipt
 } from './chat-extras';
 import { MAX_MESSAGE_LENGTH } from './chat-model';
@@ -12,7 +12,7 @@ import { AudioRecorder } from './AudioRecorder';
 
 type Props = { conversationId: string | null; uid: string; otherUid: string; readEnabled: boolean; onError: (error: unknown) => void };
 function MessageCard({ conversationId, message, uid, receipt, original, onReply, onEdit, onError }: {
-  conversationId: string; message: ChatMessage; uid: string; receipt?: Date; original?: string;
+  conversationId: string; message: ChatMessage; uid: string; receipt?: ReadReceipt[string]; original?: string;
   onReply: (message: ChatMessage) => void; onEdit: (message: ChatMessage) => void;
   onError: (error: unknown) => void;
 }) {
@@ -20,7 +20,10 @@ function MessageCard({ conversationId, message, uid, receipt, original, onReply,
   const mine = message.senderId === uid;
   useEffect(() => watchReactions(conversationId, message.id, setReactions, onError),
     [conversationId, message.id, onError]);
-  const read = mine && !!receipt && !!message.createdAt && receipt.getTime() >= message.createdAt.getTime();
+  const read = mine && !!receipt?.readAt && !!message.createdAt
+    && receipt.readAt.getTime() >= message.createdAt.getTime();
+  const delivered = mine && !!receipt?.deliveredAt && !!message.createdAt
+    && receipt.deliveredAt.getTime() >= message.createdAt.getTime();
   async function react(emoji: ReactionEmoji) {
     try {
       const existing = reactions.find(item => item.uid === uid);
@@ -36,7 +39,7 @@ function MessageCard({ conversationId, message, uid, receipt, original, onReply,
     <span className="message-meta">
       {message.createdAt ? message.createdAt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '—'}
       {message.editedAt && ' · Editada'}
-      {' · '}{message.pending ? 'Enviando' : read ? 'Lida' : 'Gravada'}
+      {' · '}{message.pending ? 'Enviando' : read ? 'Lida' : delivered ? 'Entregue' : 'Gravada'}
     </span>
     <div className="message-actions">
       <button type="button" onClick={() => onReply(message)}>Responder</button>
@@ -66,7 +69,8 @@ export function MessageCenter({ conversationId, uid, otherUid, readEnabled, onEr
   const [editing, setEditing] = useState<ChatMessage | null>(null);
   const [editDraft, setEditDraft] = useState('');
   const [busy, setBusy] = useState(false);
-  const latestSeen = useRef<string>('');
+  const deliveredSeen = useRef<string>('');
+  const readSeen = useRef<string>('');
 
   useEffect(() => {
     setLatest([]);
@@ -74,7 +78,8 @@ export function MessageCenter({ conversationId, uid, otherUid, readEnabled, onEr
     setCursor(null);
     setMore(false);
     setReads({});
-    latestSeen.current = '';
+    deliveredSeen.current = '';
+    readSeen.current = '';
     if (!conversationId) return;
     const messagesOff = watchLatest(conversationId, (items, first) => {
       setLatest(items);
@@ -89,10 +94,20 @@ export function MessageCenter({ conversationId, uid, otherUid, readEnabled, onEr
 
   useEffect(() => {
     const recent = [...latest].reverse().find(m => m.senderId !== uid && !m.pending && m.createdAt);
-    if (!readEnabled || !recent || !conversationId || latestSeen.current === recent.id) return;
-    if (document.visibilityState !== 'visible') return;
-    latestSeen.current = recent.id;
-    void markRead(conversationId, uid).catch(onError);
+    if (!recent || !conversationId) return;
+    const sync = () => {
+      if (deliveredSeen.current !== recent.id) {
+        deliveredSeen.current = recent.id;
+        void markDelivered(conversationId, uid).catch(onError);
+      }
+      if (readEnabled && document.visibilityState === 'visible' && readSeen.current !== recent.id) {
+        readSeen.current = recent.id;
+        void markRead(conversationId, uid).catch(onError);
+      }
+    };
+    sync();
+    document.addEventListener('visibilitychange', sync);
+    return () => document.removeEventListener('visibilitychange', sync);
   }, [latest, conversationId, uid, readEnabled, onError]);
 
   async function olderPage() {

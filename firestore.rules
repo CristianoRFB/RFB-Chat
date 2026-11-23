@@ -226,10 +226,18 @@ service cloud.firestore {
       }
       match /reads/{uid} {
         allow get, list: if isMember(conversationId);
-        allow create, update: if own(uid) && isMember(conversationId)
-          && request.resource.data.keys().hasOnly(['lastReadAt'])
-          && request.resource.data.keys().hasAll(['lastReadAt'])
-          && request.resource.data.lastReadAt == request.time;
+        allow create: if own(uid) && isMember(conversationId)
+          && request.resource.data.keys().hasOnly(['lastReadAt', 'lastDeliveredAt'])
+          && request.resource.data.keys().hasAny(['lastReadAt', 'lastDeliveredAt'])
+          && (!('lastReadAt' in request.resource.data) || request.resource.data.lastReadAt == request.time)
+          && (!('lastDeliveredAt' in request.resource.data) || request.resource.data.lastDeliveredAt == request.time);
+        allow update: if own(uid) && isMember(conversationId)
+          && request.resource.data.keys().hasOnly(['lastReadAt', 'lastDeliveredAt'])
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['lastReadAt', 'lastDeliveredAt'])
+          && (!('lastReadAt' in request.resource.data.diff(resource.data).affectedKeys())
+              || request.resource.data.lastReadAt == request.time)
+          && (!('lastDeliveredAt' in request.resource.data.diff(resource.data).affectedKeys())
+              || request.resource.data.lastDeliveredAt == request.time);
         allow delete: if false;
       }
     }

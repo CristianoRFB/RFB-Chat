@@ -13,7 +13,7 @@ function UnreadLine({ conversation, uid, onOpen, onError }: {
     const offReads = watchReads(conversation.id, setReceipts, onError);
     return () => { offMessages(); offReads(); };
   }, [conversation.id, onError]);
-  const readAt = receipts[uid]?.getTime() ?? 0;
+  const readAt = receipts[uid]?.readAt?.getTime() ?? 0;
   const unread = lastMessages.filter(m => m.senderId !== uid && !!m.createdAt
     && m.createdAt.getTime() > readAt).length;
   return <button className="unread-line" type="button" onClick={() => onOpen(conversation.id)}>

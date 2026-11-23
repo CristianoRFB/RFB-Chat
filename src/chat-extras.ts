@@ -102,7 +102,8 @@ export async function setReaction(
   }
 }
 
-export type ReadReceipt = Record<string, Date>;
+export type ReceiptStatus = { deliveredAt?: Date; readAt?: Date };
+export type ReadReceipt = Record<string, ReceiptStatus>;
 export function watchReads(
   conversationId: string, receive: (receipts: ReadReceipt) => void,
   fail: (error: FirestoreError) => void
@@ -111,15 +112,21 @@ export function watchReads(
     const out: ReadReceipt = {};
     for (const item of snapshot.docs) {
       const d = item.data();
-      const when = d.lastReadAt?.toDate?.();
-      if (when) out[item.id] = when as Date;
+      out[item.id] = {
+        deliveredAt: d.lastDeliveredAt?.toDate?.(),
+        readAt: d.lastReadAt?.toDate?.()
+      };
     }
     receive(out);
   }, fail);
 }
+export async function markDelivered(conversationId: string, uid: string): Promise<void> {
+  await setDoc(doc(db, 'conversations', conversationId, 'reads', uid),
+    { lastDeliveredAt: serverTimestamp() }, { merge: true });
+}
 export async function markRead(conversationId: string, uid: string): Promise<void> {
   await setDoc(doc(db, 'conversations', conversationId, 'reads', uid),
-    { lastReadAt: serverTimestamp() });
+    { lastReadAt: serverTimestamp() }, { merge: true });
 }
 
 export async function sendAudio(
