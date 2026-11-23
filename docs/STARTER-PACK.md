@@ -1,6 +1,8 @@
 # RFBChat — Starter Pack inicial (RFB Method)
 
-> **ESTADO ATUAL:** `BLUEPRINT_ORIGINAL_PRESERVADO / STARTER_SPECIFIED / APP_NOT_CREATED / QA_NOT_RUN / DEPLOY_NOT_DONE`. Repositório individual iniciado; a UI inicial ainda não é o MVP funcional. O conceito não equivale a software pronto.
+> **Atualização de implementação — 22/11/2026:** código do MVP local foi escrito na branch do PR #1 com Firebase Auth Emulator, Firestore Rules, conversa individual e mensagens via onSnapshot. **IMPLEMENTADO_NAO_VERIFICADO**: sem npm/typecheck/test/build/QA aprovados, sem produção. O texto abaixo é o blueprint histórico preservado; estado canônico em [docs/rfb/STATE.json](rfb/STATE.json) e [docs/rfb/PROGRESS.md](rfb/PROGRESS.md).
+
+> **ESTADO HISTÓRICO NA IMPORTAÇÃO:** `BLUEPRINT_ORIGINAL_PRESERVADO / STARTER_SPECIFIED / APP_NOT_CREATED / QA_NOT_RUN / DEPLOY_NOT_DONE`. Repositório individual iniciado; a UI inicial ainda não é o MVP funcional. O conceito não equivale a software pronto.
 
 ## 00. Proveniência e estado de importação
 

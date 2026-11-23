@@ -2,10 +2,10 @@
   "schema": 1,
   "repo": "CristianoRFB/RFB-Chat",
   "goal": "RFB-Chat MVP local: duas contas com conversa individual e mensagens em tempo real no Firebase Emulator",
-  "phase": "BEFORE_WRITE",
-  "slice": "S001-S003",
+  "phase": "SLICE_COMMITTED",
+  "slice": "S002-S003",
   "baseline_sha": "b20f3887d9192ad10371ba8e8f0888ee93d09da4",
-  "last_commit_sha": "b20f3887d9192ad10371ba8e8f0888ee93d09da4",
+  "last_commit_sha": "5ac833843306709f84bbd50c1e7a9ceb7ae6dddc",
   "last_verified_sha": null,
   "evidence": {
     "github_pr": "https://github.com/CristianoRFB/RFB-Chat/pull/1",
@@ -16,30 +16,48 @@
     "typecheck": "NOT_RUN",
     "unit_tests": "NOT_RUN",
     "build": "NOT_RUN",
-    "emulator_e2e": "NOT_RUN"
+    "emulator_e2e": "NOT_RUN",
+    "github_actions_runs": [
+      "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45091631710",
+      "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45091630855"
+    ],
+    "written_commit_shas": [
+      "d7248d50a223488140c892e212e2edfabac95078",
+      "b247abdc8893e3c84e8b28c25364e1563bedd556",
+      "5ac833843306709f84bbd50c1e7a9ceb7ae6dddc"
+    ]
   },
   "completed": [
     "Inventário GitHub: 21 arquivos no PR draft, PR sem reviews/comentários/checks",
     "Leitura do contrato e gates RFB Method",
-    "Diagnóstico: UI demonstrativa sem backend real"
+    "Diagnóstico: UI demonstrativa sem backend real",
+    "S002: camada Firebase/Auth Emulator, regras por membro, testes de regras e modelo de dados escritos (NOT_RUN)",
+    "S003: UI responsiva com cadastro/login, conversas individuais, envio e onSnapshot escritos (NOT_RUN)",
+    "GitHub Actions workflow criado, duas execuções iniciadas; status PENDING no checkpoint"
   ],
   "pending": [
-    "Criar configuração de Firebase Emulator sem recursos de produção",
-    "Implementar autenticação, perfis, conversa individual e mensagens em tempo real",
-    "Adicionar Firestore Rules e testes negativos",
-    "Executar npm install/typecheck/test/build e E2E quando executor com dependências estiver disponível"
+    "Aguardar resultado verificável do GitHub Actions em HEAD final, corrigir somente falhas comprovadas",
+    "Gerar e versionar lockfile após resolução de dependências",
+    "E2E em 2 navegadores com 2 contas, mensagens, reload e teste contra membro externo",
+    "Revisar risco antiabuso/bloqueio, sem deploy em produção"
   ],
   "blockers": [
     "Ambiente local sem acesso DNS para baixar dependências, testes de runtime indisponíveis"
   ],
-  "next_action": "Implementar fatia de contrato de dados e regras em branch do PR existente, sem ativar produção.",
-  "revision": 1,
-  "updated_at": "2026-11-23T00:52:50.783Z",
+  "next_action": "Verificar resultados dos Actions; corrigir falha concreta, então browser E2E no emulador. Sem liberar prod.",
+  "revision": 2,
+  "updated_at": "2026-11-23T00:56:44.718Z",
   "history": [
     {
       "at": "2026-11-23T00:52:50.783Z",
       "event": "BEFORE_WRITE",
       "sha": "b20f3887d9192ad10371ba8e8f0888ee93d09da4"
+    },
+    {
+      "at": "2026-11-23T00:56:44.718Z",
+      "event": "SLICE_COMMITTED",
+      "sha": "5ac833843306709f84bbd50c1e7a9ceb7ae6dddc",
+      "status": "IMPLEMENTED_UNVERIFIED"
     }
   ]
 }

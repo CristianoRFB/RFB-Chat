@@ -1,5 +1,7 @@
 # Roadmap específico — RFBChat (RFB Method)
 
+> **Checkpoint técnico posterior à importação (22/11/2026):** G1 código e primeira fatia G2 para emuladores foram escritos no PR #1, sem prova de execução. A implementação está em `src/App.tsx`, `src/chat-data.ts`, `src/firebase.ts`, `firestore.rules`; `npm install`, typecheck, unit tests, build, rules tests e E2E dependem de resultados reais. Os títulos/checkboxes seguintes registram o plano original e não devem ser interpretados como estado de execução recente. Fonte de verdade: `docs/rfb/STATE.json`.
+
 **Origem:** blueprint original do usuário (22/11/2026); **estado técnico:** `G0_DOCS_IMPORTED / APP_NOT_CREATED / QA_NOT_RUN`. Marcadores abaixo são gate de trabalho, **não aprovação implícita**. Este Starter Pack foi importado em `CristianoRFB/RFB-Chat` na branch `feature/rfb-starter-pack-v1`; ainda não existe aplicação real.
 
 ## Gate G0 — fonte, pesquisa e decisão do primeiro produto (parcial)
