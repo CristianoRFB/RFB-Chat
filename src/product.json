@@ -1,0 +1,41 @@
+{
+  "name": "RFBChat",
+  "slug": "01-rfbchat",
+  "segment": "Comunicação e colaboração",
+  "slogan": "Conversas que acompanham sua equipe",
+  "accent": "#6D5EF7",
+  "steps": [
+    "Entrar com conta",
+    "Criar conversa",
+    "Enviar mensagem",
+    "Entregar e sincronizar",
+    "Confirmar leitura",
+    "Retomar histórico"
+  ],
+  "modules": [
+    "Conversas",
+    "Grupos e membros",
+    "Canais",
+    "Arquivos e mídia",
+    "Chamadas",
+    "Pesquisa",
+    "Notificações",
+    "Perfil e privacidade",
+    "Moderação",
+    "Administração"
+  ],
+  "features": [
+    "Conversa individual e grupo",
+    "Envio de texto e reações",
+    "Responder e editar mensagem",
+    "Indicadores de enviado/recebido/lido",
+    "Mensagens com paginação",
+    "Busca por conversa",
+    "Convites e cargos em grupos",
+    "Áudio gravado com consentimento",
+    "Arquivos privados com links temporários",
+    "Notificações e preferências",
+    "Bloqueio e denúncia",
+    "Chamadas individuais opcionais"
+  ]
+}
