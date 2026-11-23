@@ -20,6 +20,9 @@ function mapMessage(item: QueryDocumentSnapshot<DocumentData>): ChatMessage {
     replyToId: typeof d.replyToId === 'string' ? d.replyToId : undefined,
     createdAt: d.createdAt?.toDate?.() ?? null,
     editedAt: d.editedAt?.toDate?.() ?? null,
+    kind: d.kind === 'audio' ? 'audio' : undefined,
+    audioData: d.kind === 'audio' && typeof d.audioData === 'string' ? d.audioData : undefined,
+    durationMs: d.kind === 'audio' ? Number(d.durationMs) : undefined,
     pending: item.metadata.hasPendingWrites
   };
 }
@@ -117,4 +120,17 @@ export function watchReads(
 export async function markRead(conversationId: string, uid: string): Promise<void> {
   await setDoc(doc(db, 'conversations', conversationId, 'reads', uid),
     { lastReadAt: serverTimestamp() });
+}
+
+export async function sendAudio(
+  conversationId: string, uid: string, audioData: string, durationMs: number
+): Promise<void> {
+  if (!/^data:audio\/webm;base64,[A-Za-z0-9+/=]+$/.test(audioData)
+    || audioData.length > 90000 || durationMs < 1 || durationMs > 20000) {
+    throw new Error('Áudio inválido, longo demais ou incompatível. Grave no máximo 20 segundos.');
+  }
+  await setDoc(doc(collection(db, 'conversations', conversationId, 'messages')), {
+    senderId: uid, body: 'Mensagem de voz', kind: 'audio', mimeType: 'audio/webm',
+    audioData, durationMs: Math.round(durationMs), createdAt: serverTimestamp()
+  });
 }

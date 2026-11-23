@@ -154,7 +154,7 @@ service cloud.firestore {
       match /messages/{messageId} {
         allow get, list: if isMember(conversationId);
         allow create: if isMember(conversationId)
-          && request.resource.data.keys().hasOnly(['senderId', 'body', 'createdAt', 'replyToId'])
+          && request.resource.data.keys().hasOnly(['senderId', 'body', 'createdAt', 'replyToId', 'kind', 'audioData', 'mimeType', 'durationMs'])
           && request.resource.data.keys().hasAll(['senderId', 'body', 'createdAt'])
           && request.resource.data.senderId == request.auth.uid
           && (get(/databases/$(database)/documents/conversations/$(conversationId)).data.kind == 'group'
@@ -163,6 +163,19 @@ service cloud.firestore {
               get(/databases/$(database)/documents/conversations/$(conversationId)).data.memberIds[1]))
           && validText(request.resource.data)
           && request.resource.data.createdAt == request.time
+          && (
+            (!('kind' in request.resource.data) && !('audioData' in request.resource.data)
+              && !('mimeType' in request.resource.data) && !('durationMs' in request.resource.data))
+            || (request.resource.data.kind == 'audio'
+              && request.resource.data.body == 'Mensagem de voz'
+              && request.resource.data.mimeType == 'audio/webm'
+              && request.resource.data.audioData is string
+              && request.resource.data.audioData.size() <= 90000
+              && request.resource.data.audioData.matches('^data:audio/webm;base64,[A-Za-z0-9+/=]+$')
+              && request.resource.data.durationMs is int
+              && request.resource.data.durationMs > 0
+              && request.resource.data.durationMs <= 20000)
+          )
           && (!('replyToId' in request.resource.data)
             || (request.resource.data.replyToId is string
               && request.resource.data.replyToId.size() > 0

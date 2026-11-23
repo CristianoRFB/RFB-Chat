@@ -193,6 +193,23 @@ describe('Firestore Rules: isolamento de conversas', () => {
     await assertSucceeds(updateDoc(doc(moderator, 'reports', 'test-report-01'), { status: 'reviewed' }));
     await assertFails(updateDoc(report, { status: 'closed' }));
   });
+  it('áudio com consentimento deve ser pequeno e ter MIME permitido', async () => {
+    const alice = testEnv.authenticatedContext('alice').firestore();
+    const mallory = testEnv.authenticatedContext('mallory').firestore();
+    const payload = { senderId: 'alice', body: 'Mensagem de voz', kind: 'audio',
+      mimeType: 'audio/webm', audioData: 'data:audio/webm;base64,QUJDRA==',
+      durationMs: 1000, createdAt: serverTimestamp() };
+    await assertSucceeds(setDoc(doc(collection(alice, 'conversations', conversationId, 'messages')), payload));
+    await assertFails(setDoc(doc(collection(alice, 'conversations', conversationId, 'messages')), {
+      ...payload, mimeType: 'text/html'
+    }));
+    await assertFails(setDoc(doc(collection(alice, 'conversations', conversationId, 'messages')), {
+      ...payload, audioData: 'data:text/html;base64,QUJDRA=='
+    }));
+    await assertFails(setDoc(doc(collection(mallory, 'conversations', conversationId, 'messages')), {
+      ...payload, senderId: 'mallory'
+    }));
+  });
   it('nega visitante sem autenticação', async () => {
     const visitor = testEnv.unauthenticatedContext().firestore();
     await assertFails(getDoc(doc(visitor, 'profiles', 'alice')));

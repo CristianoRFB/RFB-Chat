@@ -24,6 +24,9 @@ export type ChatMessage = {
   pending: boolean;
   replyToId?: string;
   editedAt?: Date | null;
+  kind?: 'audio';
+  audioData?: string;
+  durationMs?: number;
 };
 
 function toConversation(snapshot: QueryDocumentSnapshot<DocumentData>): ChatConversation {
