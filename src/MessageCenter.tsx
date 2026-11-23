@@ -8,6 +8,7 @@ import {
   type MessageCursor, type MessageReaction, type ReactionEmoji, type ReadReceipt
 } from './chat-extras';
 import { MAX_MESSAGE_LENGTH } from './chat-model';
+import { AudioRecorder } from './AudioRecorder';
 
 type Props = { conversationId: string | null; uid: string; otherUid: string; readEnabled: boolean; onError: (error: unknown) => void };
 function MessageCard({ conversationId, message, uid, receipt, original, onReply, onEdit, onError }: {
@@ -28,7 +29,10 @@ function MessageCard({ conversationId, message, uid, receipt, original, onReply,
   }
   return <article className={'message ' + (mine ? 'outgoing' : 'incoming')} data-message-id={message.id}>
     {message.replyToId && <p className="reply-context">↳ {original ?? 'Mensagem anterior'}</p>}
-    <p>{message.body}</p>
+    {message.kind === 'audio' && message.audioData ?
+      <div><p>Mensagem de voz ({Math.ceil((message.durationMs ?? 0) / 1000)}s)</p>
+        <audio controls preload="none" src={message.audioData} aria-label="Mensagem de voz" /></div>
+      : <p>{message.body}</p>}
     <span className="message-meta">
       {message.createdAt ? message.createdAt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '—'}
       {message.editedAt && ' · Editada'}
@@ -162,6 +166,7 @@ export function MessageCenter({ conversationId, uid, otherUid, readEnabled, onEr
         disabled={busy} placeholder="Escreva uma mensagem…" maxLength={MAX_MESSAGE_LENGTH}/>
       <button type="submit" disabled={busy || !draft.trim()}>{busy ? 'Enviando…' : 'Enviar'}</button>
     </form>
+    <AudioRecorder conversationId={conversationId} uid={uid} onError={onError} />
     <p className="legal-note">Mensagens armazenadas sem criptografia ponta a ponta; recibo de leitura aparece quando a conversa está visível.</p>
   </>;
 }
