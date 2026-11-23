@@ -1,0 +1,31 @@
+name: RFB Chat — CI de validação local
+on:
+  pull_request:
+  push:
+    branches:
+      - feature/rfb-starter-pack-v1
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Install dependencies (lockfile ainda pendente)
+        run: npm install --no-audit --no-fund
+      - name: TypeScript
+        run: npm run typecheck
+      - name: Unit tests
+        run: npm run test
+      - name: Build sem conexões de produção
+        run: npm run build
+      - name: Firestore Rules isoladas (demo-rfb-chat)
+        run: npm run test:rules
