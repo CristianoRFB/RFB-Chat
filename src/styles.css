@@ -89,3 +89,12 @@ button,input{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allow
 .file-link,.file-loaded{display:flex;flex-direction:column;gap:8px;min-width:0}
 .file-link input{background:#0f1826;color:#fff;border:1px solid #52647c;border-radius:7px;padding:10px;width:100%;font-size:.74rem}
 .file-loaded a{color:#b9d6ff;text-decoration:underline}
+
+.call-panel{padding:9px 20px;border-bottom:1px solid #344b65;font-size:.76rem;color:#bacbdd}
+.call-panel summary{cursor:pointer;color:#b5d6ff;font-weight:700}
+.call-consent{display:flex;gap:8px;align-items:center;margin:12px 0}
+.call-consent input{width:17px;height:17px}
+.call-actions{display:flex;gap:10px;align-items:center;margin:10px 0}
+.call-actions button{background:#395d8c;color:#fff;border:0;border-radius:8px;padding:8px 11px}
+.call-panel audio{display:block;width:min(100%,350px);height:32px}
+.call-warning{max-width:600px;line-height:1.4}

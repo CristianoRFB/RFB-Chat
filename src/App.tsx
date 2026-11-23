@@ -11,6 +11,7 @@ import { GroupControls } from './GroupControls';
 import { PrivacyPanel } from './PrivacyPanel';
 import { ReportPanel } from './ReportPanel';
 import { FilePanel } from './FilePanel';
+import { CallPanel } from './CallPanel';
 import { NotificationsPanel } from './NotificationsPanel';
 import { DEFAULT_SETTINGS, type PrivateSettings } from './privacy-data';
 import { otherMember } from './chat-model';
@@ -202,6 +203,7 @@ function Workspace({ user }: { user: User }) {
         <span className="avatar" aria-hidden="true">{title.slice(0, 1).toUpperCase()}</span>
         <div><h2>{title}</h2><p>{current?.kind === 'group' ? current.memberIds.length + ' membros · Grupo local' : selectedId ? 'Mensagens gravadas no emulador' : 'Conversa individual em tempo real'}</p></div>
       </header>
+      {current?.kind === 'dm' && other && <CallPanel conversationId={current.id} uid={user.uid} otherUid={other} onError={onChildError} />}
       {error && <div className="feedback error" role="alert">{error} <button className="dismiss" type="button" onClick={() => setError('')}>Fechar</button></div>}
       <MessageCenter key={selectedId ?? 'empty'} conversationId={selectedId} uid={user.uid} otherUid={current?.kind === 'group' ? '' : other}
         readEnabled={privateSettings.readReceiptsEnabled} onError={onChildError} />
