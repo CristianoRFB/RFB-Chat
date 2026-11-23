@@ -1,0 +1,45 @@
+{
+  "schema": 1,
+  "repo": "CristianoRFB/RFB-Chat",
+  "goal": "RFB-Chat MVP local: duas contas com conversa individual e mensagens em tempo real no Firebase Emulator",
+  "phase": "BEFORE_WRITE",
+  "slice": "S001-S003",
+  "baseline_sha": "b20f3887d9192ad10371ba8e8f0888ee93d09da4",
+  "last_commit_sha": "b20f3887d9192ad10371ba8e8f0888ee93d09da4",
+  "last_verified_sha": null,
+  "evidence": {
+    "github_pr": "https://github.com/CristianoRFB/RFB-Chat/pull/1",
+    "open_issues": 0,
+    "open_prs": 1,
+    "ci": "NOT_RUN",
+    "npm_install": "NOT_RUN",
+    "typecheck": "NOT_RUN",
+    "unit_tests": "NOT_RUN",
+    "build": "NOT_RUN",
+    "emulator_e2e": "NOT_RUN"
+  },
+  "completed": [
+    "Inventário GitHub: 21 arquivos no PR draft, PR sem reviews/comentários/checks",
+    "Leitura do contrato e gates RFB Method",
+    "Diagnóstico: UI demonstrativa sem backend real"
+  ],
+  "pending": [
+    "Criar configuração de Firebase Emulator sem recursos de produção",
+    "Implementar autenticação, perfis, conversa individual e mensagens em tempo real",
+    "Adicionar Firestore Rules e testes negativos",
+    "Executar npm install/typecheck/test/build e E2E quando executor com dependências estiver disponível"
+  ],
+  "blockers": [
+    "Ambiente local sem acesso DNS para baixar dependências, testes de runtime indisponíveis"
+  ],
+  "next_action": "Implementar fatia de contrato de dados e regras em branch do PR existente, sem ativar produção.",
+  "revision": 1,
+  "updated_at": "2026-11-23T00:52:50.783Z",
+  "history": [
+    {
+      "at": "2026-11-23T00:52:50.783Z",
+      "event": "BEFORE_WRITE",
+      "sha": "b20f3887d9192ad10371ba8e8f0888ee93d09da4"
+    }
+  ]
+}
