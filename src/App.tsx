@@ -108,14 +108,49 @@ function Workspace({ user }: { user: User }) {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    // Um snapshot local pode existir enquanto o servidor confirma a escrita.
-    // Não prender o usuário indefinidamente por hasPendingWrites=true:
-    // a UI informa pendência e as Firestore Rules protegem operações remotas.
-    return onSnapshot(doc(db, 'profiles', user.uid), { includeMetadataChanges: true }, snapshot => {
-      setProfileReady(snapshot.exists());
-      setProfilePending(snapshot.exists() && snapshot.metadata.hasPendingWrites);
-    }, err => setError(errorText(err)));
-  }, [user.uid]);
+    const profileRef = doc(db, 'profiles', user.uid);
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    let missing = true;
+    let attempts = 0;
+    let recovering = false;
+    let mounted = true;
+    // O cadastro Auth pode acontecer antes da gravação Firestore; recupera
+    // automaticamente no máximo duas vezes se displayName veio do Auth SDK.
+    const scheduleRecovery = () => {
+      const displayName = user.displayName?.trim();
+      if (!displayName || displayName.length < 2 || !missing ||
+        timer || recovering || attempts >= 2 || !mounted) return;
+      timer = setTimeout(() => {
+        timer = null;
+        if (!mounted || !missing) return;
+        attempts += 1;
+        recovering = true;
+        void setDoc(profileRef, {
+          uid: user.uid,
+          displayName,
+          createdAt: serverTimestamp()
+        }).catch(error => {
+          if (mounted) setError(errorText(error));
+        }).finally(() => {
+          recovering = false;
+          if (missing && mounted) scheduleRecovery();
+        });
+      }, 1200);
+    };
+    const unsubscribe = onSnapshot(profileRef, { includeMetadataChanges: true }, snapshot => {
+      missing = !snapshot.exists();
+      // Não tratar escrita local ainda pendente como perfil confirmado.
+      setProfileReady(snapshot.exists() && !snapshot.metadata.hasPendingWrites);
+      setProfilePending(snapshot.metadata.hasPendingWrites);
+      if (missing) scheduleRecovery();
+      else if (timer) { clearTimeout(timer); timer = null; }
+    }, error => setError(errorText(error)));
+    return () => {
+      mounted = false;
+      if (timer) clearTimeout(timer);
+      unsubscribe();
+    };
+  }, [user.uid, user.displayName]);
 
   useEffect(() => {
     setConversations([]);

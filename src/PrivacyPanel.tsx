@@ -38,6 +38,20 @@ export function PrivacyPanel({ uid, onError, onSettings }: {
     finally { setBusy(false); }
   }
 
+  async function changePreference(field: 'notificationsEnabled' | 'readReceiptsEnabled', enabled: boolean) {
+    const previous = settings;
+    const next = { ...settings, [field]: enabled };
+    // Inputs controlados precisam refletir a alteração imediatamente; o snapshot
+    // do Firestore confirma, ou o catch restaura o estado anterior.
+    setSettings(next);
+    onSettings(next);
+    setBusy(true); setNotice('');
+    try { await updatePreference(uid, field, enabled); setNotice('Preferências atualizadas.'); }
+    catch (error) {
+      setSettings(previous); onSettings(previous); onError(error);
+    } finally { setBusy(false); }
+  }
+
   return <details className="privacy-panel">
     <summary>Perfil e privacidade</summary>
     <p className="mini-label">Nome atual: {currentName || 'Carregando…'}</p>
@@ -51,10 +65,10 @@ export function PrivacyPanel({ uid, onError, onSettings }: {
       <button type="submit" disabled={busy || newName.trim().length < 2}>Salvar perfil</button>
     </form>
     <label className="switch-label"><input type="checkbox" checked={settings.notificationsEnabled}
-      onChange={e => void run(() => updatePreference(uid, 'notificationsEnabled', e.target.checked), 'Preferências atualizadas.')}/>
+      disabled={busy} onChange={e => void changePreference('notificationsEnabled', e.currentTarget.checked)}/>
       Notificações dentro do aplicativo</label>
     <label className="switch-label"><input type="checkbox" checked={settings.readReceiptsEnabled}
-      onChange={e => void run(() => updatePreference(uid, 'readReceiptsEnabled', e.target.checked), 'Preferências atualizadas.')}/>
+      disabled={busy} onChange={e => void changePreference('readReceiptsEnabled', e.currentTarget.checked)}/>
       Enviar confirmação de leitura</label>
     <form className="group-form" onSubmit={e => {
       e.preventDefault();
