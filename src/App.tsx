@@ -13,6 +13,7 @@ import { ReportPanel } from './ReportPanel';
 import { FilePanel } from './FilePanel';
 import { CallPanel } from './CallPanel';
 import { GroupChannels } from './GroupChannels';
+import { ModeratorDashboard } from './ModeratorDashboard';
 import { NotificationsPanel } from './NotificationsPanel';
 import { DEFAULT_SETTINGS, type PrivateSettings } from './privacy-data';
 import { otherMember } from './chat-model';
@@ -176,6 +177,7 @@ function Workspace({ user }: { user: User }) {
       </form>
       <GroupControls uid={user.uid} current={current} onCreated={setSelectedId} onError={onChildError} />
       <PrivacyPanel uid={user.uid} onSettings={setPrivateSettings} onError={onChildError} />
+      <ModeratorDashboard user={user} onError={onChildError} />
       <NotificationsPanel conversations={conversations} uid={user.uid} enabled={privateSettings.notificationsEnabled}
         onError={onChildError} onOpen={setSelectedId} />
       <label className="sidebar-search" htmlFor="search-conversations">Buscar conversa

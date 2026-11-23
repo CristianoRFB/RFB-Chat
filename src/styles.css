@@ -113,3 +113,11 @@ button,input{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allow
 .channel-message strong{color:#a9cbfa;flex-shrink:0}
 .channel-composer{display:flex;gap:7px}
 @media(max-width:580px){.channel-create{grid-template-columns:1fr}.channel-composer{flex-wrap:wrap}.channel-composer button{width:100%}}
+
+.moderator-area{padding:10px 20px;color:#bdcce2;border-bottom:1px solid #34465c;font-size:.75rem}
+.moderator-area summary{color:#bfd8fb;cursor:pointer;font-weight:700}
+.moderator-list{max-height:360px;overflow-y:auto}
+.moderator-report{background:#1a2a3d;border:1px solid #3e5372;border-radius:10px;padding:10px;margin:8px 0}
+.moderator-report p{margin:4px 0;overflow-wrap:anywhere}
+.moderator-report blockquote{border-left:2px solid #93b8ef;margin:9px 0;padding:5px 8px;white-space:pre-wrap}
+.moderator-actions{display:flex;gap:7px}.moderator-actions button{border-radius:7px;border:0;background:#41628b;color:#fff;padding:7px}
