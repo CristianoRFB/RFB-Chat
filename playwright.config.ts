@@ -11,6 +11,7 @@ export default defineConfig({
   expect: { timeout: 15_000 },
   use: {
     baseURL: 'http://127.0.0.1:5173',
+    launchOptions: { args: ['--use-fake-device-for-media-stream', '--use-fake-ui-for-media-stream'] },
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure'
   },
