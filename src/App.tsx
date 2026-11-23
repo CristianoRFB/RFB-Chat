@@ -10,6 +10,7 @@ import { MessageCenter } from './MessageCenter';
 import { GroupControls } from './GroupControls';
 import { PrivacyPanel } from './PrivacyPanel';
 import { ReportPanel } from './ReportPanel';
+import { FilePanel } from './FilePanel';
 import { NotificationsPanel } from './NotificationsPanel';
 import { DEFAULT_SETTINGS, type PrivateSettings } from './privacy-data';
 import { otherMember } from './chat-model';
@@ -204,6 +205,7 @@ function Workspace({ user }: { user: User }) {
       {error && <div className="feedback error" role="alert">{error} <button className="dismiss" type="button" onClick={() => setError('')}>Fechar</button></div>}
       <MessageCenter key={selectedId ?? 'empty'} conversationId={selectedId} uid={user.uid} otherUid={current?.kind === 'group' ? '' : other}
         readEnabled={privateSettings.readReceiptsEnabled} onError={onChildError} />
+      <FilePanel uid={user.uid} conversationId={selectedId} onError={onChildError} />
       <ReportPanel uid={user.uid} conversation={current} onError={onChildError} />
     </section>
   </main>;

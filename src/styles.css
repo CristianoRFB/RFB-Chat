@@ -81,3 +81,11 @@ button,input{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allow
 .audio-recorder label{display:flex;gap:8px;align-items:center}.audio-recorder input{width:16px;height:16px}
 .audio-recorder button{background:#263e5e;color:#e5f1ff;border:1px solid #4f6481;border-radius:8px;padding:8px 12px;font-weight:650}
 .message audio{width:min(100%,280px);height:38px;display:block}
+
+.file-panel{padding:10px 20px;border-top:1px solid #40536c;color:#a8b9cc;font-size:.74rem}
+.file-panel summary{color:#b5d3ff;cursor:pointer;font-weight:650}.file-panel p{line-height:1.5}
+.file-form{display:flex;flex-direction:column;gap:8px;padding:10px 0}
+.file-form input{width:100%;font-size:.77rem}.file-form button,.file-link button{padding:9px;background:#385c88;border:0;border-radius:7px;color:#fff}
+.file-link,.file-loaded{display:flex;flex-direction:column;gap:8px;min-width:0}
+.file-link input{background:#0f1826;color:#fff;border:1px solid #52647c;border-radius:7px;padding:10px;width:100%;font-size:.74rem}
+.file-loaded a{color:#b9d6ff;text-decoration:underline}
