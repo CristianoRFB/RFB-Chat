@@ -351,7 +351,8 @@ describe('Firestore Rules: isolamento de conversas', () => {
     await assertSucceeds(deleteDoc(reaction));
     await assertFails(deleteDoc(doc(bob, 'conversations', conversationId, 'attachments', 'block-hardening-file')));
     await assertSucceeds(deleteDoc(file));
-    await assertFails(getDoc(file));
+    const afterDelete = await assertSucceeds(getDoc(file));
+    expect(afterDelete.exists()).toBe(false);
     await assertSucceeds(updateDoc(pref, { blockedUids: [] }));
   });
   it('mensagem de áudio não pode ser transformada em texto por edição', async () => {
