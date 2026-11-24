@@ -15,9 +15,28 @@ function MessageCard({ conversationId, message, uid, receipt, original, onReply,
   onError: (error: unknown) => void;
 }) {
   const [reactions, setReactions] = useState<MessageReaction[]>([]);
+  const elementRef = useRef<HTMLElement | null>(null);
+  const [visible, setVisible] = useState(typeof IntersectionObserver === 'undefined');
   const mine = message.senderId === uid;
-  useEffect(() => watchReactions(conversationId, message.id, setReactions, onError),
-    [conversationId, message.id, onError]);
+  // 50 mensagens = até 50 listeners extras. Só escutar reações de bolhas
+  // próximas ao viewport, preservando a atualização ao voltar a rolá-las.
+  useEffect(() => {
+    const element = elementRef.current;
+    if (!element) return;
+    if (typeof IntersectionObserver === 'undefined') {
+      setVisible(true);
+      return;
+    }
+    const observer = new IntersectionObserver(entries => {
+      setVisible(entries.some(entry => entry.isIntersecting));
+    }, { rootMargin: '240px 0px' });
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
+  useEffect(() => {
+    if (!visible) return;
+    return watchReactions(conversationId, message.id, setReactions, onError);
+  }, [visible, conversationId, message.id, onError]);
   const read = mine && !!receipt?.readAt && !!message.createdAt
     && receipt.readAt.getTime() >= message.createdAt.getTime();
   const delivered = mine && !!receipt?.deliveredAt && !!message.createdAt
@@ -28,7 +47,7 @@ function MessageCard({ conversationId, message, uid, receipt, original, onReply,
       await setReaction(conversationId, message.id, uid, existing?.emoji === emoji ? null : emoji);
     } catch (error) { onError(error); }
   }
-  return <article className={'message ' + (mine ? 'outgoing' : 'incoming')} data-message-id={message.id}>
+  return <article ref={elementRef} className={'message ' + (mine ? 'outgoing' : 'incoming')} data-message-id={message.id}>
     {message.replyToId && <p className="reply-context">↳ {original ?? 'Mensagem anterior'}</p>}
     {message.kind === 'audio' && message.audioData ?
       <div><p>Mensagem de voz ({Math.ceil((message.durationMs ?? 0) / 1000)}s)</p>
@@ -41,7 +60,7 @@ function MessageCard({ conversationId, message, uid, receipt, original, onReply,
     </span>
     <div className="message-actions">
       <button type="button" onClick={() => onReply(message)}>Responder</button>
-      {mine && <button type="button" onClick={() => onEdit(message)}>Editar</button>}
+      {mine && message.kind !== 'audio' && <button type="button" onClick={() => onEdit(message)}>Editar</button>}
     </div>
     <div className="reaction-list" aria-label="Reações">
       {REACTION_OPTIONS.map(emoji => {
@@ -100,6 +119,7 @@ export function MessageCenter({ conversationId, uid, otherUid, readEnabled, onEr
   }, [conversationId, onError]);
 
   const messages = useMemo(() => mergeMessages(older, latest), [older, latest]);
+  const messageBodies = useMemo(() => new Map(messages.map(item => [item.id, item.body])), [messages]);
 
   useEffect(() => {
     const recent = [...latest].reverse().find(m => m.senderId !== uid && !m.pending && m.createdAt);
@@ -170,7 +190,7 @@ export function MessageCenter({ conversationId, uid, otherUid, readEnabled, onEr
         <p>Envie a primeira mensagem para testar a sincronização.</p></div>}
       {messages.map(message => <MessageCard key={message.id} conversationId={conversationId}
         message={message} uid={uid} receipt={reads[otherUid]}
-        original={messages.find(candidate => candidate.id === message.replyToId)?.body}
+        original={message.replyToId ? messageBodies.get(message.replyToId) : undefined}
         onReply={setReply} onEdit={item => { setEditing(item); setEditDraft(item.body); }}
         onError={onError}/>)}
     </div>

@@ -61,5 +61,6 @@ test('áudio de curta duração com consentimento fica disponível para outro me
     await alice.getByRole('button', { name: 'Parar e enviar áudio' }).click();
     await expect(alice.getByText('Áudio salvo no emulador.')).toBeVisible();
     await expect(bob.getByLabel('Mensagem de voz')).toBeVisible();
+    await expect(alice.locator('.message.outgoing').getByRole('button', { name: 'Editar' })).toHaveCount(0);
   } finally { await a.close(); await b.close(); }
 });
