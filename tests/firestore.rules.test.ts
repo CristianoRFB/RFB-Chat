@@ -351,8 +351,9 @@ describe('Firestore Rules: isolamento de conversas', () => {
     await assertSucceeds(deleteDoc(reaction));
     await assertFails(deleteDoc(doc(bob, 'conversations', conversationId, 'attachments', 'block-hardening-file')));
     await assertSucceeds(deleteDoc(file));
-    const afterDelete = await assertSucceeds(getDoc(file));
-    expect(afterDelete.exists()).toBe(false);
+    // As Rules deliberadamente negam get sobre documento inexistente:
+    // resource.data não existe para avaliar expiresAt.
+    await assertFails(getDoc(file));
     await assertSucceeds(updateDoc(pref, { blockedUids: [] }));
   });
   it('mensagem de áudio não pode ser transformada em texto por edição', async () => {
