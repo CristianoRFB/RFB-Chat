@@ -67,8 +67,12 @@ test('layout mobile mantém fluxo básico acessível', async ({ browser }) => {
     await createTestAccount(page, 'Pessoa Móvel', 'movel-' + Date.now() + '@example.test');
     await expect(page.getByRole('heading', { name: 'Conversas', exact: true })).toBeVisible();
     await expect(page.locator('#target-uid')).toBeVisible();
-    const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1);
-    expect(overflow).toBe(false);
+    for (const width of [320, 390, 768, 1440]) {
+      await page.setViewportSize({ width, height: 844 });
+      await expect(page.locator('#target-uid')).toBeVisible();
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1);
+      expect(overflow, 'Layout sem rolagem horizontal em ' + width + 'px').toBe(false);
+    }
   } finally {
     await context.close();
   }
