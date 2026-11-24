@@ -190,7 +190,11 @@ describe('Firestore Rules: isolamento de conversas', () => {
     await assertFails(getDoc(doc(bob, 'reports', 'test-report-01')));
     await assertFails(getDocs(collection(alice, 'reports')));
     await assertSucceeds(getDocs(collection(moderator, 'reports')));
-    await assertSucceeds(updateDoc(doc(moderator, 'reports', 'test-report-01'), { status: 'reviewed' }));
+    await assertSucceeds(updateDoc(doc(moderator, 'reports', 'test-report-01'), { status: 'reviewed', resolvedAt: serverTimestamp() }));
+    await assertFails(updateDoc(doc(moderator, 'reports', 'test-report-01'), { status: 'reviewed', resolvedAt: serverTimestamp() }));
+    await assertFails(updateDoc(doc(moderator, 'reports', 'test-report-01'), { status: 'closed', resolvedAt: new Date('2020-01-01') }));
+    await assertSucceeds(updateDoc(doc(moderator, 'reports', 'test-report-01'), { status: 'closed', resolvedAt: serverTimestamp() }));
+    await assertFails(updateDoc(doc(moderator, 'reports', 'test-report-01'), { status: 'reviewed', resolvedAt: serverTimestamp() }));
     await assertFails(updateDoc(report, { status: 'closed' }));
   });
   it('áudio com consentimento deve ser pequeno e ter MIME permitido', async () => {
@@ -299,6 +303,77 @@ describe('Firestore Rules: isolamento de conversas', () => {
     }));
     await assertFails(updateDoc(doc(bob, 'conversations', id, 'channels', 'channel-01'), { name: 'Invasão' }));
     await assertSucceeds(updateDoc(channel, { name: 'Informações' }));
+  });
+  it('bloqueio interrompe chamadas, ICE, reações e novos arquivos em DMs', async () => {
+    const alice = testEnv.authenticatedContext('alice').firestore();
+    const bob = testEnv.authenticatedContext('bob').firestore();
+    const message = doc(alice, 'conversations', conversationId, 'messages', 'block-hardening-msg');
+    await assertSucceeds(setDoc(message, {
+      senderId: 'alice', body: 'Mensagem anterior ao bloqueio', createdAt: serverTimestamp()
+    }));
+    const reaction = doc(bob, 'conversations', conversationId, 'messages', 'block-hardening-msg', 'reactions', 'bob');
+    await assertSucceeds(setDoc(reaction, { emoji: '👍', createdAt: serverTimestamp() }));
+    const file = doc(alice, 'conversations', conversationId, 'attachments', 'block-hardening-file');
+    const fileInfo = { ownerId: 'alice', filename: 'teste.txt', mimeType: 'text/plain',
+      dataUrl: 'data:text/plain;base64,VGVzdGU=', byteSize: 5,
+      createdAt: serverTimestamp(), expiresAt: new Date(Date.now() + 10 * 60_000) };
+    await assertSucceeds(setDoc(file, fileInfo));
+    const call = doc(bob, 'conversations', conversationId, 'calls', 'block-hardening-call');
+    await assertSucceeds(setDoc(call, {
+      initiatorId: 'bob', calleeId: 'alice', offer: 'sdp-de-teste',
+      status: 'ringing', createdAt: serverTimestamp()
+    }));
+    const pref = doc(alice, 'userPrivate', 'alice');
+    await assertSucceeds(setDoc(pref, {
+      blockedUids: ['bob'], notificationsEnabled: true, readReceiptsEnabled: true
+    }));
+    await assertFails(setDoc(doc(bob, 'conversations', conversationId, 'calls', 'blocked-new'), {
+      initiatorId: 'bob', calleeId: 'alice', offer: 'tentativa-indevida',
+      status: 'ringing', createdAt: serverTimestamp()
+    }));
+    await assertFails(updateDoc(call, {
+      status: 'connected', answer: 'sdp-reposta', answeredAt: serverTimestamp()
+    }));
+    await assertFails(setDoc(doc(collection(bob, 'conversations', conversationId, 'calls', 'block-hardening-call', 'ice')), {
+      senderId: 'bob', candidate: 'candidate-invalido', createdAt: serverTimestamp()
+    }));
+    await assertFails(updateDoc(reaction, { emoji: '❤️' }));
+    await assertFails(setDoc(doc(bob, 'conversations', conversationId, 'messages', 'block-hardening-msg', 'reactions', 'bob2'), {
+      emoji: '🎉', createdAt: serverTimestamp()
+    }));
+    await assertFails(setDoc(doc(bob, 'conversations', conversationId, 'attachments', 'blocked-file'), {
+      ...fileInfo, ownerId: 'bob'
+    }));
+    await assertFails(updateDoc(message, {
+      body: 'Também bloqueada para edição', editedAt: serverTimestamp()
+    }));
+    await assertSucceeds(updateDoc(call, { status: 'ended', endedAt: serverTimestamp() }));
+    await assertSucceeds(deleteDoc(reaction));
+    await assertFails(deleteDoc(doc(bob, 'conversations', conversationId, 'attachments', 'block-hardening-file')));
+    await assertSucceeds(deleteDoc(file));
+    await assertFails(getDoc(file));
+    await assertSucceeds(updateDoc(pref, { blockedUids: [] }));
+  });
+  it('mensagem de áudio não pode ser transformada em texto por edição', async () => {
+    const alice = testEnv.authenticatedContext('alice').firestore();
+    const audio = doc(alice, 'conversations', conversationId, 'messages', 'audio-immutable');
+    await assertSucceeds(setDoc(audio, {
+      senderId: 'alice', body: 'Mensagem de voz', kind: 'audio',
+      mimeType: 'audio/webm', audioData: 'data:audio/webm;base64,QUJD',
+      durationMs: 900, createdAt: serverTimestamp()
+    }));
+    await assertFails(updateDoc(audio, { body: 'Transcrição arbitrária', editedAt: serverTimestamp() }));
+  });
+  it('ICE não aceita candidatos após término da chamada', async () => {
+    const alice = testEnv.authenticatedContext('alice').firestore();
+    const call = doc(alice, 'conversations', conversationId, 'calls', 'finished-ice');
+    await assertSucceeds(setDoc(call, {
+      initiatorId: 'alice', calleeId: 'bob', offer: 'sdp', status: 'ringing', createdAt: serverTimestamp()
+    }));
+    await assertSucceeds(updateDoc(call, { status: 'ended', endedAt: serverTimestamp() }));
+    await assertFails(setDoc(doc(alice, 'conversations', conversationId, 'calls', 'finished-ice', 'ice', 'after-end'), {
+      senderId: 'alice', candidate: 'ice-data', createdAt: serverTimestamp()
+    }));
   });
   it('nega visitante sem autenticação', async () => {
     const visitor = testEnv.unauthenticatedContext().firestore();

@@ -1,11 +1,11 @@
-import { collection, doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore';
+import { collection, deleteDoc, doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore';
 import { db } from './firebase';
 
 export const MAX_INLINE_FILE_BYTES = 60000;
 export const ACCEPTED_MIMES = ['image/png', 'image/jpeg', 'application/pdf', 'text/plain'] as const;
 export type AcceptedMime = typeof ACCEPTED_MIMES[number];
 export type PrivateFile = {
-  filename: string; mimeType: string; dataUrl: string; expiresAt: Date; byteSize: number;
+  filename: string; mimeType: string; dataUrl: string; expiresAt: Date; byteSize: number; ownerId: string;
 };
 export function isAcceptedMime(type: string): type is AcceptedMime {
   return ACCEPTED_MIMES.includes(type as AcceptedMime);
@@ -43,7 +43,7 @@ export async function loadPrivateFile(conversationId: string, fileId: string): P
   }
   return { filename: String(d.filename), mimeType: String(d.mimeType),
     dataUrl: String(d.dataUrl), expiresAt: d.expiresAt.toDate(),
-    byteSize: Number(d.byteSize) };
+    byteSize: Number(d.byteSize), ownerId: String(d.ownerId) };
 }
 export function buildFileLink(origin: string, conversationId: string, fileId: string): string {
   const url = new URL(origin);
@@ -55,4 +55,9 @@ export function parseFileCode(code: string): { conversationId: string; fileId: s
   if (split.length !== 2 || !/^[a-zA-Z0-9_-]{1,150}$/.test(split[0])
     || !/^[a-zA-Z0-9_-]{1,150}$/.test(split[1])) return null;
   return { conversationId: split[0], fileId: split[1] };
+}
+
+/** Revoga o link e elimina o documento. Apenas o autor pode apagar pelas Rules. */
+export async function deletePrivateFile(conversationId: string, fileId: string): Promise<void> {
+  await deleteDoc(doc(db, 'conversations', conversationId, 'attachments', fileId));
 }

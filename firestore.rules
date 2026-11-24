@@ -17,6 +17,14 @@ service cloud.firestore {
         || (exists(/databases/$(database)/documents/userPrivate/$(b))
           && a in get(/databases/$(database)/documents/userPrivate/$(b)).data.blockedUids);
     }
+    // Um bloqueio em DM interrompe novas interações entre as duas contas.
+    // Grupos preservam suas próprias políticas de membership/moderação.
+    function interactionAllowed(conversationId) {
+      return get(/databases/$(database)/documents/conversations/$(conversationId)).data.kind == 'group'
+        || !blockedBetween(
+          get(/databases/$(database)/documents/conversations/$(conversationId)).data.memberIds[0],
+          get(/databases/$(database)/documents/conversations/$(conversationId)).data.memberIds[1]);
+    }
     function validText(data) {
       return data.body is string
         && data.body.size() > 0
@@ -69,7 +77,10 @@ service cloud.firestore {
       allow update: if signedIn()
         && (request.auth.token.moderator == true || request.auth.token.admin == true)
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','resolvedAt'])
-        && request.resource.data.status in ['reviewed','closed'];
+        && request.resource.data.diff(resource.data).affectedKeys().hasAll(['status','resolvedAt'])
+        && ((resource.data.status == 'open' && request.resource.data.status in ['reviewed', 'closed'])
+          || (resource.data.status == 'reviewed' && request.resource.data.status == 'closed'))
+        && request.resource.data.resolvedAt == request.time;
       allow delete: if false;
     }
     match /conversations/{conversationId} {
@@ -195,7 +206,7 @@ service cloud.firestore {
       }
       match /calls/{callId} {
         allow get, list: if isMember(conversationId);
-        allow create: if isMember(conversationId)
+        allow create: if isMember(conversationId) && interactionAllowed(conversationId)
           && get(/databases/$(database)/documents/conversations/$(conversationId)).data.kind == 'dm'
           && request.resource.data.keys().hasOnly(['initiatorId','calleeId','status','offer','createdAt'])
           && request.resource.data.keys().hasAll(['initiatorId','calleeId','status','offer','createdAt'])
@@ -210,6 +221,7 @@ service cloud.firestore {
         allow update: if isMember(conversationId)
           && (
             (request.auth.uid == resource.data.calleeId
+              && interactionAllowed(conversationId)
               && resource.data.status == 'ringing'
               && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','answer','answeredAt'])
               && request.resource.data.status == 'connected'
@@ -226,7 +238,9 @@ service cloud.firestore {
         match /ice/{candidateId} {
           allow get, list: if isMember(conversationId);
           allow create: if isMember(conversationId)
+            && interactionAllowed(conversationId)
             && exists(/databases/$(database)/documents/conversations/$(conversationId)/calls/$(callId))
+            && get(/databases/$(database)/documents/conversations/$(conversationId)/calls/$(callId)).data.status in ['ringing','connected']
             && request.resource.data.keys().hasOnly(['senderId','candidate','createdAt'])
             && request.resource.data.keys().hasAll(['senderId','candidate','createdAt'])
             && request.resource.data.senderId == request.auth.uid
@@ -240,7 +254,7 @@ service cloud.firestore {
       match /attachments/{fileId} {
         allow get: if isMember(conversationId) && resource.data.expiresAt > request.time;
         allow list: if false;
-        allow create: if isMember(conversationId)
+        allow create: if isMember(conversationId) && interactionAllowed(conversationId)
           && request.resource.data.keys().hasOnly(['ownerId','filename','mimeType','dataUrl','byteSize','createdAt','expiresAt'])
           && request.resource.data.keys().hasAll(['ownerId','filename','mimeType','dataUrl','byteSize','createdAt','expiresAt'])
           && request.resource.data.ownerId == request.auth.uid
@@ -257,7 +271,9 @@ service cloud.firestore {
           && request.resource.data.createdAt == request.time
           && request.resource.data.expiresAt > request.time
           && request.resource.data.expiresAt <= request.time + duration.value(24, 'h');
-        allow update, delete: if false;
+        allow update: if false;
+        // O autor pode eliminar o conteúdo armazenado, inclusive após o link expirar.
+        allow delete: if isMember(conversationId) && resource.data.ownerId == request.auth.uid;
       }
       match /messages/{messageId} {
         allow get, list: if isMember(conversationId);
@@ -265,10 +281,7 @@ service cloud.firestore {
           && request.resource.data.keys().hasOnly(['senderId', 'body', 'createdAt', 'replyToId', 'kind', 'audioData', 'mimeType', 'durationMs'])
           && request.resource.data.keys().hasAll(['senderId', 'body', 'createdAt'])
           && request.resource.data.senderId == request.auth.uid
-          && (get(/databases/$(database)/documents/conversations/$(conversationId)).data.kind == 'group'
-            || !blockedBetween(
-              get(/databases/$(database)/documents/conversations/$(conversationId)).data.memberIds[0],
-              get(/databases/$(database)/documents/conversations/$(conversationId)).data.memberIds[1]))
+          && interactionAllowed(conversationId)
           && validText(request.resource.data)
           && request.resource.data.createdAt == request.time
           && (
@@ -291,6 +304,8 @@ service cloud.firestore {
               && exists(/databases/$(database)/documents/conversations/$(conversationId)/messages/$(request.resource.data.replyToId))));
         allow update: if isMember(conversationId)
           && resource.data.senderId == request.auth.uid
+          && interactionAllowed(conversationId)
+          && !('kind' in resource.data)
           && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['body', 'editedAt'])
           && request.resource.data.diff(resource.data).affectedKeys().hasAll(['body', 'editedAt'])
           && validText(request.resource.data)
@@ -299,12 +314,14 @@ service cloud.firestore {
         match /reactions/{uid} {
           allow get, list: if isMember(conversationId);
           allow create: if own(uid) && isMember(conversationId)
+            && interactionAllowed(conversationId)
             && exists(/databases/$(database)/documents/conversations/$(conversationId)/messages/$(messageId))
             && request.resource.data.keys().hasOnly(['emoji', 'createdAt'])
             && request.resource.data.keys().hasAll(['emoji', 'createdAt'])
             && request.resource.data.emoji in ['👍', '❤️', '😂', '🎉', '😮']
             && request.resource.data.createdAt == request.time;
           allow update: if own(uid) && isMember(conversationId)
+            && interactionAllowed(conversationId)
             && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['emoji'])
             && request.resource.data.emoji in ['👍', '❤️', '😂', '🎉', '😮'];
           allow delete: if own(uid) && isMember(conversationId);
