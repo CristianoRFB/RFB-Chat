@@ -2,24 +2,28 @@
   "schema": 1,
   "repo": "CristianoRFB/RFB-Chat",
   "goal": "RFBChat — implementar 12 AC com rastreabilidade, emuladores e custo adicional R$0/mês",
-  "phase": "G3_ADVANCED_FUNCTIONS_IMPLEMENTED_QA_PENDING",
-  "slice": "S004-S011",
+  "phase": "G5_LOCAL_SECURITY_QA_PASS_PRODUCTION_GATED",
+  "slice": "S004-S013",
   "baseline_sha": "b20f3887d9192ad10371ba8e8f0888ee93d09da4",
-  "last_commit_sha": "f7958c4fc123109633d8b9f0cdf296001acac2e8",
-  "last_verified_sha": "60b0453e23dd850997aa1ec7223e39f878df4134",
+  "last_commit_sha": "3dc7e7b4f1175509ae32476dd219ad8215c8be36",
+  "last_verified_sha": "3dc7e7b4f1175509ae32476dd219ad8215c8be36",
   "evidence": {
     "github_pr": "https://github.com/CristianoRFB/RFB-Chat/pull/1",
-    "open_issues": 1,
+    "open_issues": 0,
     "open_prs": 1,
-    "last_known_green_run": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45095871951",
-    "last_known_green_results": "npm ci/typecheck/build PASS, 9 unit, 17 Firestore Rules, 8 Playwright E2E without retries",
-    "current_head_ci": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45096426299",
-    "current_head_ci_status": "IN_PROGRESS_AT_CHECKPOINT",
+    "last_known_green_run": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45302857809",
+    "last_known_green_results": "npm ci/typecheck/build PASS; 9 unit, 20 Firestore Rules, 10 Chromium E2E sem retries; SHA 3dc7e7b",
+    "current_head_ci": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45302857809",
+    "current_head_ci_status": "SUCCESS",
     "lockfile": "package-lock.json generated in CI and versioned, npm ci used",
     "runtime_environment": "demo-rfb-chat Firebase Auth + Firestore Emulators; Node 22/Java21",
     "production_deploy": "NOT_DONE",
     "media_transport": "CALL_SIGNALING_E2E_PASS_NO_REAL_AUDIO_PACKET_VALIDATION",
-    "qa_issue": "https://github.com/CristianoRFB/RFB-Chat/issues/2"
+    "qa_issue": "https://github.com/CristianoRFB/RFB-Chat/issues/2",
+    "qa_profile_stability": "3/3 successful job attempts on 1639d52 run 45097362021; issue #2 closed",
+    "security_hardening_sha": "57b0adc51d662fa331b6ff9bc992e62bc32c2f26",
+    "reaction_perf_sha": "3dc7e7b4f1175509ae32476dd219ad8215c8be36",
+    "last_checked_production": "No deployment (Firebase Emulator only)"
   },
   "completed": [
     "Preservados 10 módulos, 12 features e catálogo histórico de 58 telas conceituais e 7 diagramas",
@@ -32,25 +36,28 @@
     "S009: notificações internas de não lidas e preferências de privacidade",
     "S010: chamada de voz P2P local experimental com offer/answer/ICE, sem TURN/SFU",
     "S011: package-lock.json gerado no runner GH e versionado; npm ci determinístico",
-    "CI de referência em 60b0453: TypeScript, build, 9 unit, 17 security rules e 8 E2E first-pass",
-    "Adicionado teste de 3 contas para notificações e recuperação explícita de perfis faltantes; verificações posteriores ainda pendentes"
+    "S012: bloqueio server-side passa a impedir chamadas, ICE, reações e anexos de DM; áudio não é editável",
+    "S012: transições de moderação auditadas, resolvedAt no servidor, revogação manual de anexos apenas pelo autor",
+    "S013: E2E revogação de arquivo, mobile 320/390/768/1440px, reações carregadas somente perto do viewport",
+    "G5 laboratório: 9 unit + 20 Firestore Rules + 10 Playwright E2E aprovados sem retries, SHA 3dc7e7b.",
+    "Issue #2 de concorrência no perfil fechada depois de 3 execuções consecutivas aprovadas sem retry."
   ],
   "pending": [
-    "Verificar em HEAD exato a CI de notificações/recuperação de perfil; corrigir somente falhas reproduzidas",
-    "Issue #2 de intermitência: 3 runs sem retry em SHA compatível e evidência limpa antes de fechar",
+    "Validar transporte RTP real e conectividade WebRTC fora de localhost (sem STUN/TURN isso não é garantido).",
+    "Completar G5: QA manual leitor de tela e navegadores reais, revisão OWASP/LGPD e de fluxo concorrente com carga moderada.",
     "Validar arquivos PNG conceituais originais, licenças, fidelidade das 58 telas e público real",
-    "Auditoria acessibilidade WCAG 2.2, offline/erro, teste em 320-1440px, performance e densidade de listeners",
     "Limites de quota/rate limit antiabuso, LGPD/retencão, backups, exclusão, moderadores de verdade e política de conteúdo",
     "Validar produção somente após autorização explícita: Firebase Spark, domínio Cloudflare e regras/backup revisados",
-    "WebRTC sem TURN/SFU não garante chamadas fora da rede; fluxo sinalizado em CI não prova transporte real de áudio"
+    "WebRTC sem TURN/SFU não garante chamadas fora da rede; fluxo sinalizado em CI não prova transporte real de áudio",
+    "Revogação manual de link disponível, mas expiração lógica NÃO apaga automaticamente os bytes; projetar TTL/retencão antes de uso real."
   ],
   "blockers": [
     "PR DRAFT não está mesclado e nenhum deploy/projeto Firebase real foi autorizado",
-    "E2E no contexto de múltiplas contas já apresentou falhas intermitentes de confirmação do perfil; recuperação adicionada, não declarada estável até CI atual",
-    "11/12 funcionalidades com fluxo local foram escritas, mas definição de 90% integral não pode ser homologada com ausência de QA externa e produção"
+    "11/12 funcionalidades com fluxo local foram escritas, mas definição de 90% integral não pode ser homologada com ausência de QA externa e produção",
+    "11/12 somente como cobertura de fluxos de laboratório; 58 telas conceituais não foram implementadas individualmente."
   ],
-  "next_action": "Inspecionar CI HEAD 45096426299, corrigir teste/bug verdadeiro, executar suite 3 vezes sem retries e então marcar AC verificadas; manter PR Draft sem deploy.",
-  "revision": 5,
+  "next_action": "Concluir revisão manual OWASP/WCAG/LGPD, limites de cota/retencão, RTC media path real, planejamento Cloudflare+Firebase Spark; preservar PR Draft até autorização de release.",
+  "revision": 6,
   "updated_at": "2026-11-23",
   "history": [
     {
@@ -79,6 +86,18 @@
       "at": "2026-11-23",
       "code_sha": "f7958c4fc123109633d8b9f0cdf296001acac2e8",
       "verified_sha": "60b0453e23dd850997aa1ec7223e39f878df4134"
+    },
+    {
+      "event": "G5_LOCAL_QA_PASS_AND_ISSUE_2_CLOSED",
+      "at": "2026-11-23",
+      "verified_sha": "3dc7e7b4f1175509ae32476dd219ad8215c8be36",
+      "run_id": 45302857809,
+      "tests": {
+        "unit": 9,
+        "rules": 20,
+        "e2e": 10
+      },
+      "issue_2": "closed"
     }
   ]
 }

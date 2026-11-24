@@ -1,46 +1,30 @@
-# RFB Chat — Cobertura rastreável (RFB Method)
-Atualização: 22/11/2026, America/Sao_Paulo. Referência original: `docs/ESPECIFICACAO-RFB.txt`.
-**Regra de percentual:** 90% de 12 AC = **11 AC aprovados integralmente**. Implementação de interface, ou teste em emulador, **não equivale** a homologação/produção. Não transformar cobertura de código em porcentagem de sistema concluído.
+# RFB Chat — Matriz de cobertura (RFB Method)
 
-## Matriz das 12 funcionalidades originais
-| AC | Função | Código implementado | Evidência verificável / lacuna |
+Data: 23/11/2026, America/Sao_Paulo. Referência: [especificação](../ESPECIFICACAO-RFB.txt). Implementação: [PR #1 DRAFT](https://github.com/CristianoRFB/RFB-Chat/pull/1). Último código verificado: `3dc7e7b4f1175509ae32476dd219ad8215c8be36`.
+
+**Resultado verificável:** 11/12 recursos (91,7%) com fluxos funcionais no laboratório Firebase Emulator; a 12ª funcionalidade tem apenas a sinalização de chamada WebRTC verificada. Isso é **cobertura funcional do protótipo**, não 91,7% de todas as telas, controles, integrações, acessibilidade, segurança e produção. O checklist original de aceite exige persistência, autorização, concorrência, integração e E2E por AC; nem todos estes aspectos foram homologados individualmente para operação real.
+
+| AC | Função da fonte | Estado do laboratório | Evidência ou restrição |
 |---|---|---|---|
-| 01 | Conversa individual e grupo | DM, grupos, permissões | E2E 45095871951 + Rules; fora de produção |
-| 02 | Texto e reações | onSnapshot, allowlist de emoji | E2E 45095871951 + Rules |
-| 03 | Responder e editar | replyToId, autor-only | E2E 45095871951 + Rules |
-| 04 | Enviado/recebido/lido | pendente/gravada/entregue/lida | E2E+Rules; sem entrega push/segundo plano |
-| 05 | Paginação | 50 recentes + query anterior | E2E de 52 mensagens em 45095871951 |
-| 06 | Busca por conversa | filtro por nome/UID | E2E de busca em 45095871951; sem busca global de conteúdo |
-| 07 | Convites e cargos | aceite obrigatório, admin de grupo | E2E 45095871951 + Rules; limite de participantes |
-| 08 | Áudio consentido | MediaRecorder WebM, 20s e teto | E2E com microfone fake no CI 45095871951; sem media hosting real |
-| 09 | Arquivos privados | TXT/PNG/JPG/PDF até 60KB; link 23h | E2E 45095871951 + Rules; armazenamento base64 não escala |
-| 10 | Notificações/prefs | contador não lidas, toggles | Teste E2E novo em `e2e/notifications.spec.ts`; pendente resultado final, sem push |
-| 11 | Bloqueio/denúncia | bloqueio server-side, reports e moderação por claims | E2E de bloqueio/denúncia + Rules; atribuição real de moderador pendente |
-| 12 | Chamada opcional | WebRTC P2P local com oferta/resposta/ICE | E2E sinalização fake mic em 45095871951; **não prova áudio real externo/TURN** |
+| 01 | Conversa individual e grupo | Fluxo testado | DMs, membership, grupos; Rules + E2E |
+| 02 | Envio de texto e reações | Fluxo testado | Assinaturas reativas somente em mensagens visíveis |
+| 03 | Responder e editar | Fluxo testado | Editar apenas texto próprio, autorização em Rules |
+| 04 | Indicadores enviado/recebido/lido | Fluxo testado | Carimbo do servidor; sem push em segundo plano |
+| 05 | Paginação | Fluxo testado | 52 mensagens e carregamento de página anterior |
+| 06 | Busca por conversa | Fluxo testado | Filtro de conversas (não indexação do conteúdo) |
+| 07 | Convites e cargos | Fluxo testado | Aceite explícito, owner/admin, canais |
+| 08 | Áudio gravado com consentimento | Fluxo testado | WebM até 20 s com microfone sintético no E2E; consentimento não auditado |
+| 09 | Arquivos privados e links temporários | Fluxo testado | Link autenticado ~23h, máx. 60KB, exclusão pelo autor; **sem purga TTL automática** |
+| 10 | Notificações e preferências | Fluxo testado | Contagem interna não lidas, toggles; sem push |
+| 11 | Bloqueio e denúncia | Fluxo testado | Bloqueio server-side de DM, chamadas, ICE, reações e arquivos; moderação por claims |
+| 12 | Chamadas individuais opcionais | Prova de conceito parcial | E2E de sinalização e término, **não prova RTP/áudio real ou redes externas** |
 
-**Resultado técnico confirmado do checkpoint verde:** 8 jornadas Playwright sem retry, 17 testes Rules e 9 unitários PASS. Esse conjunto valida fluxos-chave de AC-01 a AC-09 e AC-11 e a sinalização experimental da AC-12. AC-10 e recuperação de perfil dependem do HEAD mais novo. Não se pode declarar 11/12 AC integralmente homologadas ou 90% do produto concluído.
+**CI por SHA:** [run 45302857809](https://github.com/CristianoRFB/RFB-Chat/actions/runs/45302857809): `npm ci`, TypeScript, build, 9 Vitest, 20 Rules Test, 10 Playwright Chromium, todos aprovados sem retry. [Run de estabilização 45097362021](https://github.com/CristianoRFB/RFB-Chat/actions/runs/45097362021): tentativas 1, 2 e 3 sucessivas, sem retries internos. [Issue #2](https://github.com/CristianoRFB/RFB-Chat/issues/2) fechada com evidência.
 
-## Cobertura dos 10 módulos da fonte
-| Módulo | Estado local |
-|---|---|
-| Conversas | Fluxo implementado/testado |
-| Grupos e membros | Implementado/testado |
-| Canais | Implementado; QA funcional no E2E grupo |
-| Arquivos e mídia | Implementado para pequeno volume; não produção |
-| Chamadas | Prova de conceito P2P, sem transporte remoto comprovado |
-| Pesquisa | Filtro de conversas; busca de texto total ainda fora de escopo |
-| Notificações | Internas, sem push; CI final pendente |
-| Perfil e privacidade | CRUD restrito; recuperação de perfil adicionada |
-| Moderação | Regras e painel com custom claims, sem atribuição real |
-| Administração | Área de denúncias para admin, **não console completo de plataforma** |
+## 10 módulos originais
+Conversas, Grupos/Membros, Canais, Arquivos/Mídia, Pesquisa, Notificações e Perfil/Privacidade: fluxos de laboratório. Chamadas: P2P experimental sem TURN/SFU. Moderação: denúncia, revisão por custom claim (sem atribuição real de privilégios). Administração: fila de denúncias, não console completo de plataforma.
 
-## Gates RFB Method
-- **G0:** fonte e diagramas preservados; benchmark documentado, sem validação externa.
-- **G1:** React/TS/Vite, Firebase emuladores, lockfile versionado, CI.
-- **G2:** DM, grupo e histórico testados no emulador; QA de estabilidade ainda aberto.
-- **G3:** 12 áreas funcionais de MVP codificadas com limitações explícitas.
-- **G4:** produção e integrações pagas não aprovadas; WebRTC sem TURN.
-- **G5:** testes unitários, Rules e E2E rodados; auditoria global, QA mobile abrangente, WCAG/privacidade e concorrência pendentes.
-- **G6:** `NOT_DEPLOYED` por segurança e falta de autorização explícita.
+O catálogo de **58 telas** é conceitual. Não equivale a 58 layouts finalizados; fluxos correspondentes são reunidos em páginas e painéis React. G5 não passou por auditoria manual integral; G6/deploy não foi executado.
 
-Meta financeira: custo recorrente adicional **R$0 no que foi ativado**, não promessa de gratuidade de produção.
+## Gates
+G0 fonte e diagramas preservados; G1 ambiente, CI e lockfile; G2 fluxo principal; G3 11 fluxos completos em laboratório + P2P parcial; G4 mídia externa não habilitada; G5 9/20/10 testes automáticos verdes, revisão humana pendente; G6 bloqueado até autorização, segurança e infraestrutura real. Veja [RELEASE-GATES.md](RELEASE-GATES.md).

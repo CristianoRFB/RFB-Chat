@@ -2,23 +2,23 @@
   "schema_version": 2,
   "product": "RFBChat",
   "repository": "CristianoRFB/RFB-Chat",
-  "stage": "ADVANCED_EMULATOR_MVP_QA_PENDING",
+  "stage": "LOCAL_FUNCTIONAL_COVERAGE_ABOVE_90_PERCENT_G5_PARTIAL",
   "source_imported": true,
   "modules_documented": 10,
   "features_documented": 12,
-  "implemented_code_slices": "12 of 12 conceptual features, with limitations; NOT 90% production acceptance",
-  "last_verified_code_sha": "60b0453e23dd850997aa1ec7223e39f878df4134",
-  "last_verified_ci_url": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45095871951",
+  "implemented_code_slices": "11 of 12 capabilities have local functional flows; WebRTC call signaling only (media path unverified)",
+  "last_verified_code_sha": "3dc7e7b4f1175509ae32476dd219ad8215c8be36",
+  "last_verified_ci_url": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45302857809",
   "last_verified": {
     "unit": "PASS_9",
-    "rules": "PASS_17",
-    "playwright": "PASS_8_NO_RETRY",
+    "rules": "PASS_20",
+    "playwright": "PASS_10_NO_RETRY",
     "typecheck": "PASS",
     "build": "PASS",
     "npm_ci": "PASS"
   },
-  "latest_code_sha": "f7958c4fc123109633d8b9f0cdf296001acac2e8",
-  "latest_qa": "NOT_YET_VERIFIED_AT_HEAD",
+  "latest_code_sha": "3dc7e7b4f1175509ae32476dd219ad8215c8be36",
+  "latest_qa": "SUCCESS_9_UNIT_20_RULES_10_E2E",
   "production": false,
   "real_payments": false,
   "firebase": "EMULATOR_ONLY",
@@ -26,9 +26,16 @@
   "monthly_recurring_cost_added_brl": 0,
   "source_png_assets": "NOT_IMPORTED",
   "blockers": [
-    "QA intermittent profile - Issue #2",
-    "Human/privacy/accessibility/security review",
-    "No production authorization"
+    "Production deployment/configuration not authorized",
+    "WebRTC media path over real networks unverified",
+    "No physical TTL purge, quotas/rate limits or full LGPD/OWASP/WCAG release audit",
+    "58 conceptual screens not separately built"
   ],
-  "next_action": "Resolve latest head CI, reconcile RFB Method checkpoints; complete final audit and explicit release approval."
+  "next_action": "Review RELEASE-GATES.md, verify live media path, privacy retention, quotas and accessible UX before production sign-off.",
+  "functional_coverage": {
+    "local_tested_flows": 11,
+    "total": 12,
+    "percent": 91.7,
+    "interpretation": "MVP/emulator feature coverage only; not overall system completion or production acceptance"
+  }
 }

@@ -1,11 +1,11 @@
 # GitHub Triage — RFB Chat
-Revisão 22/11/2026 America/Sao_Paulo. Repo CristianoRFB/RFB-Chat; PR [#1 DRAFT](https://github.com/CristianoRFB/RFB-Chat/pull/1) aberto; branch `feature/rfb-starter-pack-v1`; base `main`.
+23/11/2026, America/Sao_Paulo. PR [#1 DRAFT](https://github.com/CristianoRFB/RFB-Chat/pull/1), branch `feature/rfb-starter-pack-v1`, base `main`.
 
-| Item | Classificação | Evidência/Ação |
+| Item | Estado | Evidência |
 |---|---|---|
-| Issue #2 E2E intermitente | OPEN_ACTIONABLE · P1 | https://github.com/CristianoRFB/RFB-Chat/issues/2; perfil pode não sincronizar; não fechar sem três execuções limpas da última correção |
-| PR #1 Starter+MVP ampliado | IMPLEMENTED_PARTIAL_VERIFIED | https://github.com/CristianoRFB/RFB-Chat/pull/1; keep open draft, merge/deploy bloqueados |
-| CI verde de referência | VERIFIED_AT_SHA | https://github.com/CristianoRFB/RFB-Chat/actions/runs/45095871951; 9 unit, 17 Rules, 8 E2E |
-| CI da última revisão | NOT_VERIFIED | https://github.com/CristianoRFB/RFB-Chat/actions/runs/45096426299 |
+| Issue #2 cadastro/resposta E2E intermitente | **CLOSED / COMPLETED** | 3 tentativas consecutivas SUCCESS na [CI 45097362021](https://github.com/CristianoRFB/RFB-Chat/actions/runs/45097362021) |
+| PR #1 | OPEN / DRAFT / NOT MERGED | Revisão humana e G5/G6 pendentes |
+| HEAD verificado | `3dc7e7b4f1175509ae32476dd219ad8215c8be36` | [run 45302857809](https://github.com/CristianoRFB/RFB-Chat/actions/runs/45302857809) — 9 unit, 20 Rules, 10 E2E |
+| Infraestrutura real | NOT DEPLOYED | Firebase Emulator-only; nenhum serviço cobrado nesta rodada |
 
-Sem merge, deleção de branch, fechamento automático ou ativação de serviços pagos. Verificar Issues/PRs novamente ao encerrar/retomar.
+Nenhum issue P1 do fluxo principal permaneceu aberto na última consulta. Gates manuais de produção continuam descritos em [RELEASE-GATES.md](RELEASE-GATES.md). Não reabrir uma issue antiga por falha não relacionada; criar item novo com evidências se necessário.

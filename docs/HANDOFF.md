@@ -1,18 +1,17 @@
-# Handoff — RFB Chat (22/11/2026, America/Sao_Paulo)
-**PR:** https://github.com/CristianoRFB/RFB-Chat/pull/1 — DRAFT, base `main`, branch `feature/rfb-starter-pack-v1`.
-**HEAD ao checkpoint:** `f7958c4fc123109633d8b9f0cdf296001acac2e8`.
-**Último verde confirmado:** `60b0453e23dd850997aa1ec7223e39f878df4134` — https://github.com/CristianoRFB/RFB-Chat/actions/runs/45095871951 — 9 unit, 17 Rules, 8 E2E, typecheck/build PASS, sem retry.
-**Última CI ainda pendente:** https://github.com/CristianoRFB/RFB-Chat/actions/runs/45096426299.
+# Handoff do RFB Chat — 23/11/2026 (America/Sao_Paulo)
+**Repositório:** `CristianoRFB/RFB-Chat`. **Branch:** `feature/rfb-starter-pack-v1`. **PR:** [#1 DRAFT](https://github.com/CristianoRFB/RFB-Chat/pull/1), sem merge ou deploy.
+**SHA verificado do código:** `3dc7e7b4f1175509ae32476dd219ad8215c8be36`. **CI:** [45302857809](https://github.com/CristianoRFB/RFB-Chat/actions/runs/45302857809) PASS — 9 unit, 20 Rules, 10 E2E, npm ci, typecheck e build.
 
-## O que está implementado
-Auth Emulator e Firestore Emulator; perfis privados; DM/grupos/convites/admin/canais; resposta/edição/reações/entrega/leitura/paginação/busca; notificações internas e preferências; bloqueio e denúncias, painéis de moderação gated; WebM consentido; arquivos com link temporário; WebRTC P2P local com sinalização e mic sintético.
+## Realizado
+- A instabilidade de cadastro foi corrigida por serialização do perfil e confirmada em três execuções sucessivas do run 45097362021. [Issue #2](https://github.com/CristianoRFB/RFB-Chat/issues/2) fechada.
+- 11 dos 12 recursos originais possuem fluxos funcionais testados no emulador (91,7% da matriz funcional local). O 12º tem sinalização P2P experimental.
+- Hardening: bloqueio de DM impede mensagens/edições/reações/chamadas/ICE/novos anexos; denúncias têm transições válidas; áudio é imutável; arquivos podem ser eliminados pelo autor; reações usam listeners próximos ao viewport; 320/390/768/1440px testados em E2E.
 
-## Limitações não negociáveis
-Sem merge/deploy, sem Firebase real, sem Cloudflare alterado, sem Blaze ou plano pago, sem contas/conversas reais. WebRTC sem TURN não garante conectividade externa nem qualidade; nenhum E2EE. Anexos em Firestore inline (60KB) não são arquitetura escalável. Painel moderador não atribui privilégios, exige custom claims confiáveis. Faltam política de retenção/exclusão, quotas, backup e auditoria de LGPD/OWASP/WCAG.
+## Limitações
+Firebase é **somente emulador**. O build não oferece serviço de produção. Sem E2EE, push, TURN/SFU, política de retenção ou purga TTL automática, moderação privilegiada operacional, controle de quota, backup de produção, QA manual de WCAG/LGPD/OWASP ou publicação Cloudflare. Não tratar 58 telas conceituais como implementadas. Não adicionar serviços pagos ou conectar dados reais por conta própria.
 
-## Retomada executável
-1. Conferir HEAD/PR #1/Issue #2/checks/reviews/Actions e reconciliar `docs/rfb/STATE.json`.
-2. Abrir a última execução do HEAD: https://github.com/CristianoRFB/RFB-Chat/actions/runs/45096426299; corrigir falhas reais e atualizar estado após commit.
-3. Validar recuperação de perfil recém-criado e notificações com 3 usuários; 3 execuções sem retries antes de fechar Issue #2.
-4. Auditoria real de regras/conflitos/concorrência/denúncias, QA mobile ampla, revisão dos PNGs/58 conceitos e licenças.
-5. Sem aprovação para produção, preservar PR como DRAFT; somente liberar após gates G5/G6.
+## Retomada
+1. Verificar PR head/checks/comments e arquivo `docs/rfb/STATE.json`.
+2. Completar a [matriz de gates de produção](rfb/RELEASE-GATES.md) e avaliar 58 telas contra UI efetiva.
+3. Testar mídia WebRTC em redes reais, acessibilidade por teclado/leitor de tela, LGPD/retencão/segurança e cotas.
+4. Solicitar aprovação de configuração real e orçamento antes de habilitar Firebase/Cloudflare; manter PR Draft até revisão humana.
