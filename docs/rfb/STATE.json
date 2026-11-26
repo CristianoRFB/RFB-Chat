@@ -3,9 +3,9 @@
   "repo": "CristianoRFB/RFB-Chat",
   "goal": "RFBChat — implementar 12 AC com rastreabilidade, emuladores e custo adicional R$0/mês",
   "phase": "EVOLVE_04_IN_PROGRESS",
-  "slice": "S026",
+  "slice": "S027",
   "baseline_sha": "b20f3887d9192ad10371ba8e8f0888ee93d09da4",
-  "last_commit_sha": "954a31ba6a6f0e346cfe5b08a4506e814ee4dc3b",
+  "last_commit_sha": "09984cdb04b8ece116f25726c7eed497fdc9cdd9",
   "last_verified_sha": "957c93baa461cf1d508c10f24f4c247d2eb44130",
   "evidence": {
     "github_pr": "https://github.com/CristianoRFB/RFB-Chat/pull/1",
@@ -89,7 +89,7 @@
     "11/12 funcionalidades com fluxo local foram escritas, mas definição de 90% integral não pode ser homologada com ausência de QA externa e produção",
     "11/12 somente como cobertura de fluxos de laboratório; 58 telas conceituais não foram implementadas individualmente."
   ],
-  "next_action": "Run visual scenario, inspect screenshots and correct; verify admin regression CI.",
+  "next_action": "S027 corrective pass; rerun visual and full CI, inspect and version screenshots.",
   "revision": 9,
   "updated_at": "2026-11-26",
   "history": [
@@ -332,6 +332,33 @@
       "slice": "S026",
       "baseline_sha": "954a31ba6a6f0e346cfe5b08a4506e814ee4dc3b",
       "goal": "real visual QA in Chromium, synthetic data through UI, capture inspect correct and version proof"
+    },
+    {
+      "event": "REGRESSION_VERIFIED",
+      "slice": "S025",
+      "sha": "954a31ba6a6f0e346cfe5b08a4506e814ee4dc3b",
+      "run_id": 45912658637,
+      "status": "PASS_ALL"
+    },
+    {
+      "event": "VISUAL_REVIEW",
+      "slice": "S026",
+      "sha": "09984cdb04b8ece116f25726c7eed497fdc9cdd9",
+      "run_id": 45912711678,
+      "artifact_id": 15160987607,
+      "status": "FAIL_CONTRAST_TEST_NAN",
+      "findings": [
+        "Três imagens reais desktop inspecionadas: login escuro, conversa escura e clara.",
+        "Histórico de 3 mensagens não cabe; última mensagem fora da área visível. Ações e reações sempre abertas, ferramentas consomem espaço.",
+        "UID local parcialmente fora do viewport; reposicionar antes das ferramentas.",
+        "NaN no cálculo de contraste: parser só suporta hex de 6 caracteres, tokens #fff/afins não são lidos."
+      ]
+    },
+    {
+      "event": "BEFORE_WRITE",
+      "slice": "S027",
+      "baseline_sha": "420e9eb087ab22ddadf469e67d116c820b7bc3e0",
+      "goal": "compactar mensagens com disclosure acessível, agrupar ferramentas, preservar rolagem recente, ajustar posição de conta e validar contraste em ambos temas"
     }
   ]
 }
