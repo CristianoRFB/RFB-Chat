@@ -169,3 +169,38 @@ test('EVOLVE 01: busca, fixação e remoção sincronizadas entre contas', async
     await expect(bob.getByText('Olá evolução '+suffix,{exact:true})).toHaveCount(0);
   } finally { await a.close(); await b.close(); }
 });
+
+test('EVOLVE 01: encaminhar entre conversas autorizadas e reconectar sem duplicar', async ({browser}) => {
+  test.setTimeout(90_000);
+  const a = await browser.newContext(), b = await browser.newContext(), c = await browser.newContext();
+  try {
+    const alice = await a.newPage(), bob = await b.newPage(), carol = await c.newPage();
+    const suffix = String(Date.now());
+    await register(alice,'Envio Alfa','forward-a-'+suffix+'@example.test');
+    const uidB = await register(bob,'Envio Beta','forward-b-'+suffix+'@example.test');
+    const uidC = await register(carol,'Envio Gama','forward-c-'+suffix+'@example.test');
+    for (const uid of [uidB, uidC]) {
+      await alice.locator('#target-uid').fill(uid);
+      await alice.getByRole('button',{name:'Criar conversa'}).click();
+      await expect(alice.locator('#target-uid')).toHaveValue('');
+    }
+    await expect(alice.getByRole('heading',{name:'Envio Gama'})).toBeVisible();
+    await alice.locator('.conversation-list .conversation').filter({hasText:'Envio Beta'}).click();
+    await expect(alice.getByRole('heading',{name:'Envio Beta'})).toBeVisible();
+    await alice.locator('#message-text').fill('Texto para encaminhar '+suffix);
+    await alice.getByRole('button',{name:'Enviar',exact:true}).click();
+    await expect(bob.getByText('Texto para encaminhar '+suffix,{exact:true})).toBeVisible();
+    await alice.locator('.message.outgoing').getByRole('button',{name:'Encaminhar',exact:true}).click();
+    await alice.locator('#forward-destination').selectOption({label:uidC});
+    await alice.getByRole('button',{name:'Confirmar encaminhamento'}).click();
+    await expect(carol.locator('.message.incoming')).toContainText('Encaminhada');
+    await expect(carol.getByText('Texto para encaminhar '+suffix,{exact:true})).toBeVisible();
+    await a.setOffline(true);
+    await expect(alice.getByText(/Sem conexão. Mensagens pendentes/)).toBeVisible();
+    await alice.locator('#message-text').fill('Após reconexão '+suffix);
+    await alice.getByRole('button',{name:'Enviar',exact:true}).click();
+    await a.setOffline(false);
+    await expect(bob.getByText('Após reconexão '+suffix,{exact:true})).toHaveCount(1,{timeout:30000});
+    await expect(alice.locator('#message-text')).toHaveValue('');
+  } finally { await a.close(); await b.close(); await c.close(); }
+});

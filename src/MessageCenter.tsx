@@ -151,6 +151,9 @@ export function MessageCenter({ conversationId, uid, otherUid, readEnabled, conv
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!conversationId || !draft.trim() || busy) return;
+    if (reply && messages.find(m => m.id === reply.id)?.deletedAt) {
+      setReply(null); onError(new Error('A mensagem original foi excluída. Envie sem resposta.')); return;
+    }
     setBusy(true);
     try {
       if (reply) await replyToMessage(conversationId, uid, draft, reply.id);
@@ -160,6 +163,10 @@ export function MessageCenter({ conversationId, uid, otherUid, readEnabled, conv
     } catch (error) { onError(error); }
     finally { setBusy(false); }
   }
+
+  useEffect(() => {
+    if (editing && messages.find(m => m.id === editing.id)?.deletedAt) { setEditing(null); setEditDraft(''); }
+  }, [editing, messages]);
 
   async function saveEdit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -209,7 +216,7 @@ export function MessageCenter({ conversationId, uid, otherUid, readEnabled, conv
       <button type="button" onClick={() => setForwarding(null)}>Cancelar encaminhamento</button>
     </form>}
     {reply && <div className="reply-banner">
-      <span>Respondendo: {reply.body.slice(0, 90)}</span>
+      <span>Respondendo: {(messageBodies.get(reply.id) ?? 'Mensagem anterior').slice(0, 90)}</span>
       <button type="button" onClick={() => setReply(null)}>Cancelar resposta</button>
     </div>}
     {editing && <form className="edit-form" onSubmit={saveEdit}>

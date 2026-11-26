@@ -21,7 +21,7 @@ export function ConversationPresence({ conversationId, uid, draft, cached, onErr
     }
   }, [draft]);
   useEffect(() => {
-    if (!enabled) return;
+    if (!enabled) { setOthers([]); return; }
     const path = collection(db, 'conversations', conversationId, 'presence');
     const own = doc(path, uid);
     let mounted = true;
@@ -41,7 +41,6 @@ export function ConversationPresence({ conversationId, uid, draft, cached, onErr
         if (mounted) onError(error);
       }).finally(() => {
         writing = false;
-        if (!mounted) void deleteDoc(own).catch(() => undefined);
       });
     };
     const off = onSnapshot(path, snapshot => {

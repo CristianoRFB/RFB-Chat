@@ -1,7 +1,7 @@
-import { useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import {
   acceptGroupInvite, createGroup, declineGroupInvite, editGroupTitle,
-  sendGroupInvite, setGroupAdmin, type ChatConversation
+  sendGroupInvite, setGroupAdmin, lookupName, type ChatConversation
 } from './chat-data';
 
 type Props = {
@@ -21,6 +21,13 @@ export function GroupControls({ uid, current, onCreated, onError }: Props) {
   const group = current?.kind === 'group' ? current : undefined;
   const isAdmin = !!group?.adminIds?.includes(uid);
   const isOwner = group?.createdBy === uid;
+  const [memberNames, setMemberNames] = useState<Record<string,string>>({});
+  useEffect(() => {
+    let active = true;
+    if (group) void Promise.all(group.memberIds.map(async member => [member, await lookupName(member).catch(() => member.slice(0,14))] as const))
+      .then(entries => { if (active) setMemberNames(Object.fromEntries(entries)); });
+    return () => { active = false; };
+  }, [group]);
 
   async function execute(job: () => Promise<void>, success: string) {
     setNotice('');
@@ -78,6 +85,7 @@ export function GroupControls({ uid, current, onCreated, onError }: Props) {
       <label htmlFor="group-code" className="mini-label">Código para convidados</label>
       <input id="group-code" readOnly value={group.id} onFocus={e => e.currentTarget.select()} />
       <p className="mini-label">{group.memberIds.length} participantes, {group.adminIds?.length ?? 0} administradores</p>
+      <details><summary>Participantes e cargos</summary><ul>{group.memberIds.map(member => <li key={member}>{memberNames[member] ?? member.slice(0,14)}{member === uid ? ' (você)' : ''} · {group.createdBy === member ? 'Criador' : group.adminIds?.includes(member) ? 'Admin' : 'Membro'}</li>)}</ul></details>
       {isAdmin && <>
         <form className="group-form" onSubmit={submitInvite}>
           <label htmlFor="invite-uid">Convidar pessoa por UID</label>

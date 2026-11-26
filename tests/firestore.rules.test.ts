@@ -433,3 +433,19 @@ describe('EVOLVE 01 — presença e ações permitidas', () => {
     await assertSucceeds(updateDoc(other,{pinned:false}));
   });
 });
+
+it('EVOLVE 01: proíbe responder ou reagir a texto excluído e presença após bloqueio', async () => {
+  const a = testEnv.authenticatedContext('alice').firestore();
+  const b = testEnv.authenticatedContext('bob').firestore();
+  await testEnv.withSecurityRulesDisabled(async ctx => {
+    const d = ctx.firestore();
+    await setDoc(doc(d,'conversations',conversationId,'messages','evolve-removed'),{senderId:'alice',body:'Mensagem excluída',createdAt:new Date(),deletedAt:new Date(),pinned:false});
+    await setDoc(doc(d,'userPrivate','alice'),{blockedUids:[],notificationsEnabled:true,readReceiptsEnabled:true});
+    await setDoc(doc(d,'userPrivate','bob'),{blockedUids:[],notificationsEnabled:true,readReceiptsEnabled:true});
+  });
+  await assertFails(setDoc(doc(b,'conversations',conversationId,'messages','evolve-reply-deleted'),{senderId:'bob',body:'resposta',replyToId:'evolve-removed',createdAt:serverTimestamp()}));
+  await assertFails(setDoc(doc(b,'conversations',conversationId,'messages','evolve-removed','reactions','bob'),{emoji:'👍',createdAt:serverTimestamp()}));
+  await assertSucceeds(updateDoc(doc(a,'userPrivate','alice'),{blockedUids:['bob']}));
+  await assertFails(setDoc(doc(b,'conversations',conversationId,'presence','bob'),{typing:true,updatedAt:serverTimestamp()}));
+  await assertSucceeds(updateDoc(doc(a,'userPrivate','alice'),{blockedUids:[]}));
+});

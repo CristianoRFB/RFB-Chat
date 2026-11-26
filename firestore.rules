@@ -310,7 +310,8 @@ service cloud.firestore {
             || (request.resource.data.replyToId is string
               && request.resource.data.replyToId.size() > 0
               && request.resource.data.replyToId != messageId
-              && exists(/databases/$(database)/documents/conversations/$(conversationId)/messages/$(request.resource.data.replyToId))));
+              && exists(/databases/$(database)/documents/conversations/$(conversationId)/messages/$(request.resource.data.replyToId))
+              && !('deletedAt' in get(/databases/$(database)/documents/conversations/$(conversationId)/messages/$(request.resource.data.replyToId)).data)));
         allow update: if isMember(conversationId) && !('deletedAt' in resource.data) && (
           (resource.data.senderId == request.auth.uid && interactionAllowed(conversationId)
             && !('kind' in resource.data)
