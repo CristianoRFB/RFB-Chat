@@ -2,8 +2,8 @@
   "schema": 1,
   "repo": "CristianoRFB/RFB-Chat",
   "goal": "RFBChat — implementar 12 AC com rastreabilidade, emuladores e custo adicional R$0/mês",
-  "phase": "EVOLVE_03_LOCAL_E2E_PENDING_EXTERNAL_GATES_OPEN",
-  "slice": "S020-S024",
+  "phase": "EVOLVE_04_IN_PROGRESS",
+  "slice": "S025",
   "baseline_sha": "b20f3887d9192ad10371ba8e8f0888ee93d09da4",
   "last_commit_sha": "a0d544a0104ed19c8b3b2a51aea7af8ccc10ed27",
   "last_verified_sha": "957c93baa461cf1d508c10f24f4c247d2eb44130",
@@ -89,7 +89,7 @@
     "11/12 funcionalidades com fluxo local foram escritas, mas definição de 90% integral não pode ser homologada com ausência de QA externa e produção",
     "11/12 somente como cobertura de fluxos de laboratório; 58 telas conceituais não foram implementadas individualmente."
   ],
-  "next_action": "Verificar CI 45911585835, corrigir regressões comprovadas e só então executar EVOLVE 04.",
+  "next_action": "S025 admin regression and visual refactor; screenshot QA then corrections",
   "revision": 9,
   "updated_at": "2026-11-26",
   "history": [
@@ -313,6 +313,13 @@
         5,
         6
       ]
+    },
+    {
+      "event": "BEFORE_WRITE",
+      "slice": "S025",
+      "baseline_sha": "abe0fa1599a4a6f6fb62325bba3efd11f4f86041",
+      "goal": "fix admin label selection from trace; design system, themes, filters, genuine screenshot QA; no fake data",
+      "regression_run": 45911757898
     }
   ]
 }
