@@ -2,13 +2,13 @@
   "schema_version": 2,
   "product": "RFBChat",
   "repository": "CristianoRFB/RFB-Chat",
-  "stage": "EVOLVE_01_PARTIAL_CI_PENDING_PUSH_BLOCKED",
+  "stage": "EVOLVE_02_PARTIAL_IN_PROGRESS_EXTERNAL_GATES_OPEN",
   "source_imported": true,
   "modules_documented": 10,
   "features_documented": 12,
   "implemented_code_slices": "11 of 12 capabilities have local functional flows; WebRTC call signaling only (media path unverified)",
-  "last_verified_code_sha": "3dc7e7b4f1175509ae32476dd219ad8215c8be36",
-  "last_verified_ci_url": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45302857809",
+  "last_verified_code_sha": "1974f774626da85a7c85eaedbf8d3e7bee7ac6c2",
+  "last_verified_ci_url": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45760719067",
   "last_verified": {
     "unit": "PASS_9",
     "rules": "PASS_20",
@@ -17,8 +17,8 @@
     "build": "PASS",
     "npm_ci": "PASS"
   },
-  "latest_code_sha": "727782ce3de7c6c31393311b5e38d135b4a46f12",
-  "latest_qa": "CI_IN_PROGRESS_S016",
+  "latest_code_sha": "0b66538174cb725083dd4d25b36a7c71ab8ed306",
+  "latest_qa": "IN_PROGRESS",
   "production": false,
   "real_payments": false,
   "firebase": "EMULATOR_ONLY",
@@ -31,7 +31,7 @@
     "No physical TTL purge, quotas/rate limits or full LGPD/OWASP/WCAG release audit",
     "58 conceptual screens not separately built"
   ],
-  "next_action": "Verificar CI S016 e corrigir falhas antes de encerrar EVOLVE 01 local; manter push Issue #3 para EVOLVE 05/07; continuar Media Engine somente com gates registrados.",
+  "next_action": "Verificar CI do último código/HEAD; corrigir regressões comprovadas; continuar EVOLVE 03 Administration & Security. Manter Issues #3/#4 abertas para infraestrutura e release.",
   "functional_coverage": {
     "local_tested_flows": 11,
     "total": 12,
@@ -39,7 +39,7 @@
     "interpretation": "MVP/emulator feature coverage only; not overall system completion or production acceptance"
   },
   "evolve01": {
-    "status": "PARTIAL",
+    "status": "LOCAL_CI_PASS_EXTERNAL_PUSH_BLOCKED",
     "slices": [
       "S014",
       "S015",
@@ -48,6 +48,19 @@
     "push": "BLOCKED_ISSUE_3",
     "offline": "MEMORY_CACHE_ONLY",
     "history_window_max": 500,
-    "ci": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45760633858"
+    "ci": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45760719067"
+  },
+  "evolve02": {
+    "status": "PARTIAL",
+    "slices": [
+      "S017",
+      "S018",
+      "S019"
+    ],
+    "ci": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45762723200",
+    "ci_status": "IN_PROGRESS",
+    "media_external": "BLOCKED_ISSUE_4",
+    "max_inline_file_bytes": 300000,
+    "max_audio_duration_ms": 60000
   }
 }

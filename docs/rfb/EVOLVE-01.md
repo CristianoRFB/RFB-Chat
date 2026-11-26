@@ -21,3 +21,6 @@ Estado: **IMPLEMENTED_PARTIAL / CI_PENDING / PUSH_BLOCKED**. PR #1 Draft; Fireba
 
 Referências oficiais consultadas: https://firebase.google.com/docs/firestore/manage-data/enable-offline ; https://firebase.google.com/docs/firestore/solutions/presence ; https://firebase.google.com/docs/cloud-messaging/web/get-started .
 Rollback: reverter os três commits de código na branch de trabalho, em ordem inversa, somente se necessário após diagnóstico; não forçar reset da main. Nenhum custo, merge ou deploy ativado.
+
+
+**Revalidação 26/11:** [CI final](https://github.com/CristianoRFB/RFB-Chat/actions/runs/45760719067) PASS em todas as etapas, inclusive Playwright. Push #3 e demais limites externos permanecem.

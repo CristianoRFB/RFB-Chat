@@ -29,3 +29,8 @@ Versão: 23/11/2026. Este documento distingue laboratório funcional de produç�
 - [ ] CI integral verde no SHA S016 ou sucessor; QA de presença/reconexão e testes manuais.
 - [ ] Resolver [Issue #3](https://github.com/CristianoRFB/RFB-Chat/issues/3) de push real no staging autorizado.
 - [ ] Revisar cota da janela de 500 mensagens e heartbeat, retenção/purga de tombstones e presença; cache em memória não cobre recarga offline.
+
+## Gate EVOLVE 02
+- [ ] Homologar armazenamento privado escalável, retenção e redes externas: #4.
+- [ ] Confirmar CI final por SHA, QA manual e segurança da mídia.
+- [ ] Revisar cotas e índices de dados inline, limites de upload por conta, ausência de TTL automático, exclusão de áudios e backups.
