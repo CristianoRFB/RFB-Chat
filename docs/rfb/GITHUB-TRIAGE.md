@@ -10,3 +10,6 @@ Intake: #3 aberta, PR #1 Draft. Saída: #3 KEEP_OPEN (push), #4 KEEP_OPEN (mídi
 - S018 [CI 45762642054](https://github.com/CristianoRFB/RFB-Chat/actions/runs/45762642054): 11 unitários, 27 Rules e 12 Playwright PASS (50). E2E verificou pacotes RTP de áudio nas duas pontas com fonte sintética, além de prévia de voz e galeria de anexos. Não é prova de rede externa.
 - S019 [CI 45762723200](https://github.com/CristianoRFB/RFB-Chat/actions/runs/45762723200): FAIL na compilação de Rules; substituição textual interpretou `$'` no regex e duplicou sufixo. Sem supressão de teste. Corrigido em 284c09ce38b65092ccd11aa3667b03060decddfe, reconstruindo Rules sobre S018 e substituindo via callback; [nova CI](https://github.com/CristianoRFB/RFB-Chat/actions/runs/45762857318) em execução na última consulta. QA de purga/preview/vídeo e revogação final ainda NÃO homologado.
 - Próximo: conferir nova CI e corrigir regressões comprovadas; #3/#4 permanecem abertas.
+
+## EVOLVE 03
+Entrada: 2 issues abertas (#3/#4), PR #1 Draft; saída: #3/#4/#5/#6 KEEP_OPEN, PR #1 KEEP_OPEN_DRAFT. Nenhum merge/deploy. CI final https://github.com/CristianoRFB/RFB-Chat/actions/runs/45911585835; LOCAL_E2E_PENDING_EXTERNAL_GATES_OPEN. Issue #2 histórica permanece fechada, mas a nova regressão de cadastro foi registrada e tratada em S024; não reutilizar a evidência histórica como prova desta versão.

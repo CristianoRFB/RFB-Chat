@@ -2,23 +2,23 @@
   "schema_version": 2,
   "product": "RFBChat",
   "repository": "CristianoRFB/RFB-Chat",
-  "stage": "EVOLVE_02_PARTIAL_FIX_CI_PENDING_EXTERNAL_GATES_OPEN",
+  "stage": "EVOLVE_03_LOCAL_E2E_PENDING_EXTERNAL_GATES_OPEN",
   "source_imported": true,
   "modules_documented": 10,
   "features_documented": 12,
-  "implemented_code_slices": "11 of 12 capabilities have local functional flows; WebRTC call signaling only (media path unverified)",
-  "last_verified_code_sha": "359f49011311766ea7b320ae7aaddfec14314093",
-  "last_verified_ci_url": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45762642054",
+  "implemented_code_slices": "11 original flows plus local synthetic bidirectional RTP; EVOLVE 03 security expanded, final QA tracked separately",
+  "last_verified_code_sha": "957c93baa461cf1d508c10f24f4c247d2eb44130",
+  "last_verified_ci_url": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45762924505",
   "last_verified": {
-    "unit": "PASS_9",
-    "rules": "PASS_20",
-    "playwright": "PASS_10_NO_RETRY",
+    "unit": "PASS_11",
+    "rules": "PASS_28_EVOLVE02",
+    "playwright": "PASS_13_EVOLVE02",
     "typecheck": "PASS",
     "build": "PASS",
     "npm_ci": "PASS"
   },
-  "latest_code_sha": "284c09ce38b65092ccd11aa3667b03060decddfe",
-  "latest_qa": "FIX_CI_PENDING",
+  "latest_code_sha": "a0d544a0104ed19c8b3b2a51aea7af8ccc10ed27",
+  "latest_qa": "IN_PROGRESS",
   "production": false,
   "real_payments": false,
   "firebase": "EMULATOR_ONLY",
@@ -31,7 +31,7 @@
     "No physical TTL purge, quotas/rate limits or full LGPD/OWASP/WCAG release audit",
     "58 conceptual screens not separately built"
   ],
-  "next_action": "Verificar CI 45762857318 e regressões S019; depois EVOLVE 03. Gates #3/#4 mantidos.",
+  "next_action": "Verificar CI 45911585835, corrigir regressões comprovadas e só então executar EVOLVE 04.",
   "functional_coverage": {
     "local_tested_flows": 11,
     "total": 12,
@@ -51,17 +51,38 @@
     "ci": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45760719067"
   },
   "evolve02": {
-    "status": "PARTIAL",
+    "status": "LOCAL_CI_PASS_EXTERNAL_GATES_OPEN",
     "slices": [
       "S017",
       "S018",
       "S019"
     ],
-    "ci": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45762857318",
-    "ci_status": "FIX_CI_PENDING",
+    "ci": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45762924505",
+    "ci_status": "SUCCESS",
     "media_external": "BLOCKED_ISSUE_4",
     "max_inline_file_bytes": 300000,
     "max_audio_duration_ms": 60000,
-    "last_green_sha": "359f49011311766ea7b320ae7aaddfec14314093"
+    "last_green_sha": "957c93baa461cf1d508c10f24f4c247d2eb44130"
+  },
+  "evolve03": {
+    "status": "LOCAL_E2E_PENDING_EXTERNAL_GATES_OPEN",
+    "slices": [
+      "S020",
+      "S021",
+      "S022",
+      "S023",
+      "S024"
+    ],
+    "ci": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45911585835",
+    "audit": {
+      "critical": 0,
+      "high": 0,
+      "moderate": 14,
+      "total": 14
+    },
+    "issues": [
+      5,
+      6
+    ]
   }
 }

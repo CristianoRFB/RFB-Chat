@@ -34,3 +34,8 @@ Versão: 23/11/2026. Este documento distingue laboratório funcional de produç�
 - [ ] Homologar armazenamento privado escalável, retenção e redes externas: #4.
 - [ ] Confirmar CI final por SHA, QA manual e segurança da mídia.
 - [ ] Revisar cotas e índices de dados inline, limites de upload por conta, ausência de TTL automático, exclusão de áudios e backups.
+
+## Gate EVOLVE 03
+- [ ] Homologar cadastro e fluxo administrativo integral por SHA final, revisão de sessão ativa e autorização independente.
+- [ ] #5 LGPD, antiabuso global, provisionamento admin real e revisão OWASP.
+- [ ] #6 14 alertas moderados transitivos; gate crítico ativo e sem críticos/altos no lockfile atual.

@@ -2,19 +2,19 @@
   "schema": 1,
   "repo": "CristianoRFB/RFB-Chat",
   "goal": "RFBChat — implementar 12 AC com rastreabilidade, emuladores e custo adicional R$0/mês",
-  "phase": "EVOLVE_03_IN_PROGRESS",
-  "slice": "S024",
+  "phase": "EVOLVE_03_LOCAL_E2E_PENDING_EXTERNAL_GATES_OPEN",
+  "slice": "S020-S024",
   "baseline_sha": "b20f3887d9192ad10371ba8e8f0888ee93d09da4",
-  "last_commit_sha": "afa75e67a9c26e860233c488b5929182de537e2e",
+  "last_commit_sha": "a0d544a0104ed19c8b3b2a51aea7af8ccc10ed27",
   "last_verified_sha": "957c93baa461cf1d508c10f24f4c247d2eb44130",
   "evidence": {
     "github_pr": "https://github.com/CristianoRFB/RFB-Chat/pull/1",
-    "open_issues": 2,
+    "open_issues": 4,
     "open_prs": 1,
     "last_known_green_run": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45762924505",
     "last_known_green_results": "11 unit, 28 Rules, 13 E2E PASS",
-    "current_head_ci": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45762857318",
-    "current_head_ci_status": "SUCCESS",
+    "current_head_ci": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45911585835",
+    "current_head_ci_status": "IN_PROGRESS",
     "lockfile": "package-lock.json generated in CI and versioned, npm ci used",
     "runtime_environment": "demo-rfb-chat Firebase Auth + Firestore Emulators; Node 22/Java21",
     "production_deploy": "NOT_DONE",
@@ -31,7 +31,25 @@
       "S016 CI in progress"
     ],
     "evolve02_issue": "https://github.com/CristianoRFB/RFB-Chat/issues/4",
-    "evolve02_code_ci": "S019 FAIL compile; fix committed, CI pending"
+    "evolve02_code_ci": "CI final PASS 45762924505",
+    "evolve03_audit": {
+      "baseline": {
+        "critical": 3,
+        "high": 11,
+        "moderate": 16,
+        "total": 30
+      },
+      "updated": {
+        "critical": 0,
+        "high": 0,
+        "moderate": 14,
+        "total": 14
+      },
+      "run": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45911480690",
+      "issue": "https://github.com/CristianoRFB/RFB-Chat/issues/6"
+    },
+    "evolve03_security_issue": "https://github.com/CristianoRFB/RFB-Chat/issues/5",
+    "evolve03_code_ci": "TypeScript: success; Unit tests: success; Build sem conexões de produção: success; Firestore Rules isoladas (demo-rfb-chat): success; Two users and mobile E2E in isolated emulators: in_progress"
   },
   "completed": [
     "Preservados 10 módulos, 12 features e catálogo histórico de 58 telas conceituais e 7 diagramas",
@@ -51,7 +69,8 @@
     "Issue #2 de concorrência no perfil fechada depois de 3 execuções consecutivas aprovadas sem retry.",
     "EVOLVE 01: CI final 45760719067 PASS; push externo ainda bloqueado #3.",
     "S017-S019: mídia local expandida, galeria, áudio, RTP diagnóstico, purga local implementados; evidência de CI em EVOLVE-02.md.",
-    "EVOLVE 02 final CI 45762924505 PASS (11 unit, 28 Rules, 13 E2E); external #4 open."
+    "EVOLVE 02 final CI 45762924505 PASS (11 unit, 28 Rules, 13 E2E); external #4 open.",
+    "EVOLVE 03 S020-S024: administração, controles de acesso, auditoria, cooldown denúncia, solicitação de direitos, audit crítico corrigido; QA final por SHA."
   ],
   "pending": [
     "Validar transporte RTP real e conectividade WebRTC fora de localhost (sem STUN/TURN isso não é garantido).",
@@ -62,15 +81,16 @@
     "WebRTC sem TURN/SFU não garante chamadas fora da rede; fluxo sinalizado em CI não prova transporte real de áudio",
     "Revogação manual de link disponível, mas expiração lógica NÃO apaga automaticamente os bytes; projetar TTL/retencão antes de uso real.",
     "EVOLVE 01: homologar CI por SHA final, E2E e presença em sessões reais; push bloqueado Issue #3; cache persistente não habilitado.",
-    "EVOLVE 02: gate externo Issue #4, QA manual e validação final da mídia por SHA; sem produção."
+    "EVOLVE 02: gate externo #4 e QA manual; CI local PASS.",
+    "EVOLVE 03: #5 privacidade integral/antiabuso global/admin real, #6 alertas moderados; validar E2E da correção de cadastro se pendente."
   ],
   "blockers": [
     "PR DRAFT não está mesclado e nenhum deploy/projeto Firebase real foi autorizado",
     "11/12 funcionalidades com fluxo local foram escritas, mas definição de 90% integral não pode ser homologada com ausência de QA externa e produção",
     "11/12 somente como cobertura de fluxos de laboratório; 58 telas conceituais não foram implementadas individualmente."
   ],
-  "next_action": "Confirmar CI da correção de cadastro e dependências; documentar EVOLVE 03.",
-  "revision": 8,
+  "next_action": "Verificar CI 45911585835, corrigir regressões comprovadas e só então executar EVOLVE 04.",
+  "revision": 9,
   "updated_at": "2026-11-26",
   "history": [
     {
@@ -280,6 +300,19 @@
       "baseline_sha": "afa75e67a9c26e860233c488b5929182de537e2e",
       "run_id": 45911111067,
       "diagnosis": "3 E2E failure snapshots show profile repair instead of workspace; retain Login until Auth+Firestore registration completes; server profile read; no timeout increase"
+    },
+    {
+      "event": "EVOLVE_03_CHECKPOINT",
+      "at": "2026-11-26",
+      "sha": "a0d544a0104ed19c8b3b2a51aea7af8ccc10ed27",
+      "ci_run_id": 45911585835,
+      "status": "LOCAL_E2E_PENDING_EXTERNAL_GATES_OPEN",
+      "issues": [
+        3,
+        4,
+        5,
+        6
+      ]
     }
   ]
 }
