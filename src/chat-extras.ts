@@ -140,8 +140,8 @@ export async function sendAudio(
   conversationId: string, uid: string, audioData: string, durationMs: number
 ): Promise<void> {
   if (!/^data:audio\/webm;base64,[A-Za-z0-9+/=]+$/.test(audioData)
-    || audioData.length > 90000 || durationMs < 1 || durationMs > 20000) {
-    throw new Error('Áudio inválido, longo demais ou incompatível. Grave no máximo 20 segundos.');
+    || audioData.length > 275000 || durationMs < 1 || durationMs > 60000) {
+    throw new Error('Áudio inválido, longo demais ou incompatível. Grave no máximo 60 segundos e 200 KB.');
   }
   await setDoc(doc(collection(db, 'conversations', conversationId, 'messages')), {
     senderId: uid, body: 'Mensagem de voz', kind: 'audio', mimeType: 'audio/webm',

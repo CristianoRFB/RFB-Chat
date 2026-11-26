@@ -463,3 +463,9 @@ it('EVOLVE 02: índice de mídia atômico, privado e revogável',async()=>{
  const revoke=writeBatch(a);revoke.delete(file);revoke.delete(index);await assertSucceeds(revoke.commit());
  expect((await getDoc(doc(b,'conversations',conversationId,'mediaIndex','media-evolve'))).exists()).toBe(false);
 });
+
+it('EVOLVE 02: áudio de 60s permitido; acima do limite negado',async()=>{
+ const a=testEnv.authenticatedContext('alice').firestore(); const payload={senderId:'alice',body:'Mensagem de voz',kind:'audio',mimeType:'audio/webm',audioData:'data:audio/webm;base64,QUJD',durationMs:60000,createdAt:serverTimestamp()};
+ await assertSucceeds(setDoc(doc(a,'conversations',conversationId,'messages','long-audio'),payload));
+ await assertFails(setDoc(doc(a,'conversations',conversationId,'messages','too-long-audio'),{...payload,durationMs:60001}));
+});

@@ -316,11 +316,11 @@ service cloud.firestore {
               && request.resource.data.body == 'Mensagem de voz'
               && request.resource.data.mimeType == 'audio/webm'
               && request.resource.data.audioData is string
-              && request.resource.data.audioData.size() <= 90000
+              && request.resource.data.audioData.size() <= 275000
               && request.resource.data.audioData.matches('^data:audio/webm;base64,[A-Za-z0-9+/=]+$')
               && request.resource.data.durationMs is int
               && request.resource.data.durationMs > 0
-              && request.resource.data.durationMs <= 20000)
+              && request.resource.data.durationMs <= 60000)
           )
           && (!('forwarded' in request.resource.data) || (request.resource.data.forwarded == true && !('kind' in request.resource.data) && !('replyToId' in request.resource.data)))
           && (!('replyToId' in request.resource.data)

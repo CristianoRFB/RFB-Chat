@@ -264,7 +264,7 @@ function Workspace({ user }: { user: User }) {
         <span className="avatar" aria-hidden="true">{title.slice(0, 1).toUpperCase()}</span>
         <div><h2>{title}</h2><p>{current?.kind === 'group' ? current.memberIds.length + ' membros · Grupo local' : selectedId ? 'Mensagens gravadas no emulador' : 'Conversa individual em tempo real'}</p></div>
       </header>
-      {current?.kind === 'dm' && other && <CallPanel conversationId={current.id} uid={user.uid} otherUid={other} onError={onChildError} />}
+      {current?.kind === 'dm' && other && <CallPanel key={current.id} conversationId={current.id} uid={user.uid} otherUid={other} onError={onChildError} />}
       {error && <div className="feedback error" role="alert">{error} <button className="dismiss" type="button" onClick={() => setError('')}>Fechar</button></div>}
       {current?.kind === 'group' && <GroupChannels groupId={current.id} uid={user.uid}
         admin={!!current.adminIds?.includes(user.uid)} onError={onChildError} />}

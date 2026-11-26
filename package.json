@@ -10,7 +10,8 @@
     "test": "vitest run tests/flow.test.ts tests/chat-model.test.ts tests/chat-extras.test.ts tests/attachments.test.ts",
     "test:rules": "firebase emulators:exec --project demo-rfb-chat --only firestore \"vitest run tests/firestore.rules.test.ts\"",
     "emulators": "firebase emulators:start --project demo-rfb-chat --only auth,firestore",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "media:purge:local": "node scripts/purge-expired-media.mjs"
   },
   "dependencies": {
     "react": "^19.0.0",

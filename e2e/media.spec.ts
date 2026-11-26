@@ -39,6 +39,10 @@ test('convite e encerramento de chamada P2P de voz local sem dados pessoais', as
     await expect(bob.getByRole('button', { name: 'Aceitar chamada' })).toBeVisible();
     await bob.getByRole('button', { name: 'Aceitar chamada' }).click();
     await expect(alice.getByText('Chamada aceita', { exact: true })).toBeVisible();
+    await expect.poll(async()=>Number((await alice.getByTestId('rtp-audio').textContent())?.split(':').pop()),{timeout:25000}).toBeGreaterThan(0);
+    await expect.poll(async()=>Number((await bob.getByTestId('rtp-audio').textContent())?.split(':').pop()),{timeout:25000}).toBeGreaterThan(0);
+    await alice.getByRole('button',{name:'Silenciar microfone'}).click();
+    await expect(alice.getByRole('button',{name:'Ativar microfone'})).toBeVisible();
     await alice.getByRole('button', { name: 'Encerrar chamada' }).click();
     await expect(bob.getByRole('button', { name: 'Iniciar chamada local' })).toBeVisible();
   } finally { await a.close(); await b.close(); }
@@ -58,7 +62,10 @@ test('áudio de curta duração com consentimento fica disponível para outro me
     await alice.getByRole('button', { name: 'Gravar mensagem de voz' }).click();
     await expect(alice.getByText('Microfone ativo.')).toBeVisible();
     await alice.waitForTimeout(1500);
-    await alice.getByRole('button', { name: 'Parar e enviar áudio' }).click();
+    await alice.getByRole('button', { name: 'Parar e revisar áudio' }).click();
+    await expect(alice.getByLabel('Prévia do áudio gravado')).toBeVisible();
+    await expect(bob.getByLabel('Mensagem de voz')).toHaveCount(0);
+    await alice.getByRole('button',{name:'Enviar áudio revisado'}).click();
     await expect(alice.getByText('Áudio salvo no emulador.')).toBeVisible();
     await expect(bob.getByLabel('Mensagem de voz')).toBeVisible();
     await expect(alice.locator('.message.outgoing').getByRole('button', { name: 'Editar' })).toHaveCount(0);

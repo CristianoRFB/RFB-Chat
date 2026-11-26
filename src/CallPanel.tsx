@@ -11,6 +11,9 @@ export function CallPanel({ conversationId, uid, otherUid, onError }: Props) {
   const [calls, setCalls] = useState<VoiceCall[]>([]);
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState('');
+  const [muted,setMuted]=useState(false);
+  const [packets,setPackets]=useState(0);
+  const statsTimer=useRef<number|null>(null);
   const peerRef = useRef<RTCPeerConnection | null>(null);
   const mediaRef = useRef<MediaStream | null>(null);
   const callIdRef = useRef<string | null>(null);
@@ -23,6 +26,9 @@ export function CallPanel({ conversationId, uid, otherUid, onError }: Props) {
   const remoteApplying = useRef(false);
 
   const cleanup = useCallback(() => {
+    if(statsTimer.current!==null)window.clearInterval(statsTimer.current);
+    statsTimer.current=null;
+    setPackets(0);setMuted(false);
     iceOffRef.current?.();
     iceOffRef.current = null;
     peerRef.current?.close();
@@ -73,6 +79,15 @@ export function CallPanel({ conversationId, uid, otherUid, onError }: Props) {
     mediaRef.current = stream; peerRef.current = pc; callIdRef.current = callId;
     localCanWrite.current = documentExists;
     for (const track of stream.getAudioTracks()) pc.addTrack(track, stream);
+    statsTimer.current=window.setInterval(()=>{
+      if(pc.connectionState!=='connected')return;
+      void pc.getStats().then(report=>{
+        if(peerRef.current!==pc)return;
+        let total=0;
+        report.forEach(stat=>{if(stat.type==='inbound-rtp'&&(stat.kind==='audio'||stat.mediaType==='audio'))total+=Number(stat.packetsReceived)||0;});
+        setPackets(total);
+      }).catch(()=>undefined);
+    },1000);
     pc.ontrack = event => {
       const remote = event.streams[0] ?? new MediaStream([event.track]);
       if (remoteAudioRef.current) {
@@ -171,6 +186,7 @@ export function CallPanel({ conversationId, uid, otherUid, onError }: Props) {
       {live?.status === 'connected' && <span role="status">Chamada aceita</span>}
       {live && <button type="button" onClick={() => void end()} disabled={busy}>{incoming ? 'Recusar / Encerrar' : 'Encerrar chamada'}</button>}
     </div>
+    {live?.status==='connected' && <><button type="button" aria-pressed={muted} onClick={()=>{const next=!muted;mediaRef.current?.getAudioTracks().forEach(t=>{t.enabled=!next;});setMuted(next);}}>{muted?'Ativar microfone':'Silenciar microfone'}</button><p role="status" data-testid="rtp-audio">Pacotes RTP de áudio recebidos: {packets}</p></>}
     <audio ref={remoteAudioRef} autoPlay controls aria-label="Áudio remoto da chamada"/>
     {status && <p role="status">{status}</p>}
     <p className="call-warning">Prova de conceito P2P no emulador. Sem TURN, gravação, garantia de conectividade externa ou chamadas em produção.</p>
