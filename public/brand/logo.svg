@@ -1,8 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="950" height="256" viewBox="0 0 950 256" role="img" aria-label="Logotipo RFBChat">
-<title>Logotipo RFBChat</title>
-<g transform="translate(0 0)"><rect width="256" height="256" rx="54" fill="#10131A"/>
-<g fill="none" stroke="#FDFDFD" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"><path d="M55 85Q55 65 76 65H152Q172 65 172 85V135Q172 155 152 155H108L81 176V155H76Q55 155 55 135Z"/><path d="M111 172H166L188 191V169H190Q202 169 202 155V109Q202 96 192 94"/><path stroke="#7B8CFF" d="M82 102H142M82 125H123"/></g></g>
-<text x="302" y="126" font-family="Arial,Helvetica,sans-serif" font-size="80" font-weight="800" letter-spacing="-2.5" fill="#10131A">RFBChat</text>
-<rect x="306" y="150" width="67" height="7" rx="3.5" fill="#7B8CFF"/>
-<text x="306" y="194" font-family="Arial,Helvetica,sans-serif" font-size="28" font-weight="500" fill="#505867">Comunicação</text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="460" height="128" viewBox="0 0 460 128" role="img" aria-label="RFB Chat"><rect width="460" height="128" rx="28" fill="#F3F1FA"/><g transform="translate(16 16)"><rect width="96" height="96" rx="26" fill="#5142C4"/><path fill="#fff" d="M25 23h41a10 10 0 0 1 10 10v22a10 10 0 0 1-10 10H43L27 77v-12h-2a10 10 0 0 1-10-10V33a10 10 0 0 1 10-10Z"/><path d="M33 38h29L47 55" fill="none" stroke="#5142C4" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="70" cy="72" r="7" fill="#C6BDFF" stroke="#5142C4" stroke-width="3"/></g><text x="134" y="68" fill="#221E38" font-family="Arial,Helvetica,sans-serif" font-size="49" font-weight="800" letter-spacing="-2">RFB Chat</text><text x="137" y="96" fill="#5C5671" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="600">ESPAÇO DE CONVERSAS</text></svg>

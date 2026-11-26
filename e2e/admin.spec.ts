@@ -25,7 +25,8 @@ test('admin local delega e revoga moderação, restringe conta e analisa solicit
   await admin.getByLabel('Senha').fill('senha-local-2026');
   await admin.getByRole('button',{name:'Entrar no laboratório'}).click();
   await admin.getByText('Administração de contas',{exact:true}).click();
-  await admin.getByLabel('Conta',{exact:true}).selectOption(uidB);
+  await expect(admin.locator('#admin-account option').filter({hasText:'Membro QA'})).toHaveAttribute('value',uidB);
+  await admin.getByLabel('Conta',{exact:true}).selectOption({value:uidB},{timeout:15000});
   await expect(admin.getByLabel('Cargo',{exact:true})).toBeVisible();
   async function change(role:string,status:string,reason:string){
    await admin.getByLabel('Cargo',{exact:true}).selectOption(role);

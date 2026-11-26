@@ -181,13 +181,13 @@ export function MessageCenter({ conversationId, uid, otherUid, readEnabled, conv
   }
 
   if (!conversationId) return <div className="chat-body-empty">
-    <div className="empty-state"><h3>Conversas que acompanham sua equipe.</h3>
+    <div className="empty-state"><img className="empty-mark" src="/brand/icone.svg" width="64" height="64" alt=""/><h3>Conversas que acompanham sua equipe.</h3>
       <p>Escolha uma conversa ou crie uma pela barra lateral.</p></div>
   </div>;
 
   return <>
     <ConversationPresence conversationId={conversationId} uid={uid} draft={draft} cached={cached || !online} onError={onError}/>
-    <div className="sidebar-search">
+    <div className="message-search">
       <label htmlFor="search-message-body">Pesquisar mensagens carregadas</label>
       <input id="search-message-body" value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar texto no histórico"/>
       <button type="button" aria-pressed={pinnedOnly} onClick={() => setPinnedOnly(v => !v)}>Somente fixadas</button>
@@ -200,6 +200,7 @@ export function MessageCenter({ conversationId, uid, otherUid, readEnabled, conv
         onClick={() => setWindowSize(n => Math.min(n + 50, 500))}>Carregar mensagens anteriores</button>}
       {messages.length === 0 && <div className="empty-state"><h3>A conversa começou.</h3>
         <p>Envie a primeira mensagem para testar a sincronização.</p></div>}
+      {messages.length>0&&filtered.length===0&&<div className="empty-state" role="status"><h3>Nenhuma mensagem encontrada</h3><p>Altere a pesquisa ou o filtro de fixadas.</p></div>}
       {filtered.map(message => <MessageCard key={message.id} conversationId={conversationId}
         message={message} uid={uid} receipt={reads[otherUid]}
         original={message.replyToId ? messageBodies.get(message.replyToId) : undefined}

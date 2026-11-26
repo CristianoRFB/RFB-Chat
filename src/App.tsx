@@ -120,6 +120,7 @@ function Workspace({ user,suspended }: { user: User;suspended:boolean }) {
   const [names, setNames] = useState<Record<string, string>>({});
   const [target, setTarget] = useState('');
   const [search, setSearch] = useState('');
+  const [conversationFilter,setConversationFilter]=useState<'all'|'dm'|'group'>('all');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
 
@@ -206,6 +207,11 @@ function Workspace({ user,suspended }: { user: User;suspended:boolean }) {
 
   const onChildError = useCallback((error: unknown) => setError(errorText(error)), []);
 
+  const filteredConversations=conversations.filter(item=>{
+    const name=item.kind==='group'?(item.title??''):(names[otherMember(item.memberIds,user.uid)]??otherMember(item.memberIds,user.uid));
+    const fold=(s:string)=>s.normalize('NFD').replace(/\p{Diacritic}/gu,'').toLocaleLowerCase('pt-BR');
+    return (conversationFilter==='all'||item.kind===conversationFilter)&&fold(name).includes(fold(search.trim()));
+  });
   const current = conversations.find(item => item.id === selectedId);
   const other = current ? otherMember(current.memberIds, user.uid) : '';
   const title = current?.kind === 'group' ? (current.title ?? 'Grupo') : names[other] ?? (other ? other.slice(0, 12) : 'Selecione uma conversa');
@@ -234,36 +240,23 @@ function Workspace({ user,suspended }: { user: User;suspended:boolean }) {
 
   return <main className="chat-layout" id="conteudo">
     <aside className="chat-sidebar" aria-label="Contas e conversas">
-      <div className="account-box">
-        <p className="mini-label">Conta de teste</p>
-        <p className="account-email">{user.email}</p>
-        <label className="mini-label" htmlFor="own-uid">Seu UID (compartilhe com a outra sessão)</label>
-        <input className="uid-input" id="own-uid" value={user.uid} readOnly onFocus={event => event.currentTarget.select()} />
-        {profilePending && <p className="mini-label" role="status">Perfil ainda sincronizando com o emulador. Aguarde para convidar outra pessoa.</p>}
-      </div>
       <div className="sidebar-head"><h2>Conversas</h2><span className="count">{conversations.length}</span></div>
       <form className="new-chat" onSubmit={newConversation}>
         <label htmlFor="target-uid">Iniciar conversa usando UID</label>
         <input id="target-uid" value={target} onChange={e => setTarget(e.target.value)} placeholder="UID da outra conta" required />
         <button type="submit" disabled={busy || profilePending || !target.trim()}>Criar conversa</button>
       </form>
-      <GroupControls uid={user.uid} current={current} onCreated={setSelectedId} onError={onChildError} />
-      <PrivacyPanel uid={user.uid} onSettings={setPrivateSettings} onError={onChildError} />
-      <PrivacyRights uid={user.uid} onError={onChildError}/>
-      <ModeratorDashboard user={user} onError={onChildError} />
-      <NotificationsPanel conversations={conversations} uid={user.uid} enabled={privateSettings.notificationsEnabled}
-        onError={onChildError} onOpen={setSelectedId} />
       <label className="sidebar-search" htmlFor="search-conversations">Buscar conversa
         <input id="search-conversations" placeholder="Nome da pessoa ou grupo" value={search}
           onChange={e => setSearch(e.target.value)} />
       </label>
+      <div className="conversation-filters" role="group" aria-label="Filtrar conversas">
+        {([["all","Todas"],["dm","Pessoas"],["group","Grupos"]] as const).map(([value,label])=><button key={value} type="button" aria-pressed={conversationFilter===value} onClick={()=>setConversationFilter(value)}>{label}</button>)}
+      </div>
       <div className="conversation-list" role="group" aria-label="Suas conversas">
+        {conversations.length>0&&filteredConversations.length===0&&<p className="empty-side" role="status">Nenhuma conversa corresponde ao filtro.</p>}
         {conversations.length === 0 && <p className="empty-side">Nenhuma conversa ainda. Crie duas contas em navegadores separados e compartilhe o UID.</p>}
-        {conversations.filter(item => {
-          const otherUid = otherMember(item.memberIds, user.uid);
-          const name = item.kind === 'group' ? (item.title ?? '') : (names[otherUid] ?? otherUid);
-          return name.toLocaleLowerCase('pt-BR').includes(search.trim().toLocaleLowerCase('pt-BR'));
-        }).map(item => {
+        {filteredConversations.map(item => {
           const recipient = otherMember(item.memberIds, user.uid);
           return <button key={item.id} type="button" className={'conversation' + (item.id === selectedId ? ' active' : '')}
             aria-pressed={item.id === selectedId} onClick={() => setSelectedId(item.id)}>
@@ -273,11 +266,28 @@ function Workspace({ user,suspended }: { user: User;suspended:boolean }) {
           </button>;
         })}
       </div>
+      {current&&<a className="mobile-jump" href="#conversation-panel">Abrir conversa selecionada <span aria-hidden="true">↓</span></a>}
+      <div className="workspace-tools"><h3>Espaço de trabalho</h3>
+      <GroupControls uid={user.uid} current={current} onCreated={setSelectedId} onError={onChildError} />
+      <PrivacyPanel uid={user.uid} onSettings={setPrivateSettings} onError={onChildError} />
+      <PrivacyRights uid={user.uid} onError={onChildError}/>
+      <ModeratorDashboard user={user} onError={onChildError} />
+      <NotificationsPanel conversations={conversations} uid={user.uid} enabled={privateSettings.notificationsEnabled}
+        onError={onChildError} onOpen={setSelectedId} />
+      <div className="account-box">
+        <p className="mini-label">Conta de teste</p>
+        <p className="account-email">{user.email}</p>
+        <label className="mini-label" htmlFor="own-uid">Seu UID (compartilhe com a outra sessão)</label>
+        <input className="uid-input" id="own-uid" value={user.uid} readOnly onFocus={event => event.currentTarget.select()} />
+        {profilePending && <p className="mini-label" role="status">Perfil ainda sincronizando com o emulador. Aguarde para convidar outra pessoa.</p>}
+      </div>
+      </div>
     </aside>
-    <section className="chat-panel" aria-label="Mensagens">
+    <section className="chat-panel" id="conversation-panel" aria-label="Mensagens">
       <header className="chat-header">
+        <a className="mobile-back" href="#conteudo" aria-label="Voltar à lista de conversas">←</a>
         <span className="avatar" aria-hidden="true">{title.slice(0, 1).toUpperCase()}</span>
-        <div><h2>{title}</h2><p>{current?.kind === 'group' ? current.memberIds.length + ' membros · Grupo local' : selectedId ? 'Mensagens gravadas no emulador' : 'Conversa individual em tempo real'}</p></div>
+        <div><h2>{title}</h2><p>{current?.kind === 'group' ? current.memberIds.length + ' membros · Grupo local' : selectedId ? 'Conversa individual · histórico local' : 'Escolha uma pessoa ou grupo'}</p></div>
       </header>
       {!suspended && current?.kind === 'dm' && other && <CallPanel key={current.id} conversationId={current.id} uid={user.uid} otherUid={other} onError={onChildError} />}
       {error && <div className="feedback error" role="alert">{error} <button className="dismiss" type="button" onClick={() => setError('')}>Fechar</button></div>}
@@ -296,6 +306,8 @@ function LocalChat() {
   const [loading, setLoading] = useState(true);
   const [fatal, setFatal] = useState('');
   const [registering,setRegistering]=useState(false);
+  const [theme,setTheme]=useState<'dark'|'light'>(()=>{try{return localStorage.getItem('rfb-chat-theme')==='light'?'light':'dark';}catch{return 'dark';}});
+  useEffect(()=>{document.documentElement.dataset.theme=theme;try{localStorage.setItem('rfb-chat-theme',theme);}catch{}},[theme]);
   useEffect(() => onAuthStateChanged(auth, next => {
     setUser(next);
     setLoading(false);
@@ -307,13 +319,15 @@ function LocalChat() {
   return <div className="app-shell">
     <a href="#conteudo" className="skip">Pular para conteúdo</a>
     <header className="topbar">
-      <span className="brand">RFB<span>Chat.</span></span>
-      <span className="badge-local">LOCAL / EMULADOR / NÃO É PRODUÇÃO</span>
+      <div className="brand"><img src="/brand/icone.svg" width="40" height="40" alt=""/><span>RFB<strong>Chat</strong><small>Espaço de conversas</small></span></div>
+      <span className="badge-local"><span aria-hidden="true" className="local-dot"/> Laboratório local · não publicado</span>
+      <button className="theme-toggle" type="button" aria-label={theme==='dark'?'Ativar tema claro':'Ativar tema escuro'} onClick={()=>setTheme(v=>v==='dark'?'light':'dark')}><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" aria-hidden="true">{theme==='dark'?<><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></>:<path d="M20 15a8 8 0 0 1-11-11A9 9 0 1 0 20 15Z"/>}</svg></button>
       {user && !registering && <button className="logout" type="button" onClick={() => void signOut(auth)}>Sair</button>}
     </header>
     {fatal ? <main id="conteudo" className="feedback error" role="alert">{fatal}</main>
       : loading ? <main id="conteudo" className="loading">Conectando ao emulador…</main>
       : user && !registering ? <AccountGate key={user.uid} user={user} /> : <Login onRegistrationPending={setRegistering} />}
+    <footer className="product-footer"><span>RFB Chat · Ambiente de teste</span><span className="rfb-signature"><img src="/brand/assinatura-rfb.svg" width="24" height="24" alt="Assinatura RFB"/> RFB Labs</span></footer>
   </div>;
 }
 

@@ -30,7 +30,7 @@ export function PrivacyRights({uid,onError}:{uid:string;onError:(e:unknown)=>voi
   <p>Laboratório local. Baixe seu perfil e preferências; para acesso integral, eliminação ou contestação, envie uma solicitação. O registro não confirma execução da eliminação.</p>
   <button type="button" disabled={busy} onClick={()=>void exportProfile()}>Exportar perfil e preferências</button>
   <form className="group-form" onSubmit={e=>{e.preventDefault();void request();}}>
-   <label>Tipo de solicitação<select value={kind} onChange={e=>setKind(e.target.value as Kind)}>{kinds.map(k=><option key={k} value={k}>{labels[k]}</option>)}</select></label>
+   <label htmlFor="privacy-request-kind">Tipo de solicitação</label><select id="privacy-request-kind" value={kind} onChange={e=>setKind(e.target.value as Kind)}>{kinds.map(k=><option key={k} value={k}>{labels[k]}</option>)}</select>
    <label>Observação opcional<textarea value={note} onChange={e=>setNote(e.target.value)} maxLength={500} placeholder="Não inclua senhas ou dados de terceiros."/></label>
    <button type="submit" disabled={busy||!!rows[kind]}>Registrar solicitação</button>
   </form>
