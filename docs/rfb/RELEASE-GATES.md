@@ -39,3 +39,9 @@ Versão: 23/11/2026. Este documento distingue laboratório funcional de produç�
 - [ ] Homologar cadastro e fluxo administrativo integral por SHA final, revisão de sessão ativa e autorização independente.
 - [ ] #5 LGPD, antiabuso global, provisionamento admin real e revisão OWASP.
 - [ ] #6 14 alertas moderados transitivos; gate crítico ativo e sem críticos/altos no lockfile atual.
+
+## Gate EVOLVE 04
+- [x] Design system, temas, filtros, navegação responsive e 58 IDs mapeados.
+- [x] QA visual Chromium S027: 6 PNG reais, inspeção, correção e recaptura.
+- [ ] CI completa S028 (https://github.com/CristianoRFB/RFB-Chat/actions/runs/45913486070).
+- [ ] Leitor de tela, outros browsers/dispositivos reais, zoom, WCAG integral, aprovação da marca e screenshots admin/grupos.

@@ -2,10 +2,10 @@
   "schema": 1,
   "repo": "CristianoRFB/RFB-Chat",
   "goal": "RFBChat — implementar 12 AC com rastreabilidade, emuladores e custo adicional R$0/mês",
-  "phase": "EVOLVE_04_S028_CI_PENDING",
+  "phase": "VISUAL_PASS_S028_CI_PENDING",
   "slice": "S028",
   "baseline_sha": "b20f3887d9192ad10371ba8e8f0888ee93d09da4",
-  "last_commit_sha": "b2ad72c3bffa73f34ae2af0ae5f27ed5437e3d8e",
+  "last_commit_sha": "d5a64827e519ddf0c3430b56730ce17d83c438cd",
   "last_verified_sha": "954a31ba6a6f0e346cfe5b08a4506e814ee4dc3b",
   "evidence": {
     "github_pr": "https://github.com/CristianoRFB/RFB-Chat/pull/1",
@@ -13,8 +13,8 @@
     "open_prs": 1,
     "last_known_green_run": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45912658637",
     "last_known_green_results": "11 unit, 31 Rules, 14 E2E PASS S025; S027 visual PASS",
-    "current_head_ci": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45912988561",
-    "current_head_ci_status": "FAIL_1_E2E",
+    "current_head_ci": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45913486070",
+    "current_head_ci_status": "in_progress",
     "lockfile": "package-lock.json generated in CI and versioned, npm ci used",
     "runtime_environment": "demo-rfb-chat Firebase Auth + Firestore Emulators; Node 22/Java21",
     "production_deploy": "NOT_DONE",
@@ -66,7 +66,8 @@
       ],
       "status": "PASS_REVIEWED",
       "manifest": "docs/screenshots/manifest.json"
-    }
+    },
+    "s028_visual": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45913486069"
   },
   "completed": [
     "Preservados 10 módulos, 12 features e catálogo histórico de 58 telas conceituais e 7 diagramas",
@@ -109,8 +110,8 @@
     "11/12 funcionalidades com fluxo local foram escritas, mas definição de 90% integral não pode ser homologada com ausência de QA externa e produção",
     "11/12 somente como cobertura de fluxos de laboratório; 58 telas conceituais não foram implementadas individualmente."
   ],
-  "next_action": "Verify S028 CI: 11 unit, 31 Rules, 15 E2E expected and visual workflow; keep external gates open.",
-  "revision": 12,
+  "next_action": "Confirm CI S028 and diagnose only evidence-backed failures before EVOLVE 05.",
+  "revision": 13,
   "updated_at": "2026-11-26",
   "history": [
     {
@@ -405,6 +406,14 @@
       "run_id": 45912988561,
       "status": "IMPLEMENTED_UNVERIFIED",
       "diagnosis": "Trace proved Excluir inaccessible while details closed; real UI reopens after pin, assert pinned and action visible; all deletion/reload asserts preserved."
+    },
+    {
+      "at": "2026-11-26",
+      "event": "S028_CI_CHECKPOINT",
+      "sha": "d5a64827e519ddf0c3430b56730ce17d83c438cd",
+      "run_id": 45913486070,
+      "visual_run_id": 45913486069,
+      "status": "VISUAL_PASS_S028_CI_PENDING"
     }
   ]
 }

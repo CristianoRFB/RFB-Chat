@@ -115,3 +115,10 @@ Status: IMPLEMENTED_PARTIAL / IN_PROGRESS / EXTERNAL_GATES_OPEN. Não declarar E
 ## S028 — correção de regressão comprovada
 
 CI S027 [45912988561](https://github.com/CristianoRFB/RFB-Chat/actions/runs/45912988561): 11 unit + 31 Rules PASS, build/typecheck/audit PASS, 14/15 E2E. Trace 15160334841 confirma que fixação, busca e filtro passaram; Excluir ficou inacessível após fechamento do disclosure nativo no snapshot de fixação. O teste passa a verificar a fixação no remetente, abrir o menu real se fechado e verificar a ação visível antes do clique; nenhuma asserção removida, nenhum retry, sem mudança do código visual. S028 aguardando CI. Capturas S027 permanecem evidência do código visual inalterado.
+
+## EVOLVE 04 — checkpoint S028 (26/11/2026)
+
+- S025: CI 45912658637 PASS 11 unit, 31 Rules, 14 E2E; administração corrigida.
+- S027: [visual QA](https://github.com/CristianoRFB/RFB-Chat/actions/runs/45912988546) PASS, seis screenshots reais inspecionados e versionados em 600855b, 7 larguras; mapa de 58 IDs, 42 mapeados em componentes e 16 parciais/consolidados. Não é percentual de conclusão global.
+- S027 CI 45912988561: 14/15 E2E; trace 15160334841 comprovou que o menu fechou após fixação. S028 d5a6482 reabre o menu pela interface, preservando asserções e sem retries. [CI S028](https://github.com/CristianoRFB/RFB-Chat/actions/runs/45913486070): in_progress/pending; visual S028: in_progress/pending.
+- Estado: VISUAL_PASS_S028_CI_PENDING. #3–#6 permanecem abertas. PR #1 Draft, main intocada, nenhum deploy ou billing. Acessibilidade integral, dispositivos físicos, marca aprovada e capturas de admin/grupos pendentes. Próximo: confirmar CI integral por SHA antes de iniciar EVOLVE 05.

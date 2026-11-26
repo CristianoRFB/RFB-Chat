@@ -13,3 +13,10 @@ Intake: #3 aberta, PR #1 Draft. Saída: #3 KEEP_OPEN (push), #4 KEEP_OPEN (mídi
 
 ## EVOLVE 03
 Entrada: 2 issues abertas (#3/#4), PR #1 Draft; saída: #3/#4/#5/#6 KEEP_OPEN, PR #1 KEEP_OPEN_DRAFT. Nenhum merge/deploy. CI final https://github.com/CristianoRFB/RFB-Chat/actions/runs/45911585835; LOCAL_E2E_PENDING_EXTERNAL_GATES_OPEN. Issue #2 histórica permanece fechada, mas a nova regressão de cadastro foi registrada e tratada em S024; não reutilizar a evidência histórica como prova desta versão.
+
+## EVOLVE 04 — checkpoint S028 (26/11/2026)
+
+- S025: CI 45912658637 PASS 11 unit, 31 Rules, 14 E2E; administração corrigida.
+- S027: [visual QA](https://github.com/CristianoRFB/RFB-Chat/actions/runs/45912988546) PASS, seis screenshots reais inspecionados e versionados em 600855b, 7 larguras; mapa de 58 IDs, 42 mapeados em componentes e 16 parciais/consolidados. Não é percentual de conclusão global.
+- S027 CI 45912988561: 14/15 E2E; trace 15160334841 comprovou que o menu fechou após fixação. S028 d5a6482 reabre o menu pela interface, preservando asserções e sem retries. [CI S028](https://github.com/CristianoRFB/RFB-Chat/actions/runs/45913486070): in_progress/pending; visual S028: in_progress/pending.
+- Estado: VISUAL_PASS_S028_CI_PENDING. #3–#6 permanecem abertas. PR #1 Draft, main intocada, nenhum deploy ou billing. Acessibilidade integral, dispositivos físicos, marca aprovada e capturas de admin/grupos pendentes. Próximo: confirmar CI integral por SHA antes de iniciar EVOLVE 05.
