@@ -3,9 +3,9 @@
   "repo": "CristianoRFB/RFB-Chat",
   "goal": "RFBChat — implementar 12 AC com rastreabilidade, emuladores e custo adicional R$0/mês",
   "phase": "EVOLVE_02_IN_PROGRESS",
-  "slice": "S018",
+  "slice": "S019",
   "baseline_sha": "b20f3887d9192ad10371ba8e8f0888ee93d09da4",
-  "last_commit_sha": "a9f1afb32b4e1d5c7bb46332b81f0a5df14e1a30",
+  "last_commit_sha": "359f49011311766ea7b320ae7aaddfec14314093",
   "last_verified_sha": "1974f774626da85a7c85eaedbf8d3e7bee7ac6c2",
   "evidence": {
     "github_pr": "https://github.com/CristianoRFB/RFB-Chat/pull/1",
@@ -64,7 +64,7 @@
     "11/12 funcionalidades com fluxo local foram escritas, mas definição de 90% integral não pode ser homologada com ausência de QA externa e produção",
     "11/12 somente como cobertura de fluxos de laboratório; 58 telas conceituais não foram implementadas individualmente."
   ],
-  "next_action": "S018: áudio, RTP e limpeza expirada; validar CI.",
+  "next_action": "S019 validar mídia e revogação; documentar gates externos.",
   "revision": 7,
   "updated_at": "2026-11-26",
   "history": [
@@ -168,6 +168,18 @@
       "slice": "S018",
       "baseline_sha": "a9f1afb32b4e1d5c7bb46332b81f0a5df14e1a30",
       "goal": "áudio com revisão e cancelamento, diagnóstico RTP, purga local manual"
+    },
+    {
+      "event": "SLICE_COMMITTED",
+      "slice": "S018",
+      "sha": "359f49011311766ea7b320ae7aaddfec14314093",
+      "status": "IMPLEMENTED_UNVERIFIED"
+    },
+    {
+      "event": "BEFORE_WRITE",
+      "slice": "S019",
+      "baseline_sha": "359f49011311766ea7b320ae7aaddfec14314093",
+      "goal": "revogação de prévia aberta, regressão de expiração/purga, teste de imagens e vídeos reais sintéticos"
     }
   ]
 }
