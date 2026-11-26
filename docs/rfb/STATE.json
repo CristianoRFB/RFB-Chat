@@ -3,9 +3,9 @@
   "repo": "CristianoRFB/RFB-Chat",
   "goal": "RFBChat — implementar 12 AC com rastreabilidade, emuladores e custo adicional R$0/mês",
   "phase": "EVOLVE_03_IN_PROGRESS",
-  "slice": "S020",
+  "slice": "S021",
   "baseline_sha": "b20f3887d9192ad10371ba8e8f0888ee93d09da4",
-  "last_commit_sha": "284c09ce38b65092ccd11aa3667b03060decddfe",
+  "last_commit_sha": "e8dc077d52b5fd611f5b2d95d1443e061d0ac8a5",
   "last_verified_sha": "957c93baa461cf1d508c10f24f4c247d2eb44130",
   "evidence": {
     "github_pr": "https://github.com/CristianoRFB/RFB-Chat/pull/1",
@@ -69,7 +69,7 @@
     "11/12 funcionalidades com fluxo local foram escritas, mas definição de 90% integral não pode ser homologada com ausência de QA externa e produção",
     "11/12 somente como cobertura de fluxos de laboratório; 58 telas conceituais não foram implementadas individualmente."
   ],
-  "next_action": "S020 sanctions and admin UI; S021 privacy rights and moderation antiabuse; S022 QA/security.",
+  "next_action": "S021 privacy/report workflow; S022 actual admin UI E2E and audit.",
   "revision": 8,
   "updated_at": "2026-11-26",
   "history": [
@@ -218,6 +218,18 @@
       "baseline_sha": "957c93baa461cf1d508c10f24f4c247d2eb44130",
       "slice": "S020",
       "goal": "admin RBAC, account restrictions enforced in Rules and audit; no production"
+    },
+    {
+      "event": "SLICE_COMMITTED",
+      "slice": "S020",
+      "sha": "e8dc077d52b5fd611f5b2d95d1443e061d0ac8a5",
+      "status": "IMPLEMENTED_UNVERIFIED"
+    },
+    {
+      "event": "BEFORE_WRITE",
+      "slice": "S021",
+      "baseline_sha": "e8dc077d52b5fd611f5b2d95d1443e061d0ac8a5",
+      "goal": "denúncias com auditoria atômica e cooldown, solicitações LGPD e exportação parcial"
     }
   ]
 }
