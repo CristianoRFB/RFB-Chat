@@ -52,6 +52,7 @@ test('EVOLVE 04: evidência visual real, temas, filtros, teclado e responsividad
   await expect(alice.locator('.messages .message')).toHaveCount(3);
   await alice.locator('.chat-sidebar').evaluate(el=>el.scrollTop=0);
   await alice.locator('.chat-panel').evaluate(el=>el.scrollTop=0);
+  await expect(alice.locator('.messages .message').last()).toBeInViewport({ratio:0.8});
   await capture(alice,'02-chat-dark-1440');
   await alice.getByRole('button',{name:'Ativar tema claro'}).click();
   await expect(alice.locator('html')).toHaveAttribute('data-theme','light');
@@ -63,8 +64,8 @@ test('EVOLVE 04: evidência visual real, temas, filtros, teclado e responsividad
    expect(await alice.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'sem overflow horizontal '+width).toBe(true);
    const ratios=await alice.evaluate(()=>{
     const css=getComputedStyle(document.documentElement);
-    const lum=(h:string)=>{const v=h.trim().slice(1).match(/.{2}/g)!.map(n=>parseInt(n,16)/255).map(c=>c<=.04045?c/12.92:((c+.055)/1.055)**2.4);return .2126*v[0]+.7152*v[1]+.0722*v[2];};
-    return [['--ink','--panel'],['--muted','--panel'],['--primary-ink','--primary'],['--accent','--panel']].map(([x,y])=>{const a=lum(css.getPropertyValue(x)),b=lum(css.getPropertyValue(y));return (Math.max(a,b)+.05)/(Math.min(a,b)+.05);});
+    const lum=(h:string)=>{let hex=h.trim().slice(1);if(hex.length===3)hex=hex.split('').map(c=>c+c).join('');if(!/^[a-f0-9]{6}$/i.test(hex))throw new Error('Cor inválida: '+h);const v=hex.match(/.{2}/g)!.map(n=>parseInt(n,16)/255).map(c=>c<=.04045?c/12.92:((c+.055)/1.055)**2.4);return .2126*v[0]+.7152*v[1]+.0722*v[2];};
+    return [['--ink','--panel'],['--muted','--panel'],['--primary-ink','--primary'],['--accent','--panel'],['--ink','--bubble-in'],['--ink','--bubble-out'],['--muted','--bubble-in'],['--muted','--bubble-out']].map(([x,y])=>{const a=lum(css.getPropertyValue(x)),b=lum(css.getPropertyValue(y));return (Math.max(a,b)+.05)/(Math.min(a,b)+.05);});
    });
    for(const ratio of ratios)expect(ratio).toBeGreaterThanOrEqual(4.5);
   }

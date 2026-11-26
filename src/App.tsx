@@ -267,13 +267,6 @@ function Workspace({ user,suspended }: { user: User;suspended:boolean }) {
         })}
       </div>
       {current&&<a className="mobile-jump" href="#conversation-panel">Abrir conversa selecionada <span aria-hidden="true">↓</span></a>}
-      <div className="workspace-tools"><h3>Espaço de trabalho</h3>
-      <GroupControls uid={user.uid} current={current} onCreated={setSelectedId} onError={onChildError} />
-      <PrivacyPanel uid={user.uid} onSettings={setPrivateSettings} onError={onChildError} />
-      <PrivacyRights uid={user.uid} onError={onChildError}/>
-      <ModeratorDashboard user={user} onError={onChildError} />
-      <NotificationsPanel conversations={conversations} uid={user.uid} enabled={privateSettings.notificationsEnabled}
-        onError={onChildError} onOpen={setSelectedId} />
       <div className="account-box">
         <p className="mini-label">Conta de teste</p>
         <p className="account-email">{user.email}</p>
@@ -281,6 +274,13 @@ function Workspace({ user,suspended }: { user: User;suspended:boolean }) {
         <input className="uid-input" id="own-uid" value={user.uid} readOnly onFocus={event => event.currentTarget.select()} />
         {profilePending && <p className="mini-label" role="status">Perfil ainda sincronizando com o emulador. Aguarde para convidar outra pessoa.</p>}
       </div>
+      <div className="workspace-tools"><h3>Espaço de trabalho</h3>
+      <GroupControls uid={user.uid} current={current} onCreated={setSelectedId} onError={onChildError} />
+      <PrivacyPanel uid={user.uid} onSettings={setPrivateSettings} onError={onChildError} />
+      <PrivacyRights uid={user.uid} onError={onChildError}/>
+      <ModeratorDashboard user={user} onError={onChildError} />
+      <NotificationsPanel conversations={conversations} uid={user.uid} enabled={privateSettings.notificationsEnabled}
+        onError={onChildError} onOpen={setSelectedId} />
       </div>
     </aside>
     <section className="chat-panel" id="conversation-panel" aria-label="Mensagens">
@@ -289,14 +289,16 @@ function Workspace({ user,suspended }: { user: User;suspended:boolean }) {
         <span className="avatar" aria-hidden="true">{title.slice(0, 1).toUpperCase()}</span>
         <div><h2>{title}</h2><p>{current?.kind === 'group' ? current.memberIds.length + ' membros · Grupo local' : selectedId ? 'Conversa individual · histórico local' : 'Escolha uma pessoa ou grupo'}</p></div>
       </header>
-      {!suspended && current?.kind === 'dm' && other && <CallPanel key={current.id} conversationId={current.id} uid={user.uid} otherUid={other} onError={onChildError} />}
       {error && <div className="feedback error" role="alert">{error} <button className="dismiss" type="button" onClick={() => setError('')}>Fechar</button></div>}
       {current?.kind === 'group' && <GroupChannels groupId={current.id} uid={user.uid}
         admin={!!current.adminIds?.includes(user.uid)} onError={onChildError} />}
       <MessageCenter key={selectedId ?? 'empty'} conversationId={selectedId} uid={user.uid} otherUid={current?.kind === 'group' ? '' : other}
         readEnabled={privateSettings.readReceiptsEnabled} conversations={conversations} canPin={current?.kind === 'dm' || !!current?.adminIds?.includes(user.uid)} onError={onChildError} />
-      <FilePanel uid={user.uid} conversationId={selectedId} onError={onChildError} />
-      <ReportPanel uid={user.uid} conversation={current} onError={onChildError} />
+      <div className="conversation-utilities" aria-label="Ferramentas da conversa">
+      {!suspended && current?.kind === 'dm' && other && <CallPanel key={current.id} conversationId={current.id} uid={user.uid} otherUid={other} onError={onChildError} />}
+        <FilePanel uid={user.uid} conversationId={selectedId} onError={onChildError} />
+        <ReportPanel uid={user.uid} conversation={current} onError={onChildError} />
+      </div>
     </section>
   </main>;
 }

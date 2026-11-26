@@ -39,7 +39,9 @@ test('responder, editar, reagir, buscar, bloquear e denunciar com duas contas', 
     await alice.getByRole('button', { name: 'Enviar', exact: true }).click();
     await expect(bob.getByText('Olá único ' + suffix, { exact: true })).toBeVisible();
     await expect(alice.locator('.message.outgoing .message-meta')).toContainText('Lida');
+    await bob.locator('.message.incoming').getByLabel('Ações da mensagem').click();
     await bob.locator('.message.incoming').getByRole('button', { name: 'Reagir com 👍' }).click();
+    await alice.locator('.message.outgoing').getByLabel('Ações da mensagem').click();
     await expect(alice.locator('.message.outgoing').getByRole('button', { name: 'Reagir com 👍' })).toContainText('1');
 
     await alice.locator('.message.outgoing').getByRole('button', { name: 'Editar' }).click();
@@ -151,6 +153,7 @@ test('EVOLVE 01: busca, fixação e remoção sincronizadas entre contas', async
     const sent = alice.locator('.message.outgoing');
     const received = bob.locator('.message.incoming');
     await expect(received).toContainText('Olá evolução '+suffix);
+    await sent.getByLabel('Ações da mensagem').click();
     await sent.getByRole('button',{name:'Fixar',exact:true}).click();
     await expect(received).toContainText('Mensagem fixada');
     await bob.locator('#search-message-body').fill('ola evolucao');
@@ -191,6 +194,7 @@ test('EVOLVE 01: encaminhar entre conversas autorizadas e reconectar sem duplica
     await alice.locator('#message-text').fill('Texto para encaminhar '+suffix);
     await alice.getByRole('button',{name:'Enviar',exact:true}).click();
     await expect(bob.getByText('Texto para encaminhar '+suffix,{exact:true})).toBeVisible();
+    await alice.locator('.message.outgoing').getByLabel('Ações da mensagem').click();
     await alice.locator('.message.outgoing').getByRole('button',{name:'Encaminhar',exact:true}).click();
     await alice.locator('#forward-destination').selectOption({label:uidC});
     await alice.getByRole('button',{name:'Confirmar encaminhamento'}).click();

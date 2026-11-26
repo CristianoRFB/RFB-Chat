@@ -57,12 +57,12 @@ function MessageCard({ conversationId, message, uid, receipt, original, onReply,
       <div><p>Mensagem de voz ({Math.ceil((message.durationMs ?? 0) / 1000)}s)</p>
         <audio controls preload="none" src={message.audioData} aria-label="Mensagem de voz" /></div>
       : <p>{message.body}</p>}
-    <span className="message-meta">
+    <div className="message-bottom"><span className="message-meta">
       {message.createdAt ? message.createdAt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '—'}
       {message.editedAt && ' · Editada'}
       {' · '}{message.pending ? 'Enviando' : read ? 'Lida' : delivered ? 'Entregue' : 'Gravada'}
     </span>
-    {!message.deletedAt && !message.pending && <><div className="message-actions">
+    {!message.deletedAt && !message.pending && <details className="message-tools"><summary aria-label="Ações da mensagem">Ações <span aria-hidden="true">···</span></summary><div className="message-actions">
       <button type="button" onClick={() => onReply(message)}>Responder</button>
       {mine && message.kind !== 'audio' && <><button type="button" onClick={() => onEdit(message)}>Editar</button>
         <button type="button" onClick={() => { if (window.confirm('Excluir o texto para todos os participantes?')) void removeTextMessage(conversationId, message.id).catch(onError); }}>Excluir</button></>}
@@ -77,7 +77,8 @@ function MessageCard({ conversationId, message, uid, receipt, original, onReply,
           aria-label={'Reagir com ' + emoji} aria-pressed={active} title={'Reagir com ' + emoji}
           onClick={() => void react(emoji)}>{emoji}{count > 0 ? ' ' + count : ''}</button>;
       })}
-    </div></>}
+    </div></details>}</div>
+    {!message.deletedAt && reactions.length>0 && <div className="reaction-totals" aria-label="Reações registradas">{REACTION_OPTIONS.map(emoji=>{const count=reactions.filter(r=>r.emoji===emoji).length;return count>0?<span key={emoji} title={count+' reações'}>{emoji} {count}</span>:null;})}</div>}
   </article>;
 }
 
@@ -99,6 +100,9 @@ export function MessageCenter({ conversationId, uid, otherUid, readEnabled, conv
   const [busy, setBusy] = useState(false);
   const deliveredSeen = useRef<string>('');
   const readSeen = useRef<string>('');
+  const historyRef=useRef<HTMLDivElement|null>(null);
+  const nearEnd=useRef(true);
+  const lastShown=useRef('');
 
   useEffect(() => {
     const update = () => setOnline(navigator.onLine);
@@ -117,6 +121,14 @@ export function MessageCenter({ conversationId, uid, otherUid, readEnabled, conv
   const messages = latest;
   const filtered = useMemo(() => filterMessages(messages, search, pinnedOnly), [messages, search, pinnedOnly]);
   const messageBodies = useMemo(() => new Map(messages.map(item => [item.id, item.body])), [messages]);
+  useEffect(()=>{
+    const node=historyRef.current,last=messages.at(-1);
+    if(!node||!last||search||pinnedOnly)return;
+    if(last.id!==lastShown.current){
+      if(nearEnd.current||last.senderId===uid||!lastShown.current)node.scrollTop=node.scrollHeight;
+      lastShown.current=last.id;
+    }
+  },[messages,search,pinnedOnly,uid]);
   async function submitForward(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!forwarding || !destination || forwardBusy) return;
@@ -195,7 +207,7 @@ export function MessageCenter({ conversationId, uid, otherUid, readEnabled, conv
       {messages.length >= 500 && <p className="mini-label">Limite de 500 mensagens nesta janela; busca não cobre o histórico completo.</p>}
       {(search || pinnedOnly) && <p className="mini-label" role="status">{filtered.length} resultados em {messages.length} mensagens carregadas.</p>}
     </div>
-    <div className="messages" aria-label="Histórico de mensagens" aria-live="polite">
+    <div className="messages" ref={historyRef} onScroll={e=>{const n=e.currentTarget;nearEnd.current=n.scrollHeight-n.scrollTop-n.clientHeight<80;}} aria-label="Histórico de mensagens" aria-live="polite">
       {messages.length >= windowSize && windowSize < 500 && <button type="button" className="older-button"
         onClick={() => setWindowSize(n => Math.min(n + 50, 500))}>Carregar mensagens anteriores</button>}
       {messages.length === 0 && <div className="empty-state"><h3>A conversa começou.</h3>
