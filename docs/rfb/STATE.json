@@ -2,8 +2,8 @@
   "schema": 1,
   "repo": "CristianoRFB/RFB-Chat",
   "goal": "RFBChat — implementar 12 AC com rastreabilidade, emuladores e custo adicional R$0/mês",
-  "phase": "G5_LOCAL_SECURITY_QA_PASS_PRODUCTION_GATED",
-  "slice": "S004-S013",
+  "phase": "EVOLVE_01_IN_PROGRESS",
+  "slice": "S014",
   "baseline_sha": "b20f3887d9192ad10371ba8e8f0888ee93d09da4",
   "last_commit_sha": "3dc7e7b4f1175509ae32476dd219ad8215c8be36",
   "last_verified_sha": "3dc7e7b4f1175509ae32476dd219ad8215c8be36",
@@ -56,7 +56,7 @@
     "11/12 funcionalidades com fluxo local foram escritas, mas definição de 90% integral não pode ser homologada com ausência de QA externa e produção",
     "11/12 somente como cobertura de fluxos de laboratório; 58 telas conceituais não foram implementadas individualmente."
   ],
-  "next_action": "Concluir revisão manual OWASP/WCAG/LGPD, limites de cota/retencão, RTC media path real, planejamento Cloudflare+Firebase Spark; preservar PR Draft até autorização de release.",
+  "next_action": "S014: implementar operações de mensagens com Rules e testes de negação; manter PR draft",
   "revision": 6,
   "updated_at": "2026-11-23",
   "history": [
@@ -98,6 +98,12 @@
         "e2e": 10
       },
       "issue_2": "closed"
+    },
+    {
+      "event": "BEFORE_WRITE",
+      "at": "2026-11-26",
+      "baseline_sha": "ade05565ce3d658ab24bc78ac1ef19f8396f9b90",
+      "goal": "EVOLVE 01: busca no histórico carregado, exclusão segura, fixação e encaminhamento de texto; presença, offline, grupos/canais e push com gates separados"
     }
   ]
 }
