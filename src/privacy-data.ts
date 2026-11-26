@@ -1,6 +1,6 @@
 import {
   arrayRemove, arrayUnion, collection, doc, getDoc, onSnapshot, serverTimestamp,
-  setDoc, updateDoc, type FirestoreError, type Unsubscribe
+  setDoc, updateDoc, writeBatch, type FirestoreError, type Unsubscribe
 } from 'firebase/firestore';
 import { db } from './firebase';
 import { lookupName } from './chat-data';
@@ -58,8 +58,9 @@ export async function sendReport(
 ): Promise<void> {
   const reason = raw.trim();
   if (reason.length < 10 || reason.length > 500) throw new Error('Descreva o motivo em 10 a 500 caracteres.');
-  await setDoc(doc(collection(db, 'reports')), {
-    reporterId: uid, reportedUid, conversationId, reason,
-    status: 'open', createdAt: serverTimestamp()
-  });
+  const report=doc(collection(db,'reports'));
+  const batch=writeBatch(db);
+  batch.set(report,{reporterId:uid,reportedUid,conversationId,reason,status:'open',createdAt:serverTimestamp()});
+  batch.set(doc(db,'reportRate',uid),{reportId:report.id,createdAt:serverTimestamp()});
+  await batch.commit();
 }

@@ -3,7 +3,8 @@ import { getIdTokenResult, onIdTokenChanged, type User } from 'firebase/auth';
 import { auth } from './firebase';
 import { watchAccountControl } from './admin-data';
 import { AdminPanel } from './AdminPanel';
-import { setModerationStatus, watchModerationQueue, type ModerationReport } from './moderator-data';
+import { PrivacyQueue } from './PrivacyRights';
+import { setModerationStatus, watchModerationQueue, watchReportHistory, type ModerationReport } from './moderator-data';
 
 export function ModeratorDashboard({ user, onError }: {
   user: User; onError: (error: unknown) => void;
@@ -13,6 +14,9 @@ export function ModeratorDashboard({ user, onError }: {
   const allowed=!!control?.active&&(claims.admin||(control.exists?control.role==='moderator':claims.moderator));
   const [reports, setReports] = useState<ModerationReport[]>([]);
   const [busy, setBusy] = useState('');
+  const [selected,setSelected]=useState('');
+  const [history,setHistory]=useState<{status:string;actorId:string;createdAt:Date|null}[]>([]);
+  useEffect(()=>{setHistory([]);if(!allowed||!selected)return;return watchReportHistory(selected,setHistory,onError);},[allowed,selected,onError]);
   useEffect(() => {
     let mounted = true;
     const off=onIdTokenChanged(auth,next=>{
@@ -31,13 +35,13 @@ export function ModeratorDashboard({ user, onError }: {
   if (!allowed) return null;
   async function change(id: string, status: 'reviewed' | 'closed') {
     setBusy(id);
-    try { await setModerationStatus(id, status); }
+    try { await setModerationStatus(id, status,user.uid); }
     catch (error) { onError(error); }
     finally { setBusy(''); }
   }
   const open = reports.filter(report => report.status === 'open').length;
   return <section className="moderator-area" aria-label="Administração e moderação">
-    {claims.admin&&<AdminPanel uid={user.uid} onError={onError}/>}
+    {claims.admin&&<><AdminPanel uid={user.uid} onError={onError}/><PrivacyQueue uid={user.uid} onError={onError}/></>}
     <details>
       <summary>Moderação · {open} denúncias abertas</summary>
       <p>Acesso por cargo confiável. Permissão verificada também nas regras Firestore.</p>
@@ -48,6 +52,9 @@ export function ModeratorDashboard({ user, onError }: {
           <p>Conversa: {report.conversationId.slice(0, 30)}</p>
           <p>Remetente: {report.reporterId.slice(0, 12)} · Denunciado: {report.reportedUid.slice(0, 12)}</p>
           <blockquote>{report.reason}</blockquote>
+          {report.reviewedBy&&<p>Último operador: {report.reviewedBy}</p>}
+          <button type="button" onClick={()=>setSelected(selected===report.id?'':report.id)}>Histórico da denúncia</button>
+          {selected===report.id&&<ul>{history.map(h=><li key={h.status}>{h.status} · {h.actorId} · {h.createdAt?.toLocaleString('pt-BR')}</li>)}</ul>}
           <div className="moderator-actions">
             {report.status === 'open' && <button disabled={busy === report.id} type="button"
               onClick={() => void change(report.id, 'reviewed')}>Marcar revisada</button>}

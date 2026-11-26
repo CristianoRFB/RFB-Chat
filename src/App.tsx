@@ -9,6 +9,7 @@ import { auth, db, isLocalEmulator } from './firebase';
 import { createConversation, lookupName, watchConversations, type ChatConversation } from './chat-data';
 import { MessageCenter } from './MessageCenter';
 import { watchAccountControl, type AccountControl } from './admin-data';
+import { PrivacyRights } from './PrivacyRights';
 import { GroupControls } from './GroupControls';
 import { PrivacyPanel } from './PrivacyPanel';
 import { ReportPanel } from './ReportPanel';
@@ -99,9 +100,10 @@ function Login() {
 function AccountGate({user}:{user:User}) {
   const [control,setControl]=useState<AccountControl|null>(null);
   const [error,setError]=useState('');
+  const onRightsError=useCallback((e:unknown)=>setError(errorText(e)),[]);
   useEffect(()=>watchAccountControl(user.uid,v=>{setControl(v);setError('');},e=>setError(errorText(e))),[user.uid]);
   if(!control)return <main id="conteudo"><p role="status">{error||'Verificando situação da conta…'}</p></main>;
-  if(control.status==='banned')return <main id="conteudo" className="profile-sync"><h2>Conta banida da mensageria</h2><p>{control.reason}</p><p>O acesso às conversas está bloqueado pelas regras de segurança.</p></main>;
+  if(control.status==='banned')return <main id="conteudo" className="profile-sync"><h2>Conta banida da mensageria</h2><p>{control.reason}</p><p>O acesso às conversas está bloqueado pelas regras de segurança.</p><PrivacyRights uid={user.uid} onError={onRightsError}/>{error&&<p role="alert">{error}</p>}</main>;
   return <>{control.status==='suspended'&&<p role="alert" className="feedback error">Conta suspensa: acesso de leitura. {control.reason}</p>}<Workspace user={user}/></>;
 }
 
@@ -245,6 +247,7 @@ function Workspace({ user }: { user: User }) {
       </form>
       <GroupControls uid={user.uid} current={current} onCreated={setSelectedId} onError={onChildError} />
       <PrivacyPanel uid={user.uid} onSettings={setPrivateSettings} onError={onChildError} />
+      <PrivacyRights uid={user.uid} onError={onChildError}/>
       <ModeratorDashboard user={user} onError={onChildError} />
       <NotificationsPanel conversations={conversations} uid={user.uid} enabled={privateSettings.notificationsEnabled}
         onError={onChildError} onOpen={setSelectedId} />

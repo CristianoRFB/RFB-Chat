@@ -183,19 +183,28 @@ describe('Firestore Rules: isolamento de conversas', () => {
     const bob = testEnv.authenticatedContext('bob').firestore();
     const moderator = testEnv.authenticatedContext('moderator', { moderator: true }).firestore();
     const report = doc(alice, 'reports', 'test-report-01');
-    await assertSucceeds(setDoc(report, {
-      reporterId: 'alice', reportedUid: 'bob', conversationId,
-      reason: 'Mensagem indevida dentro da conversa', status: 'open',
-      createdAt: serverTimestamp()
-    }));
+    const payload={reporterId:'alice',reportedUid:'bob',conversationId,reason:'Mensagem indevida dentro da conversa',status:'open',createdAt:serverTimestamp()};
+    await assertFails(setDoc(report,payload));
+    const batch=writeBatch(alice);batch.set(report,payload);batch.set(doc(alice,'reportRate','alice'),{reportId:'test-report-01',createdAt:serverTimestamp()});
+    await assertSucceeds(batch.commit());
+    const duplicate=writeBatch(alice);duplicate.set(doc(alice,'reports','test-report-repeat'),payload);duplicate.set(doc(alice,'reportRate','alice'),{reportId:'test-report-repeat',createdAt:serverTimestamp()});
+    await assertFails(duplicate.commit());
     await assertSucceeds(getDoc(report));
     await assertFails(getDoc(doc(bob, 'reports', 'test-report-01')));
     await assertFails(getDocs(collection(alice, 'reports')));
     await assertSucceeds(getDocs(collection(moderator, 'reports')));
-    await assertSucceeds(updateDoc(doc(moderator, 'reports', 'test-report-01'), { status: 'reviewed', resolvedAt: serverTimestamp() }));
+    async function audit(status:'reviewed'|'closed'){
+      const ref=doc(moderator,'reports','test-report-01'),batch=writeBatch(moderator);
+      batch.update(ref,{status,resolvedAt:serverTimestamp(),reviewedBy:'moderator'});
+      batch.set(doc(ref,'events',status),{status,actorId:'moderator',createdAt:serverTimestamp()});
+      return batch.commit();
+    }
+    await assertFails(updateDoc(doc(moderator,'reports','test-report-01'),{status:'reviewed',resolvedAt:serverTimestamp(),reviewedBy:'moderator'}));
+    await assertSucceeds(audit('reviewed'));
     await assertFails(updateDoc(doc(moderator, 'reports', 'test-report-01'), { status: 'reviewed', resolvedAt: serverTimestamp() }));
     await assertFails(updateDoc(doc(moderator, 'reports', 'test-report-01'), { status: 'closed', resolvedAt: new Date('2020-01-01') }));
-    await assertSucceeds(updateDoc(doc(moderator, 'reports', 'test-report-01'), { status: 'closed', resolvedAt: serverTimestamp() }));
+    await assertSucceeds(audit('closed'));
+    await assertFails(updateDoc(doc(moderator,'reports','test-report-01','events','reviewed'),{actorId:'forged'}));
     await assertFails(updateDoc(doc(moderator, 'reports', 'test-report-01'), { status: 'reviewed', resolvedAt: serverTimestamp() }));
     await assertFails(updateDoc(report, { status: 'closed' }));
   });
@@ -515,4 +524,18 @@ it('EVOLVE 03: controle de conta requer admin, evento atômico e impede autoelev
  const restore={...data,role:'member',status:'active',eventId:'restore-bob',updatedAt:serverTimestamp()};
  const restoreBatch=writeBatch(admin);restoreBatch.set(target,restore);restoreBatch.set(doc(admin,'accountControls','bob','events','restore-bob'),restore);await assertSucceeds(restoreBatch.commit());
  await assertSucceeds(setDoc(doc(b,'conversations',conversationId,'messages','restored-send'),{senderId:'bob',body:'restaurado',createdAt:serverTimestamp()}));
+});
+
+it('EVOLVE 03: solicitações de privacidade pertencem ao titular e só admin inicia análise',async()=>{
+ const a=testEnv.authenticatedContext('alice').firestore(),b=testEnv.authenticatedContext('bob').firestore();
+ const mod=testEnv.authenticatedContext('moderator',{moderator:true}).firestore(),admin=testEnv.authenticatedContext('admin-qa',{admin:true}).firestore();
+ const payload={ownerId:'alice',kind:'erasure',status:'submitted',note:'Solicitação sintética',createdAt:serverTimestamp()};
+ const ref=doc(a,'privacyRequests','alice_erasure');
+ await assertSucceeds(setDoc(ref,payload));await assertSucceeds(getDoc(ref));
+ await assertFails(getDoc(doc(b,'privacyRequests','alice_erasure')));
+ await assertFails(setDoc(doc(b,'privacyRequests','alice_access'),{...payload,kind:'access'}));
+ await assertFails(updateDoc(ref,{status:'under_review'}));
+ await assertFails(updateDoc(doc(mod,'privacyRequests','alice_erasure'),{status:'under_review',reviewedBy:'moderator',reviewedAt:serverTimestamp()}));
+ await assertSucceeds(updateDoc(doc(admin,'privacyRequests','alice_erasure'),{status:'under_review',reviewedBy:'admin-qa',reviewedAt:serverTimestamp()}));
+ await assertFails(updateDoc(doc(admin,'privacyRequests','alice_erasure'),{status:'fulfilled'}));
 });

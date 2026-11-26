@@ -102,8 +102,24 @@ service cloud.firestore {
         allow update, delete: if false;
       }
     }
+    function reportRatePath(uid) { return /databases/$(database)/documents/reportRate/$(uid); }
+    match /reportRate/{uid} {
+      allow get: if own(uid);
+      allow list, delete: if false;
+      allow create, update: if own(uid)
+        && request.resource.data.keys().hasOnly(['reportId','createdAt'])
+        && request.resource.data.keys().hasAll(['reportId','createdAt'])
+        && request.resource.data.reportId is string && request.resource.data.createdAt == request.time
+        && (!exists(reportRatePath(uid)) || request.time >= resource.data.createdAt + duration.value(30,'s'))
+        && !exists(/databases/$(database)/documents/reports/$(request.resource.data.reportId))
+        && getAfter(/databases/$(database)/documents/reports/$(request.resource.data.reportId)).data.reporterId == uid
+        && getAfter(/databases/$(database)/documents/reports/$(request.resource.data.reportId)).data.createdAt == request.time;
+    }
     match /reports/{reportId} {
+      function eventPath(status) { return /databases/$(database)/documents/reports/$(reportId)/events/$(status); }
       allow create: if signedIn()
+        && getAfter(reportRatePath(request.auth.uid)).data.reportId == reportId
+        && getAfter(reportRatePath(request.auth.uid)).data.createdAt == request.time
         && request.resource.data.keys().hasOnly(['reporterId','reportedUid','conversationId','reason','status','createdAt'])
         && request.resource.data.keys().hasAll(['reporterId','reportedUid','conversationId','reason','status','createdAt'])
         && request.resource.data.reporterId == request.auth.uid
@@ -119,13 +135,46 @@ service cloud.firestore {
         && request.resource.data.createdAt == request.time;
       allow get: if signedIn() && (resource.data.reporterId == request.auth.uid
         || moderator());
-      allow list: if moderator();
+      allow list: if moderator() || (signedIn() && resource.data.reporterId == request.auth.uid && request.query.limit <= 50);
       allow update: if moderator()
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','resolvedAt'])
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','resolvedAt','reviewedBy'])
         && request.resource.data.diff(resource.data).affectedKeys().hasAll(['status','resolvedAt'])
+        && request.resource.data.reviewedBy == request.auth.uid
         && ((resource.data.status == 'open' && request.resource.data.status in ['reviewed', 'closed'])
           || (resource.data.status == 'reviewed' && request.resource.data.status == 'closed'))
-        && request.resource.data.resolvedAt == request.time;
+        && request.resource.data.resolvedAt == request.time
+        && !exists(eventPath(request.resource.data.status))
+        && getAfter(eventPath(request.resource.data.status)).data == {
+          'status': request.resource.data.status, 'actorId': request.auth.uid, 'createdAt': request.time
+        };
+      allow delete: if false;
+      match /events/{status} {
+        allow get, list: if moderator();
+        allow create: if moderator()
+          && status in ['reviewed','closed']
+          && request.resource.data == {'status':status,'actorId':request.auth.uid,'createdAt':request.time}
+          && getAfter(/databases/$(database)/documents/reports/$(reportId)).data.status == status
+          && getAfter(/databases/$(database)/documents/reports/$(reportId)).data.reviewedBy == request.auth.uid
+          && getAfter(/databases/$(database)/documents/reports/$(reportId)).data.resolvedAt == request.time;
+        allow update, delete: if false;
+      }
+    }
+    match /privacyRequests/{requestId} {
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly(['ownerId','kind','status','createdAt','note'])
+        && request.resource.data.keys().hasAll(['ownerId','kind','status','createdAt','note'])
+        && request.resource.data.ownerId == request.auth.uid
+        && request.resource.data.kind in ['access','erasure','appeal']
+        && requestId == request.auth.uid + '_' + request.resource.data.kind
+        && request.resource.data.status == 'submitted'
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.note is string && request.resource.data.note.size() <= 500;
+      allow get: if activeAdmin() || (signedIn() && requestId in [request.auth.uid+'_access',request.auth.uid+'_erasure',request.auth.uid+'_appeal']);
+      allow list: if activeAdmin() && request.query.limit <= 50;
+      allow update: if activeAdmin() && resource.data.status == 'submitted'
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','reviewedBy','reviewedAt'])
+        && request.resource.data.status == 'under_review' && request.resource.data.reviewedBy == request.auth.uid
+        && request.resource.data.reviewedAt == request.time;
       allow delete: if false;
     }
     match /conversations/{conversationId} {
