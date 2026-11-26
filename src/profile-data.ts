@@ -1,4 +1,4 @@
-import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore';
+import { doc, getDocFromServer, serverTimestamp, setDoc } from 'firebase/firestore';
 import { db } from './firebase';
 
 // Single-flight: cadastro, recuperação automática e manual nunca disputam
@@ -14,13 +14,13 @@ export async function ensureLocalProfile(uid: string, rawName: string): Promise<
   if (existingJob) return existingJob;
   const task = (async () => {
     const ref = doc(db, 'profiles', uid);
-    if ((await getDoc(ref)).exists()) return;
+    if ((await getDocFromServer(ref)).exists()) return;
     try {
       await setDoc(ref, { uid, displayName, createdAt: serverTimestamp() });
     } catch (error) {
       // Outro contexto pode ter criado o perfil entre a leitura e a gravação.
       // Não esconder uma negação real se o documento continuar inexistente.
-      const stored = await getDoc(ref).catch(() => null);
+      const stored = await getDocFromServer(ref).catch(() => null);
       if (!stored?.exists()) throw error;
     }
   })();

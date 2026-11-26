@@ -34,7 +34,7 @@ function errorText(error: unknown): string {
   return error instanceof Error ? error.message : 'Ocorreu uma falha inesperada.';
 }
 
-function Login() {
+function Login({onRegistrationPending}:{onRegistrationPending:(value:boolean)=>void}) {
   const [register, setRegister] = useState(false);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -46,6 +46,7 @@ function Login() {
     event.preventDefault();
     setError('');
     setBusy(true);
+    if(register)onRegistrationPending(true);
     try {
       if (register) {
         const displayName = name.trim();
@@ -69,6 +70,7 @@ function Login() {
       setError(errorText(err));
     } finally {
       setBusy(false);
+      if(register)onRegistrationPending(false);
     }
   }
 
@@ -90,7 +92,7 @@ function Login() {
         {error && <p className="feedback error" role="alert">{error}</p>}
         <button className="primary" type="submit" disabled={busy}>{busy ? 'Aguarde…' : register ? 'Criar conta local' : 'Entrar no laboratório'}</button>
       </form>
-      <button className="link-button" type="button" onClick={() => { setRegister(!register); setError(''); }}>
+      <button className="link-button" disabled={busy} type="button" onClick={() => { setRegister(!register); setError(''); }}>
         {register ? 'Já tenho conta — entrar' : 'Criar uma conta no emulador'}
       </button>
     </section>
@@ -131,7 +133,7 @@ function Workspace({ user,suspended }: { user: User;suspended:boolean }) {
     // O cadastro Auth pode acontecer antes da gravação Firestore; recupera
     // automaticamente no máximo duas vezes se displayName veio do Auth SDK.
     const scheduleRecovery = () => {
-      const displayName = user.displayName?.trim();
+      const displayName = (auth.currentUser?.uid === user.uid ? auth.currentUser.displayName : user.displayName)?.trim();
       if (!displayName || displayName.length < 2 || !missing ||
         timer || recovering || attempts >= 2 || !mounted) return;
       timer = setTimeout(() => {
@@ -293,6 +295,7 @@ function LocalChat() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [fatal, setFatal] = useState('');
+  const [registering,setRegistering]=useState(false);
   useEffect(() => onAuthStateChanged(auth, next => {
     setUser(next);
     setLoading(false);
@@ -306,11 +309,11 @@ function LocalChat() {
     <header className="topbar">
       <span className="brand">RFB<span>Chat.</span></span>
       <span className="badge-local">LOCAL / EMULADOR / NÃO É PRODUÇÃO</span>
-      {user && <button className="logout" type="button" onClick={() => void signOut(auth)}>Sair</button>}
+      {user && !registering && <button className="logout" type="button" onClick={() => void signOut(auth)}>Sair</button>}
     </header>
     {fatal ? <main id="conteudo" className="feedback error" role="alert">{fatal}</main>
       : loading ? <main id="conteudo" className="loading">Conectando ao emulador…</main>
-      : user ? <AccountGate key={user.uid} user={user} /> : <Login />}
+      : user && !registering ? <AccountGate key={user.uid} user={user} /> : <Login onRegistrationPending={setRegistering} />}
   </div>;
 }
 

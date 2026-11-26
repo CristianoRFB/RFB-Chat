@@ -3,9 +3,9 @@
   "repo": "CristianoRFB/RFB-Chat",
   "goal": "RFBChat — implementar 12 AC com rastreabilidade, emuladores e custo adicional R$0/mês",
   "phase": "EVOLVE_03_IN_PROGRESS",
-  "slice": "S023",
+  "slice": "S024",
   "baseline_sha": "b20f3887d9192ad10371ba8e8f0888ee93d09da4",
-  "last_commit_sha": "f0a5ab9aa305b1b14505cd18748045f937a6c934",
+  "last_commit_sha": "afa75e67a9c26e860233c488b5929182de537e2e",
   "last_verified_sha": "957c93baa461cf1d508c10f24f4c247d2eb44130",
   "evidence": {
     "github_pr": "https://github.com/CristianoRFB/RFB-Chat/pull/1",
@@ -69,7 +69,7 @@
     "11/12 funcionalidades com fluxo local foram escritas, mas definição de 90% integral não pode ser homologada com ausência de QA externa e produção",
     "11/12 somente como cobertura de fluxos de laboratório; 58 telas conceituais não foram implementadas individualmente."
   ],
-  "next_action": "Gerar candidato de lockfile via runner GitHub com permissões somente leitura; revisar auditoria e CI.",
+  "next_action": "Confirmar CI da correção de cadastro e dependências; documentar EVOLVE 03.",
   "revision": 8,
   "updated_at": "2026-11-26",
   "history": [
@@ -261,6 +261,25 @@
         "critical": 3,
         "total": 30
       }
+    },
+    {
+      "event": "DEPENDENCY_LOCK_COMMITTED",
+      "slice": "S023",
+      "sha": "afa75e67a9c26e860233c488b5929182de537e2e",
+      "candidate_run_id": 45911379524,
+      "audit": {
+        "moderate": 14,
+        "high": 0,
+        "critical": 0
+      },
+      "status": "CANDIDATE_PASS_LOCK_CI_PENDING"
+    },
+    {
+      "event": "REGRESSION_FIX",
+      "slice": "S024",
+      "baseline_sha": "afa75e67a9c26e860233c488b5929182de537e2e",
+      "run_id": 45911111067,
+      "diagnosis": "3 E2E failure snapshots show profile repair instead of workspace; retain Login until Auth+Firestore registration completes; server profile read; no timeout increase"
     }
   ]
 }
