@@ -12,3 +12,7 @@
 - Protocolos: Anti-AI Slop, Anti-Preguiça, Criatividade, AntiVibeCoding, AntiLoop, QA visual com screenshot anterior, inspeção, correção, recaptura; sem retries. Fontes em docs/BENCHMARK-UX-2026.md. Marca proposta V1 ainda sem aceite formal do proprietário; originais PNG não importados; fotos de admin/grupos/ações abertas faltam. #3 push, #4 mídia externa, #5 LGPD/antiabuso, #6 moderados. Sem produção. Rollback S027/S025 e testes correlatos na branch, preservando correção de labels quando possível. 
 
 [Manifesto](../screenshots/manifest.json) · [Design system](DESIGN-SYSTEM.md) · [Mapa das telas](SCREEN-MAP.md).
+
+## S028 — correção de regressão comprovada
+
+CI S027 [45912988561](https://github.com/CristianoRFB/RFB-Chat/actions/runs/45912988561): 11 unit + 31 Rules PASS, build/typecheck/audit PASS, 14/15 E2E. Trace 15160334841 confirma que fixação, busca e filtro passaram; Excluir ficou inacessível após fechamento do disclosure nativo no snapshot de fixação. O teste passa a verificar a fixação no remetente, abrir o menu real se fechado e verificar a ação visível antes do clique; nenhuma asserção removida, nenhum retry, sem mudança do código visual. S028 aguardando CI. Capturas S027 permanecem evidência do código visual inalterado.

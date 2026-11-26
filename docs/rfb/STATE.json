@@ -2,7 +2,7 @@
   "schema": 1,
   "repo": "CristianoRFB/RFB-Chat",
   "goal": "RFBChat — implementar 12 AC com rastreabilidade, emuladores e custo adicional R$0/mês",
-  "phase": "EVOLVE_04_REGRESSION_FIX_PENDING",
+  "phase": "EVOLVE_04_S028_CI_PENDING",
   "slice": "S028",
   "baseline_sha": "b20f3887d9192ad10371ba8e8f0888ee93d09da4",
   "last_commit_sha": "b2ad72c3bffa73f34ae2af0ae5f27ed5437e3d8e",
@@ -109,8 +109,8 @@
     "11/12 funcionalidades com fluxo local foram escritas, mas definição de 90% integral não pode ser homologada com ausência de QA externa e produção",
     "11/12 somente como cobertura de fluxos de laboratório; 58 telas conceituais não foram implementadas individualmente."
   ],
-  "next_action": "Reopen collapsed native disclosure after pin and verify delete synchronization in CI; no change to application behavior.",
-  "revision": 11,
+  "next_action": "Verify S028 CI: 11 unit, 31 Rules, 15 E2E expected and visual workflow; keep external gates open.",
+  "revision": 12,
   "updated_at": "2026-11-26",
   "history": [
     {
@@ -397,6 +397,14 @@
       "regression_run": 45912988561,
       "artifact_id": 15160334841,
       "diagnosis": "Trace: pin and all search assertions passed; click Excluir waited 90s because native message details collapsed after pin snapshot. Reopen through summary, assert visible, then delete; preserve all assertions."
+    },
+    {
+      "at": "2026-11-26",
+      "event": "REGRESSION_FIX",
+      "slice": "S028",
+      "run_id": 45912988561,
+      "status": "IMPLEMENTED_UNVERIFIED",
+      "diagnosis": "Trace proved Excluir inaccessible while details closed; real UI reopens after pin, assert pinned and action visible; all deletion/reload asserts preserved."
     }
   ]
 }

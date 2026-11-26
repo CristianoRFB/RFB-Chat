@@ -163,8 +163,13 @@ test('EVOLVE 01: busca, fixação e remoção sincronizadas entre contas', async
     await bob.locator('#search-message-body').fill('');
     await bob.getByRole('button',{name:'Somente fixadas'}).click();
     await expect(received).toHaveCount(1);
+    // A pin snapshot can collapse the native disclosure; reopen through the real UI.
+    await expect(sent).toContainText('Mensagem fixada');
+    const deleteAction = sent.getByRole('button',{name:'Excluir',exact:true});
+    if (!(await deleteAction.isVisible())) await sent.getByLabel('Ações da mensagem').click({timeout:15_000});
+    await expect(deleteAction).toBeVisible();
     alice.once('dialog', dialog => void dialog.accept());
-    await sent.getByRole('button',{name:'Excluir',exact:true}).click();
+    await deleteAction.click({timeout:15_000});
     await expect(received).toHaveCount(0);
     await bob.getByRole('button',{name:'Somente fixadas'}).click();
     await expect(received).toContainText('Mensagem excluída');
