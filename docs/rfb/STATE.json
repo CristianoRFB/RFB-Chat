@@ -2,18 +2,18 @@
   "schema": 1,
   "repo": "CristianoRFB/RFB-Chat",
   "goal": "RFBChat — implementar 12 AC com rastreabilidade, emuladores e custo adicional R$0/mês",
-  "phase": "EVOLVE_04_IN_PROGRESS",
-  "slice": "S027",
+  "phase": "EVOLVE_04_VISUAL_PASS_FULL_CI_PENDING",
+  "slice": "S025-S027",
   "baseline_sha": "b20f3887d9192ad10371ba8e8f0888ee93d09da4",
-  "last_commit_sha": "09984cdb04b8ece116f25726c7eed497fdc9cdd9",
-  "last_verified_sha": "957c93baa461cf1d508c10f24f4c247d2eb44130",
+  "last_commit_sha": "b2ad72c3bffa73f34ae2af0ae5f27ed5437e3d8e",
+  "last_verified_sha": "954a31ba6a6f0e346cfe5b08a4506e814ee4dc3b",
   "evidence": {
     "github_pr": "https://github.com/CristianoRFB/RFB-Chat/pull/1",
     "open_issues": 4,
     "open_prs": 1,
-    "last_known_green_run": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45762924505",
-    "last_known_green_results": "11 unit, 28 Rules, 13 E2E PASS",
-    "current_head_ci": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45911585835",
+    "last_known_green_run": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45912658637",
+    "last_known_green_results": "11 unit, 31 Rules, 14 E2E PASS S025; S027 visual PASS",
+    "current_head_ci": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45912988561",
     "current_head_ci_status": "IN_PROGRESS",
     "lockfile": "package-lock.json generated in CI and versioned, npm ci used",
     "runtime_environment": "demo-rfb-chat Firebase Auth + Firestore Emulators; Node 22/Java21",
@@ -49,7 +49,24 @@
       "issue": "https://github.com/CristianoRFB/RFB-Chat/issues/6"
     },
     "evolve03_security_issue": "https://github.com/CristianoRFB/RFB-Chat/issues/5",
-    "evolve03_code_ci": "TypeScript: success; Unit tests: success; Build sem conexões de produção: success; Firestore Rules isoladas (demo-rfb-chat): success; Two users and mobile E2E in isolated emulators: in_progress"
+    "evolve03_code_ci": "S025 all green: https://github.com/CristianoRFB/RFB-Chat/actions/runs/45912658637",
+    "evolve04_visual": {
+      "run": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45912988546",
+      "artifact_id": 15160977197,
+      "code_sha": "b2ad72c3bffa73f34ae2af0ae5f27ed5437e3d8e",
+      "screenshots": 6,
+      "viewports": [
+        320,
+        360,
+        390,
+        430,
+        768,
+        1024,
+        1440
+      ],
+      "status": "PASS_REVIEWED",
+      "manifest": "docs/screenshots/manifest.json"
+    }
   },
   "completed": [
     "Preservados 10 módulos, 12 features e catálogo histórico de 58 telas conceituais e 7 diagramas",
@@ -70,7 +87,9 @@
     "EVOLVE 01: CI final 45760719067 PASS; push externo ainda bloqueado #3.",
     "S017-S019: mídia local expandida, galeria, áudio, RTP diagnóstico, purga local implementados; evidência de CI em EVOLVE-02.md.",
     "EVOLVE 02 final CI 45762924505 PASS (11 unit, 28 Rules, 13 E2E); external #4 open.",
-    "EVOLVE 03 S020-S024: administração, controles de acesso, auditoria, cooldown denúncia, solicitação de direitos, audit crítico corrigido; QA final por SHA."
+    "EVOLVE 03 S020-S024: administração, controles de acesso, auditoria, cooldown denúncia, solicitação de direitos, audit crítico corrigido; QA final por SHA.",
+    "EVOLVE 03 correction S025 56 tests PASS.",
+    "EVOLVE 04 S025-S027 design, themes, filters, 58 IDs and 6 reviewed screenshots; dedicated visual PASS."
   ],
   "pending": [
     "Validar transporte RTP real e conectividade WebRTC fora de localhost (sem STUN/TURN isso não é garantido).",
@@ -82,15 +101,16 @@
     "Revogação manual de link disponível, mas expiração lógica NÃO apaga automaticamente os bytes; projetar TTL/retencão antes de uso real.",
     "EVOLVE 01: homologar CI por SHA final, E2E e presença em sessões reais; push bloqueado Issue #3; cache persistente não habilitado.",
     "EVOLVE 02: gate externo #4 e QA manual; CI local PASS.",
-    "EVOLVE 03: #5 privacidade integral/antiabuso global/admin real, #6 alertas moderados; validar E2E da correção de cadastro se pendente."
+    "EVOLVE 03: #5 privacidade integral/antiabuso global/admin real, #6 alertas moderados; validar E2E da correção de cadastro se pendente.",
+    "EVOLVE 04: formal brand approval, original PNGs absent, admin/group screenshots, full WCAG, devices; full CI if pending."
   ],
   "blockers": [
     "PR DRAFT não está mesclado e nenhum deploy/projeto Firebase real foi autorizado",
     "11/12 funcionalidades com fluxo local foram escritas, mas definição de 90% integral não pode ser homologada com ausência de QA externa e produção",
     "11/12 somente como cobertura de fluxos de laboratório; 58 telas conceituais não foram implementadas individualmente."
   ],
-  "next_action": "S027 corrective pass; rerun visual and full CI, inspect and version screenshots.",
-  "revision": 9,
+  "next_action": "Check CI 45912988561 and fix proven regressions before EVOLVE 05.",
+  "revision": 10,
   "updated_at": "2026-11-26",
   "history": [
     {
@@ -359,6 +379,15 @@
       "slice": "S027",
       "baseline_sha": "420e9eb087ab22ddadf469e67d116c820b7bc3e0",
       "goal": "compactar mensagens com disclosure acessível, agrupar ferramentas, preservar rolagem recente, ajustar posição de conta e validar contraste em ambos temas"
+    },
+    {
+      "event": "EVOLVE_04_VISUAL_VERIFIED",
+      "at": "2026-11-26",
+      "sha": "b2ad72c3bffa73f34ae2af0ae5f27ed5437e3d8e",
+      "ci_run_id": 45912988561,
+      "visual_run_id": 45912988546,
+      "screenshots": 6,
+      "status": "VISUAL_PASS_FULL_CI_PENDING"
     }
   ]
 }

@@ -28,7 +28,3 @@ jobs:
           path: visual-evidence/*.png
           if-no-files-found: warn
           retention-days: 7
-      - name: Print public screenshot bytes for versioning
-        if: always()
-        run: |
-          node --input-type=module -e "import fs from 'node:fs'; if(fs.existsSync('visual-evidence')) for(const name of fs.readdirSync('visual-evidence').filter(n=>n.endsWith('.png'))){const b=fs.readFileSync('visual-evidence/'+name).toString('base64');for(let i=0;i<b.length;i+=4096)console.log('RFB_PNG '+name+' '+String(i/4096)+' '+b.slice(i,i+4096));}"

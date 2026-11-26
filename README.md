@@ -2,14 +2,14 @@
 
 <!-- RFB-PORTFOLIO-README-V1 -->
 <div align="center">
-  <img src="public/brand/logo.svg" alt="Logo conceitual do RFBChat" width="440"/>
+  <img src="public/brand/logo.svg" alt="Logo RFB Chat — proposta V1" width="440"/>
   
   **Conversas que acompanham sua equipe**
   
   <sub>Laboratório local com Firebase Emulator; sem produção</sub>
 </div>
 
-> **Portfólio RFB Labs.** Este projeto valoriza arquitetura, fluxos e evidência técnica real. O logo ainda é um conceito e os recursos a seguir têm o estágio detalhado na documentação. Não confundir sandbox/emulador com produção.
+> **Portfólio RFB Labs.** Este projeto valoriza arquitetura, fluxos e evidência técnica real. A identidade SVG V1 aguarda aceite formal e os recursos a seguir têm o estágio detalhado na documentação. Não confundir sandbox/emulador com produção.
 
 **Estado:** laboratório funcional em Firebase Auth/Firestore Emulator, com validação automatizada; **não publicado, não homologado para uso real**. Especificação original: `docs/ESPECIFICACAO-RFB.txt`. RFB Method e inventário de aceites em `docs/rfb/COVERAGE.md`.
 
@@ -39,7 +39,7 @@ npm run build
 npm run test:e2e
 ```
 
-A suíte Playwright utiliza Chromium com microfone sintético em CI e **sem retries**. Testes de Rules exigem o Firestore Emulator disponível conforme o script `test:rules`. O checkpoint atual passou com **9 testes unitários, 20 regras Firestore e 10 fluxos E2E sem retries**: https://github.com/CristianoRFB/RFB-Chat/actions/runs/45302857809. Inclui revogação de arquivo por autor, bloqueio ampliado e viewport de 320 a 1440px. A correção da concorrência de cadastro passou em três execuções sucessivas (run 45097362021); a Issue #2 está fechada. Ver `docs/rfb/STATE.json`. O build de produção exibe uma tela de bloqueio intencional.
+A suíte Playwright utiliza Chromium com microfone sintético em CI e **sem retries**. Testes de Rules exigem o Firestore Emulator disponível conforme o script `test:rules`. O checkpoint histórico de 23/11 passou com **9 testes unitários, 20 regras Firestore e 10 fluxos E2E sem retries**: https://github.com/CristianoRFB/RFB-Chat/actions/runs/45302857809. Inclui revogação de arquivo por autor, bloqueio ampliado e viewport de 320 a 1440px. A correção da concorrência de cadastro passou em três execuções sucessivas (run 45097362021); a Issue #2 está fechada. Ver `docs/rfb/STATE.json`. O build de produção exibe uma tela de bloqueio intencional.
 
 ## Controle e continuidade
 - [Escopo original e aceites](docs/ESPECIFICACAO-RFB.txt)
@@ -56,16 +56,16 @@ A suíte Playwright utiliza Chromium com microfone sintético em CI e **sem retr
 
 ## Galeria visual do produto
 
-Capturas reais serão adicionadas após QA desktop/mobile em staging local com dados sintéticos. Os quatro quadros abaixo estão **pendentes**, não são imagens do aplicativo publicado.
+Capturas reais do laboratório: SHA b2ad72c, [QA visual](https://github.com/CristianoRFB/RFB-Chat/actions/runs/45912988546) PASS, contas sintéticas e mensagens efetivamente trocadas.
 
-| Experiência a documentar | Captura |
-|---|---|
-| 1. Lista de conversas | Pendente de captura verificável |
-| 2. Conversa e reações | Pendente de captura verificável |
-| 3. Gestão de grupos | Pendente de captura verificável |
-| 4. Sincronização entre sessões | Pendente de captura verificável |
+### Desktop — escuro e claro
+![Conversa escura](docs/screenshots/evolve-04/02-chat-dark-1440.png)
+![Conversa clara](docs/screenshots/evolve-04/03-chat-light-1440.png)
 
-[Manifesto de capturas e evidências](docs/screenshots/manifest.json). Nenhuma imagem artificial deve ser apresentada como screenshot funcional.
+### Mobile
+<div align="center"><img src="docs/screenshots/evolve-04/04-list-light-390.png" width="280" alt="Lista mobile"/> <img src="docs/screenshots/evolve-04/05-chat-light-390.png" width="280" alt="Conversa mobile"/></div>
+
+[Login](docs/screenshots/evolve-04/01-login-dark-1440.png) · [Tablet](docs/screenshots/evolve-04/06-tablet-light-768.png) · [Manifesto](docs/screenshots/manifest.json) · [Mapa de telas](docs/rfb/SCREEN-MAP.md). Admin/grupos específicos pendentes.
 
 ---
 
@@ -149,3 +149,19 @@ Status: IMPLEMENTED_PARTIAL / IN_PROGRESS / EXTERNAL_GATES_OPEN. Não declarar E
 
 ### Próximos gates
 [#3 push](https://github.com/CristianoRFB/RFB-Chat/issues/3), [#4 mídia externa](https://github.com/CristianoRFB/RFB-Chat/issues/4), [#5 LGPD/antiabuso/governança](https://github.com/CristianoRFB/RFB-Chat/issues/5), [#6 alertas moderados](https://github.com/CristianoRFB/RFB-Chat/issues/6). Antes do EVOLVE 04, confirmar CI da correção e corrigir regressões comprovadas. Rollback: reverter em ordem inversa apenas commits causadores na branch de trabalho; não reverter Rules sem plano de migração para accountControls/reportRate/privacidade e eventos. Não alterar main. Protocolos aplicados: governança GitHub, checkpoint, AntiVibeCoding, AntiLoop (evidência de logs e screenshot; hipótese diferente), QA automatizado, custo R$0 e segurança por Rules. Anti-AI Slop visual integral fica no EVOLVE 04.
+
+
+# EVOLVE 04 — Visual Excellence — 26/11/2026
+
+**VISUAL_PASS_FULL_CI_PENDING**. Emuladores; PR #1 Draft, sem merge/deploy/billing. 
+
+- EVOLVE 03: [CI anterior](https://github.com/CristianoRFB/RFB-Chat/actions/runs/45911757898) 13/14 E2E; trace 15160327144 parou em getByLabel('Conta', exact:true), embora select estivesse no DOM. S025 labels htmlFor/id explícitos e seleção por valor real. [CI S025](https://github.com/CristianoRFB/RFB-Chat/actions/runs/45912658637) integralmente PASS: 11 unit, 31 Rules, 14 E2E (56), incluindo administração; audit PASS. #5/#6 abertos.
+- S025 [954a31b](https://github.com/CristianoRFB/RFB-Chat/commit/954a31b): conversas primeiro, filtros reais, busca sem acentos, temas claro/escuro persistentes, marca SVG própria com 7, assinatura RFB, navegação mobile e estados vazios. Sem imagens decorativas ou controles inertes.
+- S026 [09984cd](https://github.com/CristianoRFB/RFB-Chat/commit/09984cd): cenário real de duas contas. [Primeira CI visual](https://github.com/CristianoRFB/RFB-Chat/actions/runs/45912711678) falhou em parser hex abreviado; 3 capturas desktop foram revisadas. Histórico cortava mensagem recente, ações sempre abertas ocupavam espaço, conta abaixo da dobra.
+- [420e9eb](https://github.com/CristianoRFB/RFB-Chat/commit/420e9eb): benchmark WhatsApp/Telegram/Slack/Discord/WCAG e mapa de 58 T-IDs; 42 componentes/fluxos mapeados, 16 parciais/consolidados, não são 58 páginas nem percentual global.
+- S027 [b2ad72c](https://github.com/CristianoRFB/RFB-Chat/commit/b2ad72c3bffa73f34ae2af0ae5f27ed5437e3d8e): ações/reações em disclosure acessível, ferramentas agrupadas, histórico ampliado, rolagem acompanha mensagens recentes sem forçar leitura antiga, conta reposicionada, parser de contraste corrigido. Testes abriram menu real, sem remover asserts. [QA visual final](https://github.com/CristianoRFB/RFB-Chat/actions/runs/45912988546) PASS (1 cenário, artifact 15160977197), seis PNG reais inspecionados/versionados com SHA256 e Git blob SHA. Desktop e mobile exibem as três mensagens e compositor. Tablet empilhado, não navegação nativa. Dados sintéticos criados pela UI, sem métricas falsas.
+- QA: sete larguras 320/360/390/430/768/1024/1440 sem overflow horizontal no cenário, tema claro persistente após reload, busca/filtros, teclado Tab/Enter e pares selecionados de tokens no tema claro ≥4,5:1. Não é auditoria WCAG integral nem validação de todos estados ou tema escuro. Leitor de tela, zoom, dispositivos reais e outros navegadores pendentes.
+- [CI final do código](https://github.com/CristianoRFB/RFB-Chat/actions/runs/45912988561): TypeScript: success; Unit tests: success; Build sem conexões de produção: success; Firestore Rules isoladas (demo-rfb-chat): success; Two users and mobile E2E in isolated emulators: in_progress; auditoria success. CI integral não homologada na consulta. Audit gate crítico mantido, 14 moderados #6. Removida impressão de bytes no workflow após captura; futuros runs guardam artefato.
+- Protocolos: Anti-AI Slop, Anti-Preguiça, Criatividade, AntiVibeCoding, AntiLoop, QA visual com screenshot anterior, inspeção, correção, recaptura; sem retries. Fontes em docs/BENCHMARK-UX-2026.md. Marca proposta V1 ainda sem aceite formal do proprietário; originais PNG não importados; fotos de admin/grupos/ações abertas faltam. #3 push, #4 mídia externa, #5 LGPD/antiabuso, #6 moderados. Sem produção. Rollback S027/S025 e testes correlatos na branch, preservando correção de labels quando possível. 
+
+[Manifesto](../screenshots/manifest.json) · [Design system](DESIGN-SYSTEM.md) · [Mapa das telas](SCREEN-MAP.md).

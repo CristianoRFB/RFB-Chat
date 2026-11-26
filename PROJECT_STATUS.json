@@ -2,22 +2,22 @@
   "schema_version": 2,
   "product": "RFBChat",
   "repository": "CristianoRFB/RFB-Chat",
-  "stage": "EVOLVE_03_LOCAL_E2E_PENDING_EXTERNAL_GATES_OPEN",
+  "stage": "EVOLVE_04_VISUAL_PASS_FULL_CI_PENDING",
   "source_imported": true,
   "modules_documented": 10,
   "features_documented": 12,
   "implemented_code_slices": "11 original flows plus local synthetic bidirectional RTP; EVOLVE 03 security expanded, final QA tracked separately",
-  "last_verified_code_sha": "957c93baa461cf1d508c10f24f4c247d2eb44130",
-  "last_verified_ci_url": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45762924505",
+  "last_verified_code_sha": "954a31ba6a6f0e346cfe5b08a4506e814ee4dc3b",
+  "last_verified_ci_url": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45912658637",
   "last_verified": {
     "unit": "PASS_11",
-    "rules": "PASS_28_EVOLVE02",
-    "playwright": "PASS_13_EVOLVE02",
+    "rules": "PASS_31",
+    "playwright": "PASS_14_S025",
     "typecheck": "PASS",
     "build": "PASS",
     "npm_ci": "PASS"
   },
-  "latest_code_sha": "a0d544a0104ed19c8b3b2a51aea7af8ccc10ed27",
+  "latest_code_sha": "b2ad72c3bffa73f34ae2af0ae5f27ed5437e3d8e",
   "latest_qa": "IN_PROGRESS",
   "production": false,
   "real_payments": false,
@@ -31,7 +31,7 @@
     "No physical TTL purge, quotas/rate limits or full LGPD/OWASP/WCAG release audit",
     "58 conceptual screens not separately built"
   ],
-  "next_action": "Verificar CI 45911585835, corrigir regressões comprovadas e só então executar EVOLVE 04.",
+  "next_action": "Check CI 45912988561 and fix proven regressions before EVOLVE 05.",
   "functional_coverage": {
     "local_tested_flows": 11,
     "total": 12,
@@ -65,7 +65,7 @@
     "last_green_sha": "957c93baa461cf1d508c10f24f4c247d2eb44130"
   },
   "evolve03": {
-    "status": "LOCAL_E2E_PENDING_EXTERNAL_GATES_OPEN",
+    "status": "LOCAL_CI_PASS_EXTERNAL_GATES_OPEN",
     "slices": [
       "S020",
       "S021",
@@ -73,7 +73,7 @@
       "S023",
       "S024"
     ],
-    "ci": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45911585835",
+    "ci": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45912658637",
     "audit": {
       "critical": 0,
       "high": 0,
@@ -84,5 +84,14 @@
       5,
       6
     ]
+  },
+  "evolve04": {
+    "status": "VISUAL_PASS_FULL_CI_PENDING",
+    "ci": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45912988561",
+    "visual_ci": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45912988546",
+    "visual_status": "PASS_REVIEWED",
+    "screenshots": 6,
+    "screen_map_ids": 58,
+    "manifest": "docs/screenshots/manifest.json"
   }
 }
