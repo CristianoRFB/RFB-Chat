@@ -24,6 +24,9 @@ export type ChatMessage = {
   pending: boolean;
   replyToId?: string;
   editedAt?: Date | null;
+  deletedAt?: Date | null;
+  pinned?: boolean;
+  forwarded?: boolean;
   kind?: 'audio';
   audioData?: string;
   durationMs?: number;

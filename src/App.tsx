@@ -269,7 +269,7 @@ function Workspace({ user }: { user: User }) {
       {current?.kind === 'group' && <GroupChannels groupId={current.id} uid={user.uid}
         admin={!!current.adminIds?.includes(user.uid)} onError={onChildError} />}
       <MessageCenter key={selectedId ?? 'empty'} conversationId={selectedId} uid={user.uid} otherUid={current?.kind === 'group' ? '' : other}
-        readEnabled={privateSettings.readReceiptsEnabled} onError={onChildError} />
+        readEnabled={privateSettings.readReceiptsEnabled} conversations={conversations} canPin={current?.kind === 'dm' || !!current?.adminIds?.includes(user.uid)} onError={onChildError} />
       <FilePanel uid={user.uid} conversationId={selectedId} onError={onChildError} />
       <ReportPanel uid={user.uid} conversation={current} onError={onChildError} />
     </section>

@@ -1,17 +1,18 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
-import { sendText, type ChatMessage } from './chat-data';
+import { sendText, type ChatMessage, type ChatConversation } from './chat-data';
 import {
-  editMessage, loadOlderMessages, markRead, mergeMessages, REACTION_OPTIONS,
+  editMessage, markRead, REACTION_OPTIONS, filterMessages, removeTextMessage, pinMessage, forwardText,
   markDelivered, replyToMessage, setReaction, watchLatest, watchReactions, watchReads,
-  type MessageCursor, type MessageReaction, type ReactionEmoji, type ReadReceipt
+  type MessageReaction, type ReactionEmoji, type ReadReceipt
 } from './chat-extras';
 import { MAX_MESSAGE_LENGTH } from './chat-model';
 import { AudioRecorder } from './AudioRecorder';
 
-type Props = { conversationId: string | null; uid: string; otherUid: string; readEnabled: boolean; onError: (error: unknown) => void };
-function MessageCard({ conversationId, message, uid, receipt, original, onReply, onEdit, onError }: {
+type Props = { conversationId: string | null; uid: string; otherUid: string; readEnabled: boolean; conversations: ChatConversation[]; canPin: boolean; onError: (error: unknown) => void };
+function MessageCard({ conversationId, message, uid, receipt, original, onReply, onEdit, onForward, canPin, onError }: {
   conversationId: string; message: ChatMessage; uid: string; receipt?: ReadReceipt[string]; original?: string;
   onReply: (message: ChatMessage) => void; onEdit: (message: ChatMessage) => void;
+  onForward: (message: ChatMessage) => void; canPin: boolean;
   onError: (error: unknown) => void;
 }) {
   const [reactions, setReactions] = useState<MessageReaction[]>([]);
@@ -34,9 +35,9 @@ function MessageCard({ conversationId, message, uid, receipt, original, onReply,
     return () => observer.disconnect();
   }, []);
   useEffect(() => {
-    if (!visible) return;
+    if (!visible || message.deletedAt) return;
     return watchReactions(conversationId, message.id, setReactions, onError);
-  }, [visible, conversationId, message.id, onError]);
+  }, [visible, conversationId, message.id, message.deletedAt, onError]);
   const read = mine && !!receipt?.readAt && !!message.createdAt
     && receipt.readAt.getTime() >= message.createdAt.getTime();
   const delivered = mine && !!receipt?.deliveredAt && !!message.createdAt
@@ -48,7 +49,9 @@ function MessageCard({ conversationId, message, uid, receipt, original, onReply,
     } catch (error) { onError(error); }
   }
   return <article ref={elementRef} className={'message ' + (mine ? 'outgoing' : 'incoming')} data-message-id={message.id}>
-    {message.replyToId && <p className="reply-context">↳ {original ?? 'Mensagem anterior'}</p>}
+    {message.pinned && !message.deletedAt && <p className="mini-label">Mensagem fixada</p>}
+    {message.forwarded && !message.deletedAt && <p className="mini-label">Encaminhada</p>}
+    {!message.deletedAt && message.replyToId && <p className="reply-context">↳ {original ?? 'Mensagem anterior'}</p>}
     {message.kind === 'audio' && message.audioData ?
       <div><p>Mensagem de voz ({Math.ceil((message.durationMs ?? 0) / 1000)}s)</p>
         <audio controls preload="none" src={message.audioData} aria-label="Mensagem de voz" /></div>
@@ -58,9 +61,12 @@ function MessageCard({ conversationId, message, uid, receipt, original, onReply,
       {message.editedAt && ' · Editada'}
       {' · '}{message.pending ? 'Enviando' : read ? 'Lida' : delivered ? 'Entregue' : 'Gravada'}
     </span>
-    <div className="message-actions">
+    {!message.deletedAt && !message.pending && <><div className="message-actions">
       <button type="button" onClick={() => onReply(message)}>Responder</button>
-      {mine && message.kind !== 'audio' && <button type="button" onClick={() => onEdit(message)}>Editar</button>}
+      {mine && message.kind !== 'audio' && <><button type="button" onClick={() => onEdit(message)}>Editar</button>
+        <button type="button" onClick={() => { if (window.confirm('Excluir o texto para todos os participantes?')) void removeTextMessage(conversationId, message.id).catch(onError); }}>Excluir</button></>}
+      {message.kind !== 'audio' && <button type="button" onClick={() => onForward(message)}>Encaminhar</button>}
+      {canPin && <button type="button" aria-pressed={!!message.pinned} onClick={() => void pinMessage(conversationId, message.id, !message.pinned).catch(onError)}>{message.pinned ? 'Desafixar' : 'Fixar'}</button>}
     </div>
     <div className="reaction-list" aria-label="Reações">
       {REACTION_OPTIONS.map(emoji => {
@@ -70,56 +76,50 @@ function MessageCard({ conversationId, message, uid, receipt, original, onReply,
           aria-label={'Reagir com ' + emoji} aria-pressed={active} title={'Reagir com ' + emoji}
           onClick={() => void react(emoji)}>{emoji}{count > 0 ? ' ' + count : ''}</button>;
       })}
-    </div>
+    </div></>}
   </article>;
 }
 
-export function MessageCenter({ conversationId, uid, otherUid, readEnabled, onError }: Props) {
+export function MessageCenter({ conversationId, uid, otherUid, readEnabled, conversations, canPin, onError }: Props) {
   const [latest, setLatest] = useState<ChatMessage[]>([]);
-  const [older, setOlder] = useState<ChatMessage[]>([]);
-  const [cursor, setCursor] = useState<MessageCursor | null>(null);
-  const [more, setMore] = useState(false);
-  const [loadingMore, setLoadingMore] = useState(false);
+  const [windowSize, setWindowSize] = useState(50);
+  const [cached, setCached] = useState(true);
+  const [search, setSearch] = useState('');
+  const [pinnedOnly, setPinnedOnly] = useState(false);
+  const [forwarding, setForwarding] = useState<ChatMessage | null>(null);
+  const [destination, setDestination] = useState('');
+  const [forwardBusy, setForwardBusy] = useState(false);
   const [reads, setReads] = useState<ReadReceipt>({});
   const [draft, setDraft] = useState('');
   const [reply, setReply] = useState<ChatMessage | null>(null);
   const [editing, setEditing] = useState<ChatMessage | null>(null);
   const [editDraft, setEditDraft] = useState('');
   const [busy, setBusy] = useState(false);
-  const previousLatest = useRef<ChatMessage[]>([]);
-  const olderPageLoaded = useRef(false);
   const deliveredSeen = useRef<string>('');
   const readSeen = useRef<string>('');
 
   useEffect(() => {
-    setLatest([]);
-    setOlder([]);
-    setCursor(null);
-    setMore(false);
-    setReads({});
-    previousLatest.current = [];
-    olderPageLoaded.current = false;
-    deliveredSeen.current = '';
-    readSeen.current = '';
     if (!conversationId) return;
-    const messagesOff = watchLatest(conversationId, (items, first) => {
-      // O limite de 50 avança quando novas mensagens chegam. Preserva apenas
-      // mensagens já confirmadas que saíram da janela atual.
-      const currentIds = new Set(items.map(message => message.id));
-      const evicted = previousLatest.current.filter(message =>
-        !currentIds.has(message.id) && !message.pending && message.createdAt);
-      if (evicted.length) setOlder(previous => mergeMessages(previous, evicted));
-      previousLatest.current = items;
-      setLatest(items);
-      if (!olderPageLoaded.current) setCursor(first);
-      setMore(previous => olderPageLoaded.current ? previous : items.length === 50);
-    }, onError);
-    const readsOff = watchReads(conversationId, setReads, onError);
-    return () => { messagesOff(); readsOff(); };
+    return watchLatest(conversationId, items => setLatest(items), onError, windowSize, setCached);
+  }, [conversationId, windowSize, onError]);
+  useEffect(() => {
+    if (!conversationId) return;
+    return watchReads(conversationId, setReads, onError);
   }, [conversationId, onError]);
-
-  const messages = useMemo(() => mergeMessages(older, latest), [older, latest]);
+  const messages = latest;
+  const filtered = useMemo(() => filterMessages(messages, search, pinnedOnly), [messages, search, pinnedOnly]);
   const messageBodies = useMemo(() => new Map(messages.map(item => [item.id, item.body])), [messages]);
+  async function submitForward(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!forwarding || !destination || forwardBusy) return;
+    const current = messages.find(m => m.id === forwarding.id);
+    if (!current || current.deletedAt || current.pending || current.kind === 'audio') {
+      setForwarding(null); return;
+    }
+    setForwardBusy(true);
+    try { await forwardText(uid, destination, current.body); setForwarding(null); setDestination(''); }
+    catch (error) { onError(error); } finally { setForwardBusy(false); }
+  }
 
   useEffect(() => {
     const recent = [...latest].reverse().find(m => m.senderId !== uid && !m.pending && m.createdAt);
@@ -138,19 +138,6 @@ export function MessageCenter({ conversationId, uid, otherUid, readEnabled, onEr
     document.addEventListener('visibilitychange', sync);
     return () => document.removeEventListener('visibilitychange', sync);
   }, [latest, conversationId, uid, readEnabled, onError]);
-
-  async function olderPage() {
-    if (!conversationId || !cursor || loadingMore) return;
-    setLoadingMore(true);
-    try {
-      const result = await loadOlderMessages(conversationId, cursor);
-      olderPageLoaded.current = true;
-      setOlder(previous => mergeMessages(result.messages, previous));
-      if (result.cursor) setCursor(result.cursor);
-      setMore(result.hasMore);
-    } catch (error) { onError(error); }
-    finally { setLoadingMore(false); }
-  }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -183,17 +170,33 @@ export function MessageCenter({ conversationId, uid, otherUid, readEnabled, onEr
   </div>;
 
   return <>
+    <div className="sidebar-search">
+      <label htmlFor="search-message-body">Pesquisar mensagens carregadas</label>
+      <input id="search-message-body" value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar texto no histórico"/>
+      <button type="button" aria-pressed={pinnedOnly} onClick={() => setPinnedOnly(v => !v)}>Somente fixadas</button>
+      {cached && <p className="mini-label" role="status">Histórico em cache; aguardando confirmação do servidor.</p>}
+      {(search || pinnedOnly) && <p className="mini-label" role="status">{filtered.length} resultados em {messages.length} mensagens carregadas.</p>}
+    </div>
     <div className="messages" aria-label="Histórico de mensagens" aria-live="polite">
-      {more && <button type="button" className="older-button" disabled={loadingMore}
-        onClick={() => void olderPage()}>{loadingMore ? 'Carregando…' : 'Carregar mensagens anteriores'}</button>}
+      {messages.length >= windowSize && windowSize < 500 && <button type="button" className="older-button"
+        onClick={() => setWindowSize(n => Math.min(n + 50, 500))}>Carregar mensagens anteriores</button>}
       {messages.length === 0 && <div className="empty-state"><h3>A conversa começou.</h3>
         <p>Envie a primeira mensagem para testar a sincronização.</p></div>}
-      {messages.map(message => <MessageCard key={message.id} conversationId={conversationId}
+      {filtered.map(message => <MessageCard key={message.id} conversationId={conversationId}
         message={message} uid={uid} receipt={reads[otherUid]}
         original={message.replyToId ? messageBodies.get(message.replyToId) : undefined}
         onReply={setReply} onEdit={item => { setEditing(item); setEditDraft(item.body); }}
-        onError={onError}/>)}
+        onForward={item => { setForwarding(item); setDestination(''); }} canPin={canPin} onError={onError}/>)}
     </div>
+    {forwarding && <form className="edit-form" onSubmit={submitForward}>
+      <label htmlFor="forward-destination">Encaminhar texto para conversa</label>
+      <select id="forward-destination" required value={destination} onChange={e => setDestination(e.target.value)}>
+        <option value="">Escolha a conversa</option>
+        {conversations.filter(c => c.id !== conversationId).map(c => <option key={c.id} value={c.id}>{c.title || c.memberIds.filter(m => m !== uid).join(', ')}</option>)}
+      </select>
+      <button type="submit" disabled={!destination || forwardBusy}>Confirmar encaminhamento</button>
+      <button type="button" onClick={() => setForwarding(null)}>Cancelar encaminhamento</button>
+    </form>}
     {reply && <div className="reply-banner">
       <span>Respondendo: {reply.body.slice(0, 90)}</span>
       <button type="button" onClick={() => setReply(null)}>Cancelar resposta</button>

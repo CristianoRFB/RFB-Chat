@@ -383,3 +383,24 @@ describe('Firestore Rules: isolamento de conversas', () => {
     await assertFails(getDoc(doc(visitor, 'conversations', conversationId)));
   });
 });
+
+describe('EVOLVE 01 — ações de mensagem', () => {
+  it('autor pode excluir texto; destinatário não pode excluir nem restaurar', async () => {
+    const a = testEnv.authenticatedContext('alice').firestore();
+    const b = testEnv.authenticatedContext('bob').firestore();
+    const x = doc(a, 'conversations', conversationId, 'messages', 'evolve-delete');
+    const y = doc(b, 'conversations', conversationId, 'messages', 'evolve-delete');
+    await testEnv.withSecurityRulesDisabled(async ctx => { await setDoc(doc(ctx.firestore(), 'conversations', conversationId, 'messages', 'evolve-delete'), {senderId:'alice', body:'secret text', createdAt:new Date()}); });
+    await assertFails(updateDoc(y, {body:'Mensagem excluída', deletedAt:serverTimestamp(), pinned:false}));
+    await assertSucceeds(updateDoc(x, {body:'Mensagem excluída', deletedAt:serverTimestamp(), pinned:false}));
+    expect((await getDoc(y)).data()?.body).toBe('Mensagem excluída');
+    await assertFails(updateDoc(x, {body:'restored', editedAt:serverTimestamp()}));
+  });
+  it('nega pin por não membro e encaminhamento falsificado', async () => {
+    const a = testEnv.authenticatedContext('alice').firestore();
+    const m = testEnv.authenticatedContext('mallory').firestore();
+    await testEnv.withSecurityRulesDisabled(async ctx => { await setDoc(doc(ctx.firestore(), 'conversations', conversationId, 'messages', 'evolve-pin'), {senderId:'alice', body:'pin me', createdAt:new Date()}); });
+    await assertFails(updateDoc(doc(m,'conversations',conversationId,'messages','evolve-pin'), {pinned:true}));
+    await assertFails(setDoc(doc(a,'conversations',conversationId,'messages','evolve-spoof'), {senderId:'bob', body:'spoof', forwarded:true, createdAt:serverTimestamp()}));
+  });
+});

@@ -23,6 +23,9 @@ function mapMessage(item: QueryDocumentSnapshot<DocumentData>): ChatMessage {
     kind: d.kind === 'audio' ? 'audio' : undefined,
     audioData: d.kind === 'audio' && typeof d.audioData === 'string' ? d.audioData : undefined,
     durationMs: d.kind === 'audio' ? Number(d.durationMs) : undefined,
+    deletedAt: d.deletedAt?.toDate?.() ?? null,
+    pinned: d.pinned === true,
+    forwarded: d.forwarded === true,
     pending: item.metadata.hasPendingWrites
   };
 }
@@ -30,12 +33,16 @@ function mapMessage(item: QueryDocumentSnapshot<DocumentData>): ChatMessage {
 export function watchLatest(
   conversationId: string,
   receive: (items: ChatMessage[], oldest: MessageCursor | null) => void,
-  fail: (error: FirestoreError) => void
+  fail: (error: FirestoreError) => void,
+  windowSize = 50,
+  onCache?: (cached: boolean) => void
 ): Unsubscribe {
   const q = query(collection(db, 'conversations', conversationId, 'messages'),
-    orderBy('createdAt', 'asc'), limitToLast(50));
-  return onSnapshot(q, { includeMetadataChanges: true }, snapshot =>
-    receive(snapshot.docs.map(mapMessage), snapshot.docs[0] ?? null), fail);
+    orderBy('createdAt', 'asc'), limitToLast(Math.min(500, Math.max(50, windowSize))));
+  return onSnapshot(q, { includeMetadataChanges: true }, snapshot => {
+    onCache?.(snapshot.metadata.fromCache);
+    receive(snapshot.docs.map(mapMessage), snapshot.docs[0] ?? null);
+  }, fail);
 }
 
 export async function loadOlderMessages(
@@ -139,5 +146,25 @@ export async function sendAudio(
   await setDoc(doc(collection(db, 'conversations', conversationId, 'messages')), {
     senderId: uid, body: 'Mensagem de voz', kind: 'audio', mimeType: 'audio/webm',
     audioData, durationMs: Math.round(durationMs), createdAt: serverTimestamp()
+  });
+}
+
+// Janela de histórico autorizada e limitada; não é indexação global.
+export function filterMessages(messages: ChatMessage[], term: string, pinnedOnly = false): ChatMessage[] {
+  const fold = (value: string) => value.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLocaleLowerCase('pt-BR');
+  const needle = fold(term.trim());
+  return messages.filter(m => (!pinnedOnly || (m.pinned && !m.deletedAt)) && (!needle || (!m.deletedAt && fold(m.body).includes(needle))));
+}
+export async function removeTextMessage(conversationId: string, messageId: string): Promise<void> {
+  await updateDoc(doc(db, 'conversations', conversationId, 'messages', messageId), {
+    body: 'Mensagem excluída', deletedAt: serverTimestamp(), pinned: false
+  });
+}
+export async function pinMessage(conversationId: string, messageId: string, pinned: boolean): Promise<void> {
+  await updateDoc(doc(db, 'conversations', conversationId, 'messages', messageId), { pinned });
+}
+export async function forwardText(uid: string, destinationId: string, body: string): Promise<void> {
+  await setDoc(doc(collection(db, 'conversations', destinationId, 'messages')), {
+    senderId: uid, body: normalizeMessage(body), forwarded: true, createdAt: serverTimestamp()
   });
 }
