@@ -121,3 +121,7 @@ A lista de 58 telas não obriga implementar 58 páginas idênticas: revisar redu
 - [ ] Publicação somente com gate de segurança, custo e permissão do usuário.
 
 **Status no RFB Method:** `SCREEN_CATALOG_IMPORTED / ORIGINAL_DESIGN_REFERENCED / BROWSER_QA_NOT_RUN`.
+
+
+## Reconciliação EVOLVE 04
+O catálogo histórico acima NÃO é a situação atual. A [matriz atual de 58 IDs](rfb/SCREEN-MAP.md) mapeia componentes e lacunas individualmente, e o [design system](rfb/DESIGN-SYSTEM.md) registra os tokens e as decisões. Capturas reais e resultados são registrados no relatório EVOLVE-04 e no manifesto. Não considerar os PNGs de conceito como evidência.

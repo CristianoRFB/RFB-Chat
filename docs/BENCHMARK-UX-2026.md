@@ -34,3 +34,7 @@ Data de consulta: **22/11/2026**. Fontes: páginas oficiais dos respectivos prod
 
 ## Dependências e riscos
 R$0/mês é meta, não capacidade ilimitada. Firestore em plano Spark e Cloudflare gratuito dependem de limites. Retenção de mensagens, consentimento, direitos de exclusão e moderação exigem política/implementação antes de produção. Para versões reais verificar limites atuais do provedor e operação sob LGPD.
+
+
+## EVOLVE 04 — 26/11/2026
+Pesquisa documental atual: [WhatsApp filtros](https://blog.whatsapp.com/find-messages-faster-with-chat-filters) → filtros visíveis Todas/Pessoas/Grupos sem fingir contagem global de não lidas; [Telegram pastas](https://telegram.org/blog/folders) → agrupamento por tipo; [Slack sidebar](https://slack.com/help/articles/212596808-Adjust-your-sidebar-preferences) → conversas antes de ferramentas administrativas; [Discord server setup](https://support.discord.com/hc/en-us/articles/33023827550359-Discord-Server-Setup-Guide) → canais permanecem associados a grupos; [WCAG 2.2](https://www.w3.org/TR/WCAG22/) → contraste 4,5:1 para texto normal, foco visível, alvos com dimensões adequadas e reduced motion. A referência não autoriza copiar marcas, ícones ou layouts. Decisão: violeta próprio, superfícies sólidas, duas áreas com foco na conversa, textos úteis, estados honestos, iniciais reais de nomes sintéticos e logotipo próprio SVG. Não usar retratos de terceiros como identidades fictícias nem imagens decorativas geradas. Validação de usuários reais ainda não realizada.
