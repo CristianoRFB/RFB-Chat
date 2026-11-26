@@ -95,6 +95,7 @@ test('arquivo TXT pequeno gera link temporário acessível só a um membro', asy
     await bob.goto(url);
     await bob.getByText('Arquivos privados e links temporários', { exact: true }).click();
     await expect(bob.getByRole('link', { name: 'Baixar arquivo privado' })).toBeVisible();
+    await expect(bob.getByRole('button',{name:'Abrir relatorio.txt'})).toBeVisible();
     await expect(bob.getByRole('button', { name: 'Excluir arquivo e revogar link' })).toHaveCount(0);
     await alice.getByRole('button', { name: 'Excluir arquivo e revogar link' }).click();
     await expect(alice.getByText('Arquivo excluído e link revogado.')).toBeVisible();

@@ -4,7 +4,7 @@ import {
   assertFails, assertSucceeds, initializeTestEnvironment,
   type RulesTestEnvironment
 } from '@firebase/rules-unit-testing';
-import { arrayUnion, collection, deleteDoc, doc, getDoc, getDocs, query, setDoc, updateDoc, where, serverTimestamp } from 'firebase/firestore';
+import { arrayUnion, collection, deleteDoc, doc, getDoc, getDocs, query, setDoc, updateDoc, where, serverTimestamp, writeBatch, limit } from 'firebase/firestore';
 
 let testEnv: RulesTestEnvironment;
 const projectId = 'demo-rfb-chat';
@@ -448,4 +448,18 @@ it('EVOLVE 01: proíbe responder ou reagir a texto excluído e presença após b
   await assertSucceeds(updateDoc(doc(a,'userPrivate','alice'),{blockedUids:['bob']}));
   await assertFails(setDoc(doc(b,'conversations',conversationId,'presence','bob'),{typing:true,updatedAt:serverTimestamp()}));
   await assertSucceeds(updateDoc(doc(a,'userPrivate','alice'),{blockedUids:[]}));
+});
+
+it('EVOLVE 02: índice de mídia atômico, privado e revogável',async()=>{
+ const a=testEnv.authenticatedContext('alice').firestore(), b=testEnv.authenticatedContext('bob').firestore(), m=testEnv.authenticatedContext('mallory').firestore();
+ const meta={ownerId:'alice',filename:'video.webm',mimeType:'video/webm',byteSize:3,createdAt:serverTimestamp(),expiresAt:new Date(Date.now()+3600000)};
+ const file=doc(a,'conversations',conversationId,'attachments','media-evolve'), index=doc(a,'conversations',conversationId,'mediaIndex','media-evolve');
+ await assertFails(setDoc(index,meta));
+ const batch=writeBatch(a); batch.set(file,{...meta,dataUrl:'data:video/webm;base64,QUJD'});batch.set(index,meta);await assertSucceeds(batch.commit());
+ await assertSucceeds(getDocs(query(collection(b,'conversations',conversationId,'mediaIndex'),limit(50))));
+ await assertFails(getDocs(query(collection(m,'conversations',conversationId,'mediaIndex'),limit(50))));
+ await assertFails(getDocs(collection(b,'conversations',conversationId,'attachments')));
+ await assertFails(deleteDoc(file));
+ const revoke=writeBatch(a);revoke.delete(file);revoke.delete(index);await assertSucceeds(revoke.commit());
+ expect((await getDoc(doc(b,'conversations',conversationId,'mediaIndex','media-evolve'))).exists()).toBe(false);
 });

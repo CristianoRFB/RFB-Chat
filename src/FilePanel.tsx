@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { buildFileLink, createPrivateFile, deletePrivateFile, loadPrivateFile, parseFileCode, type PrivateFile } from './attachments';
+import { buildFileLink, createPrivateFile, deletePrivateFile, loadPrivateFile, parseFileCode, watchMediaIndex, type MediaEntry, type PrivateFile } from './attachments';
 
 export function FilePanel({ uid, conversationId, onError }: {
   uid: string; conversationId: string | null; onError: (error: unknown) => void;
@@ -12,6 +12,24 @@ export function FilePanel({ uid, conversationId, onError }: {
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState('');
   const [failed, setFailed] = useState('');
+  const [gallery, setGallery] = useState<MediaEntry[]>([]);
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => { const timer = window.setInterval(() => setNow(Date.now()),1000); return () => clearInterval(timer); },[]);
+  useEffect(() => {
+    setGallery([]);
+    if (!conversationId) return;
+    return watchMediaIndex(conversationId,setGallery,error => {setGallery([]); onError(error);});
+  },[conversationId,onError]);
+  useEffect(() => {
+    if (loaded && loaded.expiresAt.getTime() <= now) { setLoaded(null); setFailed('Arquivo expirado.'); }
+  },[loaded,now]);
+  async function openGallery(id: string) {
+    if (!conversationId) return;
+    setBusy(true); setLoaded(null); setUploadedRef(null); setLink(''); setFailed('');
+    try { const value = await loadPrivateFile(conversationId,id); setLoaded(value); setCurrentRef({conversationId,fileId:id}); }
+    catch (error) { setFailed('Arquivo indisponível. Verifique o acesso, a sessão e a validade do link.'); onError(error); }
+    finally { setBusy(false); }
+  }
 
   useEffect(() => {
     let active = true;
@@ -72,10 +90,10 @@ export function FilePanel({ uid, conversationId, onError }: {
 
   return <details className="file-panel">
     <summary>Arquivos privados e links temporários</summary>
-    <p>Somente membros autenticados podem abrir o link. Limite local de 60 KB; TXT, PNG, JPG e PDF.</p>
+    <p>Somente membros autenticados podem abrir o link. Limite local de 300 KB; TXT, PNG, JPG, PDF, WebM e MP4. Imagens maiores podem ser comprimidas automaticamente.</p>
     {conversationId && <form className="file-form" onSubmit={upload}>
       <label htmlFor="private-file">Escolher arquivo de teste</label>
-      <input id="private-file" type="file" required accept=".txt,.png,.jpg,.jpeg,.pdf"
+      <input id="private-file" type="file" required accept=".txt,.png,.jpg,.jpeg,.pdf,.webm,.mp4"
         onChange={e => setFile(e.target.files?.[0] ?? null)} />
       <button type="submit" disabled={!file || busy}>{busy ? 'Enviando…' : 'Criar link privado'}</button>
     </form>}
@@ -86,10 +104,21 @@ export function FilePanel({ uid, conversationId, onError }: {
       {uploadedRef && <button type="button" disabled={busy}
         onClick={() => void removeFile()}>Excluir arquivo e revogar link</button>}
     </div>}
+    {conversationId && <section aria-label="Galeria de mídias">
+      <h3>Mídias compartilhadas</h3>
+      <p className="mini-label">Até 50 arquivos recentes; conteúdo carregado somente ao abrir.</p>
+      {gallery.filter(item => item.expiresAt.getTime() > now).length === 0 && <p>Nenhuma mídia ativa nesta conversa.</p>}
+      {gallery.filter(item => item.expiresAt.getTime() > now).map(item => <div className="file-link" key={item.id}>
+        <strong>{item.filename}</strong><span>{Math.ceil(item.byteSize/1000)} KB · {item.mimeType}</span>
+        <button type="button" disabled={busy} onClick={() => void openGallery(item.id)}>Abrir {item.filename}</button>
+      </div>)}
+    </section>}
     {failed && <p role="alert">{failed}</p>}
     {loaded && <div className="file-loaded" role="status">
       <strong>{loaded.filename}</strong>
       <span>Expira: {loaded.expiresAt.toLocaleString('pt-BR')} · {(loaded.byteSize / 1024).toFixed(1)} KB</span>
+      {loaded.mimeType.startsWith('image/') && <img src={loaded.dataUrl} alt={'Prévia de '+loaded.filename} style={{maxWidth:'100%',maxHeight:240,objectFit:'contain'}}/>}
+      {loaded.mimeType.startsWith('video/') && <video controls preload="metadata" src={loaded.dataUrl} aria-label={'Prévia de '+loaded.filename} style={{maxWidth:'100%',maxHeight:240}}/>}
       <a href={loaded.dataUrl} download={loaded.filename}>Baixar arquivo privado</a>
       {loaded.ownerId === uid && currentRef && <button type="button"
         disabled={busy} onClick={() => void removeFile()}>Excluir arquivo e revogar link</button>}
