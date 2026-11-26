@@ -3,11 +3,25 @@ service cloud.firestore {
   match /databases/{database}/documents {
     function signedIn() { return request.auth != null; }
     function own(uid) { return signedIn() && request.auth.uid == uid; }
+    function admin() { return signedIn() && request.auth.token.get('admin', false) == true; }
+    function controlPath(uid) { return /databases/$(database)/documents/accountControls/$(uid); }
+    function accountStatus(uid) {
+      return exists(controlPath(uid)) ? get(controlPath(uid)).data.status : 'active';
+    }
+    function moderator() {
+      return signedIn() && accountStatus(request.auth.uid) == 'active' && (admin()
+        || (exists(controlPath(request.auth.uid))
+          ? get(controlPath(request.auth.uid)).data.role == 'moderator'
+          : request.auth.token.get('moderator', false) == true));
+    }
+    function activeAdmin() { return admin() && accountStatus(request.auth.uid) == 'active'; }
+    function canReadChat() { return signedIn() && accountStatus(request.auth.uid) != 'banned'; }
+    function canPost() { return signedIn() && accountStatus(request.auth.uid) == 'active'; }
     function validName(name) {
       return name is string && name.size() >= 2 && name.size() <= 40;
     }
     function isMember(conversationId) {
-      return signedIn()
+      return canReadChat()
         && exists(/databases/$(database)/documents/conversations/$(conversationId))
         && request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.memberIds;
     }
@@ -32,7 +46,7 @@ service cloud.firestore {
     }
     match /profiles/{uid} {
       allow get: if signedIn();
-      allow list: if false;
+      allow list: if activeAdmin() && request.query.limit <= 50;
       allow create: if own(uid)
         && request.resource.data.keys().hasOnly(['uid', 'displayName', 'createdAt'])
         && request.resource.data.keys().hasAll(['uid', 'displayName', 'createdAt'])
@@ -56,6 +70,38 @@ service cloud.firestore {
         && request.resource.data.readReceiptsEnabled is bool;
       allow delete: if false;
     }
+    // Admin bootstrap é claim confiável; papéis delegados e restrições têm efeito em Rules.
+    match /accountControls/{uid} {
+      function eventPath(eventId) { return /databases/$(database)/documents/accountControls/$(uid)/events/$(eventId); }
+      function validControl() {
+        let d = request.resource.data;
+        return activeAdmin() && request.auth.uid != uid
+          && exists(/databases/$(database)/documents/profiles/$(uid))
+          && d.keys().hasOnly(['role','status','reason','actorId','updatedAt','eventId'])
+          && d.keys().hasAll(['role','status','reason','actorId','updatedAt','eventId'])
+          && d.role in ['member','moderator'] && d.status in ['active','suspended','banned']
+          && d.reason is string && d.reason.size() >= 10 && d.reason.size() <= 300
+          && d.actorId == request.auth.uid && d.updatedAt == request.time
+          && d.eventId is string && d.eventId.size() > 0 && d.eventId.size() <= 100
+          && !exists(eventPath(d.eventId))
+          && getAfter(eventPath(d.eventId)).data == d;
+      }
+      allow get: if own(uid) || activeAdmin();
+      allow list: if activeAdmin() && request.query.limit <= 50;
+      allow create: if validControl();
+      allow update: if validControl()
+        && (request.resource.data.role != resource.data.role || request.resource.data.status != resource.data.status);
+      allow delete: if false;
+      match /events/{eventId} {
+        allow get: if activeAdmin();
+        allow list: if activeAdmin() && request.query.limit <= 50;
+        allow create: if activeAdmin() && request.auth.uid != uid
+          && request.resource.data.eventId == eventId
+          && getAfter(controlPath(uid)).data == request.resource.data
+          && getAfter(controlPath(uid)).data.updatedAt == request.time;
+        allow update, delete: if false;
+      }
+    }
     match /reports/{reportId} {
       allow create: if signedIn()
         && request.resource.data.keys().hasOnly(['reporterId','reportedUid','conversationId','reason','status','createdAt'])
@@ -72,10 +118,9 @@ service cloud.firestore {
         && request.resource.data.status == 'open'
         && request.resource.data.createdAt == request.time;
       allow get: if signedIn() && (resource.data.reporterId == request.auth.uid
-        || request.auth.token.moderator == true || request.auth.token.admin == true);
-      allow list: if signedIn() && (request.auth.token.moderator == true || request.auth.token.admin == true);
-      allow update: if signedIn()
-        && (request.auth.token.moderator == true || request.auth.token.admin == true)
+        || moderator());
+      allow list: if moderator();
+      allow update: if moderator()
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','resolvedAt'])
         && request.resource.data.diff(resource.data).affectedKeys().hasAll(['status','resolvedAt'])
         && ((resource.data.status == 'open' && request.resource.data.status in ['reviewed', 'closed'])
@@ -84,8 +129,8 @@ service cloud.firestore {
       allow delete: if false;
     }
     match /conversations/{conversationId} {
-      allow get, list: if signedIn() && request.auth.uid in resource.data.memberIds;
-      allow create: if signedIn()
+      allow get, list: if canReadChat() && request.auth.uid in resource.data.memberIds;
+      allow create: if canPost() && (signedIn()
         && request.resource.data.keys().hasOnly(['kind', 'createdBy', 'memberIds', 'createdAt'])
         && request.resource.data.keys().hasAll(['kind', 'createdBy', 'memberIds', 'createdAt'])
         && request.resource.data.kind == 'dm'
@@ -112,10 +157,10 @@ service cloud.firestore {
           && request.resource.data.title is string
           && request.resource.data.title.size() >= 2
           && request.resource.data.title.size() <= 80
-          && request.resource.data.createdAt == request.time);
+          && request.resource.data.createdAt == request.time));
       // Não permite que administradores acrescentem membros diretamente.
       // Só o próprio convidado aceito pode ampliar memberIds.
-      allow update: if (isMember(conversationId)
+      allow update: if canPost() && ((isMember(conversationId)
           && resource.data.kind == 'group'
           && (
             (request.auth.uid in resource.data.adminIds
@@ -139,12 +184,12 @@ service cloud.firestore {
             && request.resource.data.memberIds is list
             && request.resource.data.memberIds.size() == resource.data.memberIds.size() + 1
             && request.resource.data.memberIds.hasAll(resource.data.memberIds)
-            && request.auth.uid in request.resource.data.memberIds);
+            && request.auth.uid in request.resource.data.memberIds));
       allow delete: if false;
       match /invites/{targetUid} {
-        allow get: if signedIn() && (request.auth.uid == targetUid || isMember(conversationId));
+        allow get: if canReadChat() && (request.auth.uid == targetUid || isMember(conversationId));
         allow list: if isMember(conversationId);
-        allow create: if isMember(conversationId)
+        allow create: if canPost() && isMember(conversationId)
           && get(/databases/$(database)/documents/conversations/$(conversationId)).data.kind == 'group'
           && request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.adminIds
           && request.resource.data.keys().hasOnly(['targetUid', 'invitedBy', 'createdAt', 'status'])
@@ -156,7 +201,7 @@ service cloud.firestore {
           && exists(/databases/$(database)/documents/profiles/$(targetUid))
           && !blockedBetween(targetUid, request.auth.uid)
           && !(targetUid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.memberIds);
-        allow update: if own(targetUid)
+        allow update: if canPost() && own(targetUid)
           && resource.data.status == 'pending'
           && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status'])
           && request.resource.data.status in ['accepted', 'declined'];
@@ -164,7 +209,7 @@ service cloud.firestore {
       }
       match /presence/{uid} {
         allow get, list: if isMember(conversationId) && interactionAllowed(conversationId);
-        allow create, update: if own(uid) && isMember(conversationId) && interactionAllowed(conversationId)
+        allow create, update: if canPost() && own(uid) && isMember(conversationId) && interactionAllowed(conversationId)
           && request.resource.data.keys().hasOnly(['updatedAt','typing'])
           && request.resource.data.keys().hasAll(['updatedAt','typing'])
           && request.resource.data.updatedAt == request.time && request.resource.data.typing is bool;
@@ -174,7 +219,7 @@ service cloud.firestore {
       match /channels/{channelId} {
         allow get, list: if isMember(conversationId)
           && get(/databases/$(database)/documents/conversations/$(conversationId)).data.kind == 'group';
-        allow create: if isMember(conversationId)
+        allow create: if canPost() && isMember(conversationId)
           && get(/databases/$(database)/documents/conversations/$(conversationId)).data.kind == 'group'
           && request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.adminIds
           && request.resource.data.keys().hasOnly(['name','description','createdBy','createdAt'])
@@ -186,7 +231,7 @@ service cloud.firestore {
           && request.resource.data.description.size() <= 300
           && request.resource.data.createdBy == request.auth.uid
           && request.resource.data.createdAt == request.time;
-        allow update: if isMember(conversationId)
+        allow update: if canPost() && isMember(conversationId)
           && request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.adminIds
           && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name','description'])
           && request.resource.data.name is string
@@ -197,14 +242,14 @@ service cloud.firestore {
         allow delete: if false;
         match /messages/{messageId} {
           allow get, list: if isMember(conversationId);
-          allow create: if isMember(conversationId)
+          allow create: if canPost() && isMember(conversationId)
             && exists(/databases/$(database)/documents/conversations/$(conversationId)/channels/$(channelId))
             && request.resource.data.keys().hasOnly(['senderId','body','createdAt'])
             && request.resource.data.keys().hasAll(['senderId','body','createdAt'])
             && request.resource.data.senderId == request.auth.uid
             && validText(request.resource.data)
             && request.resource.data.createdAt == request.time;
-          allow update: if isMember(conversationId)
+          allow update: if canPost() && isMember(conversationId)
             && resource.data.senderId == request.auth.uid
             && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['body','editedAt'])
             && validText(request.resource.data)
@@ -214,7 +259,7 @@ service cloud.firestore {
       }
       match /calls/{callId} {
         allow get, list: if isMember(conversationId);
-        allow create: if isMember(conversationId) && interactionAllowed(conversationId)
+        allow create: if canPost() && isMember(conversationId) && interactionAllowed(conversationId)
           && get(/databases/$(database)/documents/conversations/$(conversationId)).data.kind == 'dm'
           && request.resource.data.keys().hasOnly(['initiatorId','calleeId','status','offer','createdAt'])
           && request.resource.data.keys().hasAll(['initiatorId','calleeId','status','offer','createdAt'])
@@ -226,7 +271,7 @@ service cloud.firestore {
           && request.resource.data.offer.size() > 0
           && request.resource.data.offer.size() <= 20000
           && request.resource.data.createdAt == request.time;
-        allow update: if isMember(conversationId)
+        allow update: if canPost() && isMember(conversationId)
           && (
             (request.auth.uid == resource.data.calleeId
               && interactionAllowed(conversationId)
@@ -245,7 +290,7 @@ service cloud.firestore {
         allow delete: if false;
         match /ice/{candidateId} {
           allow get, list: if isMember(conversationId);
-          allow create: if isMember(conversationId)
+          allow create: if canPost() && isMember(conversationId)
             && interactionAllowed(conversationId)
             && exists(/databases/$(database)/documents/conversations/$(conversationId)/calls/$(callId))
             && get(/databases/$(database)/documents/conversations/$(conversationId)/calls/$(callId)).data.status in ['ringing','connected']
@@ -262,7 +307,7 @@ service cloud.firestore {
       match /attachments/{fileId} {
         allow get: if isMember(conversationId) && resource.data.expiresAt > request.time;
         allow list: if false;
-        allow create: if isMember(conversationId) && interactionAllowed(conversationId)
+        allow create: if canPost() && isMember(conversationId) && interactionAllowed(conversationId)
           && request.resource.data.keys().hasOnly(['ownerId','filename','mimeType','dataUrl','byteSize','createdAt','expiresAt'])
           && request.resource.data.keys().hasAll(['ownerId','filename','mimeType','dataUrl','byteSize','createdAt','expiresAt'])
           && request.resource.data.ownerId == request.auth.uid
@@ -290,7 +335,7 @@ service cloud.firestore {
         function attachment() { return getAfter(/databases/$(database)/documents/conversations/$(conversationId)/attachments/$(fileId)).data; }
         allow get: if isMember(conversationId);
         allow list: if isMember(conversationId) && request.query.limit <= 50;
-        allow create: if isMember(conversationId) && interactionAllowed(conversationId)
+        allow create: if canPost() && isMember(conversationId) && interactionAllowed(conversationId)
           && request.resource.data.keys().hasOnly(['ownerId','filename','mimeType','byteSize','createdAt','expiresAt'])
           && request.resource.data.keys().hasAll(['ownerId','filename','mimeType','byteSize','createdAt','expiresAt'])
           && request.resource.data.ownerId == request.auth.uid && attachment().ownerId == request.auth.uid
@@ -304,7 +349,7 @@ service cloud.firestore {
       }
       match /messages/{messageId} {
         allow get, list: if isMember(conversationId);
-        allow create: if isMember(conversationId)
+        allow create: if canPost() && isMember(conversationId)
           && request.resource.data.keys().hasOnly(['senderId', 'body', 'createdAt', 'replyToId', 'kind', 'audioData', 'mimeType', 'durationMs', 'forwarded'])
           && request.resource.data.keys().hasAll(['senderId', 'body', 'createdAt'])
           && request.resource.data.senderId == request.auth.uid
@@ -331,7 +376,7 @@ service cloud.firestore {
               && request.resource.data.replyToId != messageId
               && exists(/databases/$(database)/documents/conversations/$(conversationId)/messages/$(request.resource.data.replyToId))
               && !('deletedAt' in get(/databases/$(database)/documents/conversations/$(conversationId)/messages/$(request.resource.data.replyToId)).data)));
-        allow update: if isMember(conversationId) && !('deletedAt' in resource.data) && (
+        allow update: if canPost() && isMember(conversationId) && !('deletedAt' in resource.data) && (
           (resource.data.senderId == request.auth.uid && interactionAllowed(conversationId)
             && !('kind' in resource.data)
             && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['body', 'editedAt'])
@@ -350,7 +395,7 @@ service cloud.firestore {
         allow delete: if false;
         match /reactions/{uid} {
           allow get, list: if isMember(conversationId);
-          allow create: if own(uid) && isMember(conversationId)
+          allow create: if canPost() && own(uid) && isMember(conversationId)
             && interactionAllowed(conversationId)
             && exists(/databases/$(database)/documents/conversations/$(conversationId)/messages/$(messageId))
             && !('deletedAt' in get(/databases/$(database)/documents/conversations/$(conversationId)/messages/$(messageId)).data)
@@ -358,7 +403,7 @@ service cloud.firestore {
             && request.resource.data.keys().hasAll(['emoji', 'createdAt'])
             && request.resource.data.emoji in ['👍', '❤️', '😂', '🎉', '😮']
             && request.resource.data.createdAt == request.time;
-          allow update: if own(uid) && isMember(conversationId)
+          allow update: if canPost() && own(uid) && isMember(conversationId)
             && interactionAllowed(conversationId)
             && !('deletedAt' in get(/databases/$(database)/documents/conversations/$(conversationId)/messages/$(messageId)).data)
             && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['emoji'])

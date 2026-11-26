@@ -8,6 +8,7 @@ import { ensureLocalProfile } from './profile-data';
 import { auth, db, isLocalEmulator } from './firebase';
 import { createConversation, lookupName, watchConversations, type ChatConversation } from './chat-data';
 import { MessageCenter } from './MessageCenter';
+import { watchAccountControl, type AccountControl } from './admin-data';
 import { GroupControls } from './GroupControls';
 import { PrivacyPanel } from './PrivacyPanel';
 import { ReportPanel } from './ReportPanel';
@@ -93,6 +94,15 @@ function Login() {
       </button>
     </section>
   </main>;
+}
+
+function AccountGate({user}:{user:User}) {
+  const [control,setControl]=useState<AccountControl|null>(null);
+  const [error,setError]=useState('');
+  useEffect(()=>watchAccountControl(user.uid,v=>{setControl(v);setError('');},e=>setError(errorText(e))),[user.uid]);
+  if(!control)return <main id="conteudo"><p role="status">{error||'Verificando situação da conta…'}</p></main>;
+  if(control.status==='banned')return <main id="conteudo" className="profile-sync"><h2>Conta banida da mensageria</h2><p>{control.reason}</p><p>O acesso às conversas está bloqueado pelas regras de segurança.</p></main>;
+  return <>{control.status==='suspended'&&<p role="alert" className="feedback error">Conta suspensa: acesso de leitura. {control.reason}</p>}<Workspace user={user}/></>;
 }
 
 function Workspace({ user }: { user: User }) {
@@ -297,7 +307,7 @@ function LocalChat() {
     </header>
     {fatal ? <main id="conteudo" className="feedback error" role="alert">{fatal}</main>
       : loading ? <main id="conteudo" className="loading">Conectando ao emulador…</main>
-      : user ? <Workspace key={user.uid} user={user} /> : <Login />}
+      : user ? <AccountGate key={user.uid} user={user} /> : <Login />}
   </div>;
 }
 

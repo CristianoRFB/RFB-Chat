@@ -492,3 +492,27 @@ it('EVOLVE 02: purga local exclui bytes e índice expirados, preserva arquivo at
   expect((await getDoc(doc(d,'conversations',conversationId,'attachments',active))).exists()).toBe(true);
  });
 },30000);
+
+it('EVOLVE 03: controle de conta requer admin, evento atômico e impede autoelevação',async()=>{
+ const a=testEnv.authenticatedContext('alice').firestore(), b=testEnv.authenticatedContext('bob').firestore();
+ const admin=testEnv.authenticatedContext('admin-qa',{admin:true}).firestore(), mod=testEnv.authenticatedContext('moderator',{moderator:true}).firestore();
+ const data={role:'moderator',status:'suspended',reason:'Teste de controle auditado',actorId:'admin-qa',updatedAt:serverTimestamp(),eventId:'suspend-bob'};
+ const target=doc(admin,'accountControls','bob'),event=doc(admin,'accountControls','bob','events','suspend-bob');
+ await assertFails(setDoc(doc(b,'accountControls','bob'),{...data,actorId:'bob'}));
+ await assertFails(setDoc(doc(mod,'accountControls','bob'),{...data,actorId:'moderator'}));
+ await assertFails(setDoc(target,data));
+ const batch=writeBatch(admin);batch.set(target,data);batch.set(event,data);await assertSucceeds(batch.commit());
+ await assertSucceeds(getDoc(doc(b,'accountControls','bob')));
+ await assertFails(getDoc(doc(a,'accountControls','bob')));
+ await assertFails(getDoc(doc(b,'accountControls','bob','events','suspend-bob')));
+ await assertFails(updateDoc(event,{reason:'alterado'}));
+ await assertSucceeds(getDoc(doc(b,'conversations',conversationId)));
+ await assertFails(setDoc(doc(b,'conversations',conversationId,'messages','suspended-send'),{senderId:'bob',body:'bloqueado',createdAt:serverTimestamp()}));
+ const ban={...data,status:'banned',eventId:'ban-bob',updatedAt:serverTimestamp()};
+ const banBatch=writeBatch(admin);banBatch.set(target,ban);banBatch.set(doc(admin,'accountControls','bob','events','ban-bob'),ban);await assertSucceeds(banBatch.commit());
+ await assertFails(getDoc(doc(b,'conversations',conversationId)));
+ await assertFails(getDocs(collection(b,'conversations',conversationId,'messages')));
+ const restore={...data,role:'member',status:'active',eventId:'restore-bob',updatedAt:serverTimestamp()};
+ const restoreBatch=writeBatch(admin);restoreBatch.set(target,restore);restoreBatch.set(doc(admin,'accountControls','bob','events','restore-bob'),restore);await assertSucceeds(restoreBatch.commit());
+ await assertSucceeds(setDoc(doc(b,'conversations',conversationId,'messages','restored-send'),{senderId:'bob',body:'restaurado',createdAt:serverTimestamp()}));
+});
