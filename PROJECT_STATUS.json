@@ -2,13 +2,13 @@
   "schema_version": 2,
   "product": "RFBChat",
   "repository": "CristianoRFB/RFB-Chat",
-  "stage": "EVOLVE_02_PARTIAL_IN_PROGRESS_EXTERNAL_GATES_OPEN",
+  "stage": "EVOLVE_02_PARTIAL_FIX_CI_PENDING_EXTERNAL_GATES_OPEN",
   "source_imported": true,
   "modules_documented": 10,
   "features_documented": 12,
   "implemented_code_slices": "11 of 12 capabilities have local functional flows; WebRTC call signaling only (media path unverified)",
-  "last_verified_code_sha": "1974f774626da85a7c85eaedbf8d3e7bee7ac6c2",
-  "last_verified_ci_url": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45760719067",
+  "last_verified_code_sha": "359f49011311766ea7b320ae7aaddfec14314093",
+  "last_verified_ci_url": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45762642054",
   "last_verified": {
     "unit": "PASS_9",
     "rules": "PASS_20",
@@ -17,8 +17,8 @@
     "build": "PASS",
     "npm_ci": "PASS"
   },
-  "latest_code_sha": "0b66538174cb725083dd4d25b36a7c71ab8ed306",
-  "latest_qa": "IN_PROGRESS",
+  "latest_code_sha": "284c09ce38b65092ccd11aa3667b03060decddfe",
+  "latest_qa": "FIX_CI_PENDING",
   "production": false,
   "real_payments": false,
   "firebase": "EMULATOR_ONLY",
@@ -31,7 +31,7 @@
     "No physical TTL purge, quotas/rate limits or full LGPD/OWASP/WCAG release audit",
     "58 conceptual screens not separately built"
   ],
-  "next_action": "Verificar CI do último código/HEAD; corrigir regressões comprovadas; continuar EVOLVE 03 Administration & Security. Manter Issues #3/#4 abertas para infraestrutura e release.",
+  "next_action": "Verificar CI 45762857318 e regressões S019; depois EVOLVE 03. Gates #3/#4 mantidos.",
   "functional_coverage": {
     "local_tested_flows": 11,
     "total": 12,
@@ -57,10 +57,11 @@
       "S018",
       "S019"
     ],
-    "ci": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45762723200",
-    "ci_status": "IN_PROGRESS",
+    "ci": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45762857318",
+    "ci_status": "FIX_CI_PENDING",
     "media_external": "BLOCKED_ISSUE_4",
     "max_inline_file_bytes": 300000,
-    "max_audio_duration_ms": 60000
+    "max_audio_duration_ms": 60000,
+    "last_green_sha": "359f49011311766ea7b320ae7aaddfec14314093"
   }
 }

@@ -2,23 +2,23 @@
   "schema": 1,
   "repo": "CristianoRFB/RFB-Chat",
   "goal": "RFBChat — implementar 12 AC com rastreabilidade, emuladores e custo adicional R$0/mês",
-  "phase": "EVOLVE_02_REGRESSION_FIX",
+  "phase": "EVOLVE_02_PARTIAL_FIX_CI_PENDING_EXTERNAL_GATES_OPEN",
   "slice": "S017-S019",
   "baseline_sha": "b20f3887d9192ad10371ba8e8f0888ee93d09da4",
-  "last_commit_sha": "0b66538174cb725083dd4d25b36a7c71ab8ed306",
-  "last_verified_sha": "1974f774626da85a7c85eaedbf8d3e7bee7ac6c2",
+  "last_commit_sha": "284c09ce38b65092ccd11aa3667b03060decddfe",
+  "last_verified_sha": "359f49011311766ea7b320ae7aaddfec14314093",
   "evidence": {
     "github_pr": "https://github.com/CristianoRFB/RFB-Chat/pull/1",
     "open_issues": 2,
     "open_prs": 1,
-    "last_known_green_run": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45760719067",
-    "last_known_green_results": "All CI steps incl Playwright PASS",
-    "current_head_ci": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45762723200",
+    "last_known_green_run": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45762642054",
+    "last_known_green_results": "11 unit, 27 Rules, 12 E2E PASS; inbound RTP >0 nas duas sessões locais",
+    "current_head_ci": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45762857318",
     "current_head_ci_status": "IN_PROGRESS",
     "lockfile": "package-lock.json generated in CI and versioned, npm ci used",
     "runtime_environment": "demo-rfb-chat Firebase Auth + Firestore Emulators; Node 22/Java21",
     "production_deploy": "NOT_DONE",
-    "media_transport": "CALL_SIGNALING_E2E_PASS_NO_REAL_AUDIO_PACKET_VALIDATION",
+    "media_transport": "LOCAL_SYNTHETIC_RTP_BIDIRECTIONAL_PASS_EXTERNAL_NETWORK_NOT_RUN",
     "qa_issue": "https://github.com/CristianoRFB/RFB-Chat/issues/2",
     "qa_profile_stability": "3/3 successful job attempts on 1639d52 run 45097362021; issue #2 closed",
     "security_hardening_sha": "57b0adc51d662fa331b6ff9bc992e62bc32c2f26",
@@ -31,7 +31,7 @@
       "S016 CI in progress"
     ],
     "evolve02_issue": "https://github.com/CristianoRFB/RFB-Chat/issues/4",
-    "evolve02_code_ci": "TypeScript: success; Unit tests: success; Build sem conexões de produção: success; Firestore Rules isoladas (demo-rfb-chat): in_progress; Two users and mobile E2E in isolated emulators: pending"
+    "evolve02_code_ci": "S019 FAIL compile; fix committed, CI pending"
   },
   "completed": [
     "Preservados 10 módulos, 12 features e catálogo histórico de 58 telas conceituais e 7 diagramas",
@@ -68,7 +68,7 @@
     "11/12 funcionalidades com fluxo local foram escritas, mas definição de 90% integral não pode ser homologada com ausência de QA externa e produção",
     "11/12 somente como cobertura de fluxos de laboratório; 58 telas conceituais não foram implementadas individualmente."
   ],
-  "next_action": "Verificar CI do último código/HEAD; corrigir regressões comprovadas; continuar EVOLVE 03 Administration & Security. Manter Issues #3/#4 abertas para infraestrutura e release.",
+  "next_action": "Verificar CI 45762857318 e regressões S019; depois EVOLVE 03. Gates #3/#4 mantidos.",
   "revision": 8,
   "updated_at": "2026-11-26",
   "history": [
@@ -203,6 +203,13 @@
       "sha": "0b66538174cb725083dd4d25b36a7c71ab8ed306",
       "run_id": 45762723200,
       "root_cause": "JS String.replace interpretou $' no literal regex, duplicando o sufixo das Rules; reconstruído a partir do S018 usando callback."
+    },
+    {
+      "event": "REGRESSION_FIX_COMMITTED",
+      "slice": "S019",
+      "sha": "284c09ce38b65092ccd11aa3667b03060decddfe",
+      "run_id": 45762857318,
+      "status": "CI_PENDING"
     }
   ]
 }

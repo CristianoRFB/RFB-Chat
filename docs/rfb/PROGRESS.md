@@ -60,3 +60,10 @@ EVOLVE 01: CI do HEAD 1974f77 integralmente verde ([run 45760719067](https://git
 - Nenhum deploy, merge ou custo adicional ativado. Rollback: reverter S019, S018, S017 em ordem inversa na branch de trabalho após diagnóstico; preservar main e considerar compatibilidade dos novos registros antes de reverter regras.
 
 Status: IMPLEMENTED_PARTIAL / IN_PROGRESS / EXTERNAL_GATES_OPEN. Não declarar EVOLVE 02 integralmente encerrado.
+
+
+### Revalidação e correção S019
+- S017 [CI 45762573543](https://github.com/CristianoRFB/RFB-Chat/actions/runs/45762573543): PASS integral.
+- S018 [CI 45762642054](https://github.com/CristianoRFB/RFB-Chat/actions/runs/45762642054): 11 unitários, 27 Rules e 12 Playwright PASS (50). E2E verificou pacotes RTP de áudio nas duas pontas com fonte sintética, além de prévia de voz e galeria de anexos. Não é prova de rede externa.
+- S019 [CI 45762723200](https://github.com/CristianoRFB/RFB-Chat/actions/runs/45762723200): FAIL na compilação de Rules; substituição textual interpretou `$'` no regex e duplicou sufixo. Sem supressão de teste. Corrigido em 284c09ce38b65092ccd11aa3667b03060decddfe, reconstruindo Rules sobre S018 e substituindo via callback; [nova CI](https://github.com/CristianoRFB/RFB-Chat/actions/runs/45762857318) em execução na última consulta. QA de purga/preview/vídeo e revogação final ainda NÃO homologado.
+- Próximo: conferir nova CI e corrigir regressões comprovadas; #3/#4 permanecem abertas.
