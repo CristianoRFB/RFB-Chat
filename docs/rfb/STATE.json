@@ -2,7 +2,7 @@
   "schema": 1,
   "repo": "CristianoRFB/RFB-Chat",
   "goal": "RFBChat — implementar 12 AC com rastreabilidade, emuladores e custo adicional R$0/mês",
-  "phase": "EVOLVE_02_PARTIAL_IN_PROGRESS_EXTERNAL_GATES_OPEN",
+  "phase": "EVOLVE_02_REGRESSION_FIX",
   "slice": "S017-S019",
   "baseline_sha": "b20f3887d9192ad10371ba8e8f0888ee93d09da4",
   "last_commit_sha": "0b66538174cb725083dd4d25b36a7c71ab8ed306",
@@ -196,6 +196,13 @@
       "at": "2026-11-26",
       "status": "EVOLVE_02_PARTIAL_IN_PROGRESS_EXTERNAL_GATES_OPEN",
       "issue": 4
+    },
+    {
+      "event": "REGRESSION",
+      "slice": "S019",
+      "sha": "0b66538174cb725083dd4d25b36a7c71ab8ed306",
+      "run_id": 45762723200,
+      "root_cause": "JS String.replace interpretou $' no literal regex, duplicando o sufixo das Rules; reconstruído a partir do S018 usando callback."
     }
   ]
 }
