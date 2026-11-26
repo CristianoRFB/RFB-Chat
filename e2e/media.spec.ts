@@ -71,3 +71,41 @@ test('áudio de curta duração com consentimento fica disponível para outro me
     await expect(alice.locator('.message.outgoing').getByRole('button', { name: 'Editar' })).toHaveCount(0);
   } finally { await a.close(); await b.close(); }
 });
+
+test('imagem e vídeo sintéticos compartilhados na galeria privada com prévia real',async({browser})=>{
+ test.setTimeout(90000);
+ const a=await browser.newContext(),b=await browser.newContext();
+ try{
+  const alice=await a.newPage(),bob=await b.newPage(),suffix=String(Date.now());
+  await register(alice,'image-a-'+suffix+'@example.test','Mídia Alfa');
+  const uidB=await register(bob,'image-b-'+suffix+'@example.test','Mídia Beta');
+  await alice.locator('#target-uid').fill(uidB);await alice.getByRole('button',{name:'Criar conversa'}).click();
+  await expect(bob.getByRole('heading',{name:'Mídia Alfa'})).toBeVisible();
+  await alice.getByText('Arquivos privados e links temporários',{exact:true}).click();
+  await bob.getByText('Arquivos privados e links temporários',{exact:true}).click();
+  const png=await alice.evaluate(()=>{
+   const canvas=document.createElement('canvas');canvas.width=64;canvas.height=64;
+   const ctx=canvas.getContext('2d')!;ctx.fillStyle='#6d5ef7';ctx.fillRect(0,0,64,64);return canvas.toDataURL('image/png').split(',')[1];
+  });
+  await alice.locator('#private-file').setInputFiles({name:'imagem.png',mimeType:'image/png',buffer:Buffer.from(png,'base64')});
+  await alice.getByRole('button',{name:'Criar link privado'}).click();
+  await bob.getByRole('button',{name:'Abrir imagem.png'}).click();
+  await expect(bob.getByAltText('Prévia de imagem.png')).toBeVisible();
+  await expect.poll(()=>bob.getByAltText('Prévia de imagem.png').evaluate((el:HTMLImageElement)=>el.naturalWidth)).toBe(64);
+  await alice.getByRole('button',{name:'Excluir arquivo e revogar link'}).click();
+  await expect(bob.getByAltText('Prévia de imagem.png')).toHaveCount(0);
+  const video=await alice.evaluate(async()=>{
+   const canvas=document.createElement('canvas');canvas.width=64;canvas.height=64;
+   const ctx=canvas.getContext('2d')!;const stream=canvas.captureStream(10);
+   const rec=new MediaRecorder(stream,{mimeType:'video/webm'});const chunks:BlobPart[]=[];
+   rec.ondataavailable=e=>{if(e.data.size)chunks.push(e.data);};
+   const done=new Promise<string>(resolve=>{rec.onstop=()=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result).split(',')[1]);reader.readAsDataURL(new Blob(chunks,{type:'video/webm'}));stream.getTracks().forEach(t=>t.stop());};});
+   rec.start();for(let i=0;i<8;i++){ctx.fillStyle=i%2?'#333':'#999';ctx.fillRect(0,0,64,64);await new Promise(r=>setTimeout(r,100));}rec.stop();return done;
+  });
+  await alice.locator('#private-file').setInputFiles({name:'clipe.webm',mimeType:'video/webm',buffer:Buffer.from(video,'base64')});
+  await alice.getByRole('button',{name:'Criar link privado'}).click();
+  await bob.getByRole('button',{name:'Abrir clipe.webm'}).click();
+  await expect(bob.getByLabel('Prévia de clipe.webm')).toBeVisible();
+  await expect.poll(()=>bob.getByLabel('Prévia de clipe.webm').evaluate((el:HTMLVideoElement)=>el.videoWidth)).toBe(64);
+ }finally{await a.close();await b.close();}
+});

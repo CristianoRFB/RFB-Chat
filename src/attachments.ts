@@ -68,6 +68,11 @@ export async function loadPrivateFile(conversationId: string, fileId: string): P
   return { filename:String(d.filename), mimeType:String(d.mimeType), dataUrl:String(d.dataUrl),
     expiresAt:d.expiresAt.toDate(), byteSize:Number(d.byteSize), ownerId:String(d.ownerId) };
 }
+export function watchFileAvailability(conversationId:string,fileId:string,unavailable:()=>void) {
+  return onSnapshot(doc(db,'conversations',conversationId,'attachments',fileId),{includeMetadataChanges:true},snapshot=>{
+    if(!snapshot.metadata.fromCache && !snapshot.exists()) unavailable();
+  },()=>unavailable());
+}
 export function watchMediaIndex(conversationId: string, receive: (items: MediaEntry[]) => void, fail: (error: FirestoreError) => void) {
   return onSnapshot(query(collection(db,'conversations',conversationId,'mediaIndex'), orderBy('createdAt','desc'),limit(50)), snapshot => {
     // Não exibir dados em cache sem confirmação de membership.

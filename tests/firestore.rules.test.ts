@@ -1,4 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
 import { readFileSync } from 'node:fs';
 import {
   assertFails, assertSucceeds, initializeTestEnvironment,
@@ -469,3 +471,24 @@ it('EVOLVE 02: áudio de 60s permitido; acima do limite negado',async()=>{
  await assertSucceeds(setDoc(doc(a,'conversations',conversationId,'messages','long-audio'),payload));
  await assertFails(setDoc(doc(a,'conversations',conversationId,'messages','too-long-audio'),{...payload,durationMs:60001}));
 });
+
+it('EVOLVE 02: purga local exclui bytes e índice expirados, preserva arquivo ativo', async()=>{
+ const a=testEnv.authenticatedContext('alice').firestore();
+ const expired='purge-expired', active='purge-active';
+ await testEnv.withSecurityRulesDisabled(async ctx=>{
+  const d=ctx.firestore();
+  for(const [id,expiresAt] of [[expired,new Date(Date.now()-60000)],[active,new Date(Date.now()+3600000)]] as const){
+   const metadata={ownerId:'alice',filename:id+'.txt',mimeType:'text/plain',byteSize:3,createdAt:new Date(),expiresAt};
+   await setDoc(doc(d,'conversations',conversationId,'attachments',id),{...metadata,dataUrl:'data:text/plain;base64,QUJD'});
+   await setDoc(doc(d,'conversations',conversationId,'mediaIndex',id),metadata);
+  }
+ });
+ await assertFails(getDoc(doc(a,'conversations',conversationId,'attachments',expired)));
+ await promisify(execFile)(process.execPath,['scripts/purge-expired-media.mjs']);
+ await testEnv.withSecurityRulesDisabled(async ctx=>{
+  const d=ctx.firestore();
+  expect((await getDoc(doc(d,'conversations',conversationId,'attachments',expired))).exists()).toBe(false);
+  expect((await getDoc(doc(d,'conversations',conversationId,'mediaIndex',expired))).exists()).toBe(false);
+  expect((await getDoc(doc(d,'conversations',conversationId,'attachments',active))).exists()).toBe(true);
+ });
+},30000);

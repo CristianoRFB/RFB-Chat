@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { buildFileLink, createPrivateFile, deletePrivateFile, loadPrivateFile, parseFileCode, watchMediaIndex, type MediaEntry, type PrivateFile } from './attachments';
+import { buildFileLink, createPrivateFile, deletePrivateFile, loadPrivateFile, parseFileCode, watchFileAvailability, watchMediaIndex, type MediaEntry, type PrivateFile } from './attachments';
 
 export function FilePanel({ uid, conversationId, onError }: {
   uid: string; conversationId: string | null; onError: (error: unknown) => void;
@@ -23,6 +23,12 @@ export function FilePanel({ uid, conversationId, onError }: {
   useEffect(() => {
     if (loaded && loaded.expiresAt.getTime() <= now) { setLoaded(null); setFailed('Arquivo expirado.'); }
   },[loaded,now]);
+  useEffect(()=>{
+    if(!currentRef||!loaded)return;
+    return watchFileAvailability(currentRef.conversationId,currentRef.fileId,()=>{
+      setLoaded(null);setCurrentRef(null);setFailed('Arquivo indisponível. Verifique o acesso, a sessão e a validade do link.');
+    });
+  },[currentRef,loaded]);
   async function openGallery(id: string) {
     if (!conversationId) return;
     setBusy(true); setLoaded(null); setUploadedRef(null); setLink(''); setFailed('');
@@ -73,6 +79,7 @@ export function FilePanel({ uid, conversationId, onError }: {
     try {
       await deletePrivateFile(selected.conversationId, selected.fileId);
       setUploadedRef(null); setCurrentRef(null); setLoaded(null); setLink('');
+      setFailed('');
       setNotice('Arquivo excluído e link revogado. A remoção é definitiva.');
       const url = new URL(window.location.href);
       if (url.searchParams.has('file')) {
