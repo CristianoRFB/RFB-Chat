@@ -25,7 +25,7 @@ export async function changeAccount(actorId:string,uid:string,role:AccountRole,s
  const ref=doc(db,'accountControls',uid), event=doc(collection(ref,'events'));
  await runTransaction(db,async tx=>{
    const existing=await tx.get(ref);const old=parse(existing.data());
-   if(old.role===role&&old.status===status)throw new Error('Nenhuma alteração de cargo ou situação.');
+   if(existing.exists()&&old.role===role&&old.status===status)throw new Error('Nenhuma alteração de cargo ou situação.');
    const data={role,status,reason,actorId,updatedAt:serverTimestamp(),eventId:event.id};
    tx.set(ref,data);tx.set(event,data);
  });

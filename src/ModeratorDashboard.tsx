@@ -56,9 +56,10 @@ export function ModeratorDashboard({ user, onError }: {
           <button type="button" onClick={()=>setSelected(selected===report.id?'':report.id)}>Histórico da denúncia</button>
           {selected===report.id&&<ul>{history.map(h=><li key={h.status}>{h.status} · {h.actorId} · {h.createdAt?.toLocaleString('pt-BR')}</li>)}</ul>}
           <div className="moderator-actions">
-            {report.status === 'open' && <button disabled={busy === report.id} type="button"
+            {(report.reporterId===user.uid||report.reportedUid===user.uid)&&<p>Conflito de interesse: outro moderador deve decidir.</p>}
+            {report.reporterId!==user.uid&&report.reportedUid!==user.uid&&report.status === 'open' && <button disabled={busy === report.id} type="button"
               onClick={() => void change(report.id, 'reviewed')}>Marcar revisada</button>}
-            {report.status !== 'closed' && <button disabled={busy === report.id} type="button"
+            {report.reporterId!==user.uid&&report.reportedUid!==user.uid&&report.status !== 'closed' && <button disabled={busy === report.id} type="button"
               onClick={() => void change(report.id, 'closed')}>Encerrar denúncia</button>}
           </div>
         </article>)}

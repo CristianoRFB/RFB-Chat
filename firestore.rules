@@ -42,7 +42,8 @@ service cloud.firestore {
     function validText(data) {
       return data.body is string
         && data.body.size() > 0
-        && data.body.size() <= 2000;
+        && data.body.size() <= 2000
+        && data.body.matches('(?s).*[^[:space:]].*');
     }
     match /profiles/{uid} {
       allow get: if signedIn();
@@ -136,7 +137,7 @@ service cloud.firestore {
       allow get: if signedIn() && (resource.data.reporterId == request.auth.uid
         || moderator());
       allow list: if moderator() || (signedIn() && resource.data.reporterId == request.auth.uid && request.query.limit <= 50);
-      allow update: if moderator()
+      allow update: if moderator() && request.auth.uid != resource.data.reporterId && request.auth.uid != resource.data.reportedUid
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','resolvedAt','reviewedBy'])
         && request.resource.data.diff(resource.data).affectedKeys().hasAll(['status','resolvedAt'])
         && request.resource.data.reviewedBy == request.auth.uid

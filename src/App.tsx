@@ -104,10 +104,10 @@ function AccountGate({user}:{user:User}) {
   useEffect(()=>watchAccountControl(user.uid,v=>{setControl(v);setError('');},e=>setError(errorText(e))),[user.uid]);
   if(!control)return <main id="conteudo"><p role="status">{error||'Verificando situação da conta…'}</p></main>;
   if(control.status==='banned')return <main id="conteudo" className="profile-sync"><h2>Conta banida da mensageria</h2><p>{control.reason}</p><p>O acesso às conversas está bloqueado pelas regras de segurança.</p><PrivacyRights uid={user.uid} onError={onRightsError}/>{error&&<p role="alert">{error}</p>}</main>;
-  return <>{control.status==='suspended'&&<p role="alert" className="feedback error">Conta suspensa: acesso de leitura. {control.reason}</p>}<Workspace user={user}/></>;
+  return <>{control.status==='suspended'&&<p role="alert" className="feedback error">Conta suspensa: acesso de leitura. {control.reason}</p>}<Workspace user={user} suspended={control.status==='suspended'}/></>;
 }
 
-function Workspace({ user }: { user: User }) {
+function Workspace({ user,suspended }: { user: User;suspended:boolean }) {
   const [profileReady, setProfileReady] = useState(false);
   const [profilePending, setProfilePending] = useState(false);
   const [repairName, setRepairName] = useState(user.displayName || 'Pessoa de teste');
@@ -277,7 +277,7 @@ function Workspace({ user }: { user: User }) {
         <span className="avatar" aria-hidden="true">{title.slice(0, 1).toUpperCase()}</span>
         <div><h2>{title}</h2><p>{current?.kind === 'group' ? current.memberIds.length + ' membros · Grupo local' : selectedId ? 'Mensagens gravadas no emulador' : 'Conversa individual em tempo real'}</p></div>
       </header>
-      {current?.kind === 'dm' && other && <CallPanel key={current.id} conversationId={current.id} uid={user.uid} otherUid={other} onError={onChildError} />}
+      {!suspended && current?.kind === 'dm' && other && <CallPanel key={current.id} conversationId={current.id} uid={user.uid} otherUid={other} onError={onChildError} />}
       {error && <div className="feedback error" role="alert">{error} <button className="dismiss" type="button" onClick={() => setError('')}>Fechar</button></div>}
       {current?.kind === 'group' && <GroupChannels groupId={current.id} uid={user.uid}
         admin={!!current.adminIds?.includes(user.uid)} onError={onChildError} />}

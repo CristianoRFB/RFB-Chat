@@ -11,7 +11,8 @@
     "test:rules": "firebase emulators:exec --project demo-rfb-chat --only firestore \"vitest run tests/firestore.rules.test.ts\"",
     "emulators": "firebase emulators:start --project demo-rfb-chat --only auth,firestore",
     "test:e2e": "playwright test",
-    "media:purge:local": "node scripts/purge-expired-media.mjs"
+    "media:purge:local": "node scripts/purge-expired-media.mjs",
+    "admin:local": "node scripts/set-local-admin.mjs"
   },
   "dependencies": {
     "react": "^19.0.0",

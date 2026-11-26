@@ -539,3 +539,24 @@ it('EVOLVE 03: solicitações de privacidade pertencem ao titular e só admin in
  await assertSucceeds(updateDoc(doc(admin,'privacyRequests','alice_erasure'),{status:'under_review',reviewedBy:'admin-qa',reviewedAt:serverTimestamp()}));
  await assertFails(updateDoc(doc(admin,'privacyRequests','alice_erasure'),{status:'fulfilled'}));
 });
+
+it('EVOLVE 03: cargo delegado pode ser revogado e não permite decidir denúncia própria',async()=>{
+ const b=testEnv.authenticatedContext('bob').firestore(),a=testEnv.authenticatedContext('alice').firestore(),admin=testEnv.authenticatedContext('admin-qa',{admin:true}).firestore();
+ const ref=doc(admin,'accountControls','bob');
+ async function role(value:'member'|'moderator',id:string){
+  const data={role:value,status:'active',reason:'Teste de cargo delegado',actorId:'admin-qa',updatedAt:serverTimestamp(),eventId:id};
+  const batch=writeBatch(admin);batch.set(ref,data);batch.set(doc(ref,'events',id),data);return batch.commit();
+ }
+ await assertSucceeds(role('moderator','grant-bob'));
+ await assertSucceeds(getDocs(collection(b,'reports')));
+ await testEnv.withSecurityRulesDisabled(async ctx=>{
+  await setDoc(doc(ctx.firestore(),'reports','conflict-bob'),{reporterId:'alice',reportedUid:'bob',conversationId,reason:'Conflito de interesse',status:'open',createdAt:new Date()});
+ });
+ const report=doc(b,'reports','conflict-bob'),batch=writeBatch(b);
+ batch.update(report,{status:'reviewed',resolvedAt:serverTimestamp(),reviewedBy:'bob'});
+ batch.set(doc(report,'events','reviewed'),{status:'reviewed',actorId:'bob',createdAt:serverTimestamp()});
+ await assertFails(batch.commit());
+ await assertSucceeds(role('member','revoke-bob'));
+ await assertFails(getDocs(collection(b,'reports')));
+ await assertFails(setDoc(doc(a,'conversations',conversationId,'messages','blank-space'),{senderId:'alice',body:'   \n ',createdAt:serverTimestamp()}));
+});

@@ -39,3 +39,14 @@ jobs:
           path: test-results/
           if-no-files-found: ignore
           retention-days: 3
+
+  dependency-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Audit locked runtime and development dependencies
+        run: npm audit --audit-level=critical
