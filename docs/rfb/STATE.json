@@ -3,9 +3,9 @@
   "repo": "CristianoRFB/RFB-Chat",
   "goal": "RFBChat — implementar 12 AC com rastreabilidade, emuladores e custo adicional R$0/mês",
   "phase": "EVOLVE_01_IN_PROGRESS",
-  "slice": "S014",
+  "slice": "S015",
   "baseline_sha": "b20f3887d9192ad10371ba8e8f0888ee93d09da4",
-  "last_commit_sha": "3dc7e7b4f1175509ae32476dd219ad8215c8be36",
+  "last_commit_sha": "69f52b1b5c505c798d5d6304fcca35b2dc89a621",
   "last_verified_sha": "3dc7e7b4f1175509ae32476dd219ad8215c8be36",
   "evidence": {
     "github_pr": "https://github.com/CristianoRFB/RFB-Chat/pull/1",
@@ -13,8 +13,8 @@
     "open_prs": 1,
     "last_known_green_run": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45302857809",
     "last_known_green_results": "npm ci/typecheck/build PASS; 9 unit, 20 Firestore Rules, 10 Chromium E2E sem retries; SHA 3dc7e7b",
-    "current_head_ci": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45302857809",
-    "current_head_ci_status": "SUCCESS",
+    "current_head_ci": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45760445468",
+    "current_head_ci_status": "IN_PROGRESS",
     "lockfile": "package-lock.json generated in CI and versioned, npm ci used",
     "runtime_environment": "demo-rfb-chat Firebase Auth + Firestore Emulators; Node 22/Java21",
     "production_deploy": "NOT_DONE",
@@ -56,7 +56,7 @@
     "11/12 funcionalidades com fluxo local foram escritas, mas definição de 90% integral não pode ser homologada com ausência de QA externa e produção",
     "11/12 somente como cobertura de fluxos de laboratório; 58 telas conceituais não foram implementadas individualmente."
   ],
-  "next_action": "S014: implementar operações de mensagens com Rules e testes de negação; manter PR draft",
+  "next_action": "Implementar presença voluntária, UX de rede e edição de canais; verificar CI.",
   "revision": 6,
   "updated_at": "2026-11-23",
   "history": [
@@ -104,6 +104,18 @@
       "at": "2026-11-26",
       "baseline_sha": "ade05565ce3d658ab24bc78ac1ef19f8396f9b90",
       "goal": "EVOLVE 01: busca no histórico carregado, exclusão segura, fixação e encaminhamento de texto; presença, offline, grupos/canais e push com gates separados"
+    },
+    {
+      "event": "SLICE_COMMITTED",
+      "slice": "S014",
+      "sha": "69f52b1b5c505c798d5d6304fcca35b2dc89a621",
+      "status": "IMPLEMENTED_UNVERIFIED"
+    },
+    {
+      "event": "BEFORE_WRITE",
+      "slice": "S015",
+      "baseline_sha": "69f52b1b5c505c798d5d6304fcca35b2dc89a621",
+      "goal": "presence opt-in, offline cache feedback, channel management and E2E regression"
     }
   ]
 }
