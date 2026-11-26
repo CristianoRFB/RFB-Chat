@@ -404,3 +404,32 @@ describe('EVOLVE 01 — ações de mensagem', () => {
     await assertFails(setDoc(doc(a,'conversations',conversationId,'messages','evolve-spoof'), {senderId:'bob', body:'spoof', forwarded:true, createdAt:serverTimestamp()}));
   });
 });
+
+describe('EVOLVE 01 — presença e ações permitidas', () => {
+  it('presença requer identidade própria, membership e carimbo de servidor', async () => {
+    const a = testEnv.authenticatedContext('alice').firestore();
+    const b = testEnv.authenticatedContext('bob').firestore();
+    const m = testEnv.authenticatedContext('mallory').firestore();
+    const own = doc(a,'conversations',conversationId,'presence','alice');
+    await testEnv.withSecurityRulesDisabled(async ctx => {
+      await setDoc(doc(ctx.firestore(),'userPrivate','alice'), {blockedUids:[],notificationsEnabled:true,readReceiptsEnabled:true});
+      await setDoc(doc(ctx.firestore(),'userPrivate','bob'), {blockedUids:[],notificationsEnabled:true,readReceiptsEnabled:true});
+    });
+    await assertSucceeds(setDoc(own,{typing:true,updatedAt:serverTimestamp()}));
+    await assertSucceeds(getDoc(doc(b,'conversations',conversationId,'presence','alice')));
+    await assertFails(setDoc(doc(b,'conversations',conversationId,'presence','alice'),{typing:false,updatedAt:serverTimestamp()}));
+    await assertFails(getDoc(doc(m,'conversations',conversationId,'presence','alice')));
+    await assertFails(setDoc(own,{typing:true,updatedAt:new Date(0)}));
+    await assertSucceeds(deleteDoc(own));
+  });
+  it('fixação e encaminhamento de texto são permitidos para membros; pin não permite editar texto alheio', async () => {
+    const a = testEnv.authenticatedContext('alice').firestore();
+    const b = testEnv.authenticatedContext('bob').firestore();
+    const msg = doc(a,'conversations',conversationId,'messages','evolve-forward-ok');
+    await assertSucceeds(setDoc(msg,{senderId:'alice',body:'texto encaminhado',forwarded:true,createdAt:serverTimestamp()}));
+    const other = doc(b,'conversations',conversationId,'messages','evolve-forward-ok');
+    await assertSucceeds(updateDoc(other,{pinned:true}));
+    await assertFails(updateDoc(other,{pinned:false,body:'alterado por outro'}));
+    await assertSucceeds(updateDoc(other,{pinned:false}));
+  });
+});

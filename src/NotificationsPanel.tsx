@@ -14,7 +14,7 @@ function UnreadLine({ conversation, uid, onOpen, onError }: {
     return () => { offMessages(); offReads(); };
   }, [conversation.id, onError]);
   const readAt = receipts[uid]?.readAt?.getTime() ?? 0;
-  const unread = lastMessages.filter(m => m.senderId !== uid && !!m.createdAt
+  const unread = lastMessages.filter(m => m.senderId !== uid && !m.deletedAt && !!m.createdAt
     && m.createdAt.getTime() > readAt).length;
   return <button className="unread-line" type="button" onClick={() => onOpen(conversation.id)}>
     <span>{conversation.kind === 'group' ? conversation.title : 'Conversa ' + conversation.id.slice(-7)}</span>

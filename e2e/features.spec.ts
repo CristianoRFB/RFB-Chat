@@ -133,3 +133,39 @@ test('paginação recupera mensagens fora da janela de 50 após recarga', async 
     } finally { await other.close(); }
   } finally { await ctx.close(); }
 });
+
+test('EVOLVE 01: busca, fixação e remoção sincronizadas entre contas', async ({ browser }) => {
+  test.setTimeout(90_000);
+  const a = await browser.newContext(), b = await browser.newContext();
+  try {
+    const alice = await a.newPage(), bob = await b.newPage();
+    const suffix = String(Date.now());
+    await register(alice,'Evolve Alfa','evolve-a-'+suffix+'@example.test');
+    const uidB = await register(bob,'Evolve Beta','evolve-b-'+suffix+'@example.test');
+    await alice.locator('#target-uid').fill(uidB);
+    await alice.getByRole('button',{name:'Criar conversa'}).click();
+    await expect(bob.getByRole('heading',{name:'Evolve Alfa'})).toBeVisible();
+    await alice.locator('#message-text').fill('Olá evolução '+suffix);
+    await alice.getByRole('button',{name:'Enviar',exact:true}).click();
+    const sent = alice.locator('.message.outgoing');
+    const received = bob.locator('.message.incoming');
+    await expect(received).toContainText('Olá evolução '+suffix);
+    await sent.getByRole('button',{name:'Fixar',exact:true}).click();
+    await expect(received).toContainText('Mensagem fixada');
+    await bob.locator('#search-message-body').fill('ola evolucao');
+    await expect(received).toHaveCount(1);
+    await bob.locator('#search-message-body').fill('inexistente');
+    await expect(received).toHaveCount(0);
+    await bob.locator('#search-message-body').fill('');
+    await bob.getByRole('button',{name:'Somente fixadas'}).click();
+    await expect(received).toHaveCount(1);
+    alice.once('dialog', dialog => void dialog.accept());
+    await sent.getByRole('button',{name:'Excluir',exact:true}).click();
+    await expect(received).toHaveCount(0);
+    await bob.getByRole('button',{name:'Somente fixadas'}).click();
+    await expect(received).toContainText('Mensagem excluída');
+    await bob.reload();
+    await expect(bob.getByText('Mensagem excluída',{exact:true})).toBeVisible();
+    await expect(bob.getByText('Olá evolução '+suffix,{exact:true})).toHaveCount(0);
+  } finally { await a.close(); await b.close(); }
+});

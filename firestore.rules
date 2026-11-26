@@ -162,6 +162,14 @@ service cloud.firestore {
           && request.resource.data.status in ['accepted', 'declined'];
         allow delete: if false;
       }
+      match /presence/{uid} {
+        allow get, list: if isMember(conversationId) && interactionAllowed(conversationId);
+        allow create, update: if own(uid) && isMember(conversationId) && interactionAllowed(conversationId)
+          && request.resource.data.keys().hasOnly(['updatedAt','typing'])
+          && request.resource.data.keys().hasAll(['updatedAt','typing'])
+          && request.resource.data.updatedAt == request.time && request.resource.data.typing is bool;
+        allow delete: if own(uid) && isMember(conversationId);
+      }
       // Chamada de voz WebRTC local: somente sinalização, sem TURN/SFU externo.
       match /channels/{channelId} {
         allow get, list: if isMember(conversationId)
@@ -325,12 +333,14 @@ service cloud.firestore {
           allow create: if own(uid) && isMember(conversationId)
             && interactionAllowed(conversationId)
             && exists(/databases/$(database)/documents/conversations/$(conversationId)/messages/$(messageId))
+            && !('deletedAt' in get(/databases/$(database)/documents/conversations/$(conversationId)/messages/$(messageId)).data)
             && request.resource.data.keys().hasOnly(['emoji', 'createdAt'])
             && request.resource.data.keys().hasAll(['emoji', 'createdAt'])
             && request.resource.data.emoji in ['👍', '❤️', '😂', '🎉', '😮']
             && request.resource.data.createdAt == request.time;
           allow update: if own(uid) && isMember(conversationId)
             && interactionAllowed(conversationId)
+            && !('deletedAt' in get(/databases/$(database)/documents/conversations/$(conversationId)/messages/$(messageId)).data)
             && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['emoji'])
             && request.resource.data.emoji in ['👍', '❤️', '😂', '🎉', '😮'];
           allow delete: if own(uid) && isMember(conversationId);

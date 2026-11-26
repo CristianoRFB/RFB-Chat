@@ -7,6 +7,7 @@ import {
 } from './chat-extras';
 import { MAX_MESSAGE_LENGTH } from './chat-model';
 import { AudioRecorder } from './AudioRecorder';
+import { ConversationPresence } from './ConversationPresence';
 
 type Props = { conversationId: string | null; uid: string; otherUid: string; readEnabled: boolean; conversations: ChatConversation[]; canPin: boolean; onError: (error: unknown) => void };
 function MessageCard({ conversationId, message, uid, receipt, original, onReply, onEdit, onForward, canPin, onError }: {
@@ -84,6 +85,7 @@ export function MessageCenter({ conversationId, uid, otherUid, readEnabled, conv
   const [latest, setLatest] = useState<ChatMessage[]>([]);
   const [windowSize, setWindowSize] = useState(50);
   const [cached, setCached] = useState(true);
+  const [online, setOnline] = useState(navigator.onLine);
   const [search, setSearch] = useState('');
   const [pinnedOnly, setPinnedOnly] = useState(false);
   const [forwarding, setForwarding] = useState<ChatMessage | null>(null);
@@ -98,6 +100,12 @@ export function MessageCenter({ conversationId, uid, otherUid, readEnabled, conv
   const deliveredSeen = useRef<string>('');
   const readSeen = useRef<string>('');
 
+  useEffect(() => {
+    const update = () => setOnline(navigator.onLine);
+    window.addEventListener('online', update);
+    window.addEventListener('offline', update);
+    return () => { window.removeEventListener('online', update); window.removeEventListener('offline', update); };
+  }, []);
   useEffect(() => {
     if (!conversationId) return;
     return watchLatest(conversationId, items => setLatest(items), onError, windowSize, setCached);
@@ -122,6 +130,7 @@ export function MessageCenter({ conversationId, uid, otherUid, readEnabled, conv
   }
 
   useEffect(() => {
+    if (cached || !online) return;
     const recent = [...latest].reverse().find(m => m.senderId !== uid && !m.pending && m.createdAt);
     if (!recent || !conversationId) return;
     const sync = () => {
@@ -137,7 +146,7 @@ export function MessageCenter({ conversationId, uid, otherUid, readEnabled, conv
     sync();
     document.addEventListener('visibilitychange', sync);
     return () => document.removeEventListener('visibilitychange', sync);
-  }, [latest, conversationId, uid, readEnabled, onError]);
+  }, [latest, conversationId, uid, readEnabled, onError, cached, online]);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -170,11 +179,13 @@ export function MessageCenter({ conversationId, uid, otherUid, readEnabled, conv
   </div>;
 
   return <>
+    <ConversationPresence conversationId={conversationId} uid={uid} draft={draft} cached={cached || !online} onError={onError}/>
     <div className="sidebar-search">
       <label htmlFor="search-message-body">Pesquisar mensagens carregadas</label>
       <input id="search-message-body" value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar texto no histórico"/>
       <button type="button" aria-pressed={pinnedOnly} onClick={() => setPinnedOnly(v => !v)}>Somente fixadas</button>
-      {cached && <p className="mini-label" role="status">Histórico em cache; aguardando confirmação do servidor.</p>}
+      {(cached || !online) && <p className="mini-label" role="status">{online ? 'Histórico em cache; aguardando confirmação do servidor.' : 'Sem conexão. Mensagens pendentes serão sincronizadas ao reconectar, enquanto esta sessão estiver aberta.'}</p>}
+      {messages.length >= 500 && <p className="mini-label">Limite de 500 mensagens nesta janela; busca não cobre o histórico completo.</p>}
       {(search || pinnedOnly) && <p className="mini-label" role="status">{filtered.length} resultados em {messages.length} mensagens carregadas.</p>}
     </div>
     <div className="messages" aria-label="Histórico de mensagens" aria-live="polite">
@@ -212,7 +223,7 @@ export function MessageCenter({ conversationId, uid, otherUid, readEnabled, conv
       <label htmlFor="message-text" className="visually-hidden">Digite sua mensagem</label>
       <input id="message-text" value={draft} onChange={e => setDraft(e.target.value)}
         disabled={busy} placeholder="Escreva uma mensagem…" maxLength={MAX_MESSAGE_LENGTH}/>
-      <button type="submit" disabled={busy || !draft.trim()}>{busy ? 'Enviando…' : 'Enviar'}</button>
+      <button type="submit" disabled={busy || !draft.trim()}>{busy ? (!online || cached ? 'Aguardando conexão…' : 'Enviando…') : 'Enviar'}</button>
     </form>
     <AudioRecorder conversationId={conversationId} uid={uid} onError={onError} />
     <p className="legal-note">Mensagens armazenadas sem criptografia ponta a ponta; recibo de leitura aparece quando a conversa está visível.</p>

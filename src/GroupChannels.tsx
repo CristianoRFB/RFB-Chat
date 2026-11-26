@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import {
-  createChannel, sendChannelText, watchChannelMessages, watchChannels,
+  createChannel, renameChannel, sendChannelText, watchChannelMessages, watchChannels,
   type ChannelMessage, type GroupChannel
 } from './channel-data';
 
@@ -14,6 +14,10 @@ export function GroupChannels({ groupId, uid, admin, onError }: {
   const [description, setDescription] = useState('');
   const [draft, setDraft] = useState('');
   const [busy, setBusy] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [editName, setEditName] = useState('');
+  const [editDescription, setEditDescription] = useState('');
+  useEffect(() => { setEditing(false); }, [activeId, groupId]);
 
   useEffect(() => {
     setChannels([]); setActiveId(''); setMessages([]);
@@ -65,6 +69,22 @@ export function GroupChannels({ groupId, uid, admin, onError }: {
       {channels.length === 0 && <p>Nenhum canal criado. O administrador pode abrir um canal para a equipe.</p>}
       {activeId && <div className="channel-conversation">
         <p className="mini-label">{channels.find(item => item.id === activeId)?.description}</p>
+        {admin && !editing && <button type="button" onClick={() => {
+          const selected = channels.find(item => item.id === activeId);
+          if (selected) { setEditName(selected.name); setEditDescription(selected.description); setEditing(true); }
+        }}>Editar canal</button>}
+        {admin && editing && <form className="channel-create" onSubmit={event => {
+          event.preventDefault(); if (busy) return; setBusy(true);
+          void renameChannel(groupId, activeId, editName, editDescription).then(() => setEditing(false))
+            .catch(onError).finally(() => setBusy(false));
+        }}>
+          <label htmlFor="channel-edit-name">Novo nome do canal</label>
+          <input id="channel-edit-name" minLength={2} maxLength={40} required value={editName} onChange={e => setEditName(e.target.value)}/>
+          <label htmlFor="channel-edit-description">Nova descrição do canal</label>
+          <input id="channel-edit-description" maxLength={300} value={editDescription} onChange={e => setEditDescription(e.target.value)}/>
+          <button type="submit" disabled={busy || editName.trim().length < 2}>Salvar canal</button>
+          <button type="button" onClick={() => setEditing(false)}>Cancelar edição do canal</button>
+        </form>}
         <div className="channel-messages" aria-label="Mensagens do canal" aria-live="polite">
           {messages.length === 0 && <p>Seja a primeira pessoa a escrever neste canal.</p>}
           {messages.map(message => <div className="channel-message" key={message.id}>
