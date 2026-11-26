@@ -2,19 +2,19 @@
   "schema": 1,
   "repo": "CristianoRFB/RFB-Chat",
   "goal": "RFBChat — implementar 12 AC com rastreabilidade, emuladores e custo adicional R$0/mês",
-  "phase": "EVOLVE_02_PARTIAL_FIX_CI_PENDING_EXTERNAL_GATES_OPEN",
-  "slice": "S017-S019",
+  "phase": "EVOLVE_03_IN_PROGRESS",
+  "slice": "S020",
   "baseline_sha": "b20f3887d9192ad10371ba8e8f0888ee93d09da4",
   "last_commit_sha": "284c09ce38b65092ccd11aa3667b03060decddfe",
-  "last_verified_sha": "359f49011311766ea7b320ae7aaddfec14314093",
+  "last_verified_sha": "957c93baa461cf1d508c10f24f4c247d2eb44130",
   "evidence": {
     "github_pr": "https://github.com/CristianoRFB/RFB-Chat/pull/1",
     "open_issues": 2,
     "open_prs": 1,
-    "last_known_green_run": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45762642054",
-    "last_known_green_results": "11 unit, 27 Rules, 12 E2E PASS; inbound RTP >0 nas duas sessões locais",
+    "last_known_green_run": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45762924505",
+    "last_known_green_results": "11 unit, 28 Rules, 13 E2E PASS",
     "current_head_ci": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45762857318",
-    "current_head_ci_status": "IN_PROGRESS",
+    "current_head_ci_status": "SUCCESS",
     "lockfile": "package-lock.json generated in CI and versioned, npm ci used",
     "runtime_environment": "demo-rfb-chat Firebase Auth + Firestore Emulators; Node 22/Java21",
     "production_deploy": "NOT_DONE",
@@ -50,7 +50,8 @@
     "G5 laboratório: 9 unit + 20 Firestore Rules + 10 Playwright E2E aprovados sem retries, SHA 3dc7e7b.",
     "Issue #2 de concorrência no perfil fechada depois de 3 execuções consecutivas aprovadas sem retry.",
     "EVOLVE 01: CI final 45760719067 PASS; push externo ainda bloqueado #3.",
-    "S017-S019: mídia local expandida, galeria, áudio, RTP diagnóstico, purga local implementados; evidência de CI em EVOLVE-02.md."
+    "S017-S019: mídia local expandida, galeria, áudio, RTP diagnóstico, purga local implementados; evidência de CI em EVOLVE-02.md.",
+    "EVOLVE 02 final CI 45762924505 PASS (11 unit, 28 Rules, 13 E2E); external #4 open."
   ],
   "pending": [
     "Validar transporte RTP real e conectividade WebRTC fora de localhost (sem STUN/TURN isso não é garantido).",
@@ -68,7 +69,7 @@
     "11/12 funcionalidades com fluxo local foram escritas, mas definição de 90% integral não pode ser homologada com ausência de QA externa e produção",
     "11/12 somente como cobertura de fluxos de laboratório; 58 telas conceituais não foram implementadas individualmente."
   ],
-  "next_action": "Verificar CI 45762857318 e regressões S019; depois EVOLVE 03. Gates #3/#4 mantidos.",
+  "next_action": "S020 sanctions and admin UI; S021 privacy rights and moderation antiabuse; S022 QA/security.",
   "revision": 8,
   "updated_at": "2026-11-26",
   "history": [
@@ -210,6 +211,13 @@
       "sha": "284c09ce38b65092ccd11aa3667b03060decddfe",
       "run_id": 45762857318,
       "status": "CI_PENDING"
+    },
+    {
+      "event": "BEFORE_WRITE",
+      "at": "2026-11-26",
+      "baseline_sha": "957c93baa461cf1d508c10f24f4c247d2eb44130",
+      "slice": "S020",
+      "goal": "admin RBAC, account restrictions enforced in Rules and audit; no production"
     }
   ]
 }
