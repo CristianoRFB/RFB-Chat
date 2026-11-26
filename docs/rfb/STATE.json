@@ -3,9 +3,9 @@
   "repo": "CristianoRFB/RFB-Chat",
   "goal": "RFBChat — implementar 12 AC com rastreabilidade, emuladores e custo adicional R$0/mês",
   "phase": "EVOLVE_03_IN_PROGRESS",
-  "slice": "S022",
+  "slice": "S023",
   "baseline_sha": "b20f3887d9192ad10371ba8e8f0888ee93d09da4",
-  "last_commit_sha": "e32f78f5940ea2c978abd5a7c8c5883b4ce27018",
+  "last_commit_sha": "f0a5ab9aa305b1b14505cd18748045f937a6c934",
   "last_verified_sha": "957c93baa461cf1d508c10f24f4c247d2eb44130",
   "evidence": {
     "github_pr": "https://github.com/CristianoRFB/RFB-Chat/pull/1",
@@ -69,7 +69,7 @@
     "11/12 funcionalidades com fluxo local foram escritas, mas definição de 90% integral não pode ser homologada com ausência de QA externa e produção",
     "11/12 somente como cobertura de fluxos de laboratório; 58 telas conceituais não foram implementadas individualmente."
   ],
-  "next_action": "S022 admin E2E e audit; revisar CI.",
+  "next_action": "Gerar candidato de lockfile via runner GitHub com permissões somente leitura; revisar auditoria e CI.",
   "revision": 8,
   "updated_at": "2026-11-26",
   "history": [
@@ -242,6 +242,25 @@
       "slice": "S022",
       "baseline_sha": "e32f78f5940ea2c978abd5a7c8c5883b4ce27018",
       "goal": "provisionamento confiável somente emulador, E2E admin/moderador/privacidade, audit de dependências e testes negativos"
+    },
+    {
+      "event": "SLICE_COMMITTED",
+      "slice": "S022",
+      "sha": "f0a5ab9aa305b1b14505cd18748045f937a6c934",
+      "status": "CI_PENDING_AUDIT_FAILED",
+      "run_id": 45911258964
+    },
+    {
+      "event": "BEFORE_WRITE",
+      "slice": "S023",
+      "baseline_sha": "f0a5ab9aa305b1b14505cd18748045f937a6c934",
+      "goal": "security dependency candidate: fix critical tar/tinypool via controlled upgrades; preserve critical audit gate; no force, no production",
+      "audit": {
+        "moderate": 16,
+        "high": 11,
+        "critical": 3,
+        "total": 30
+      }
     }
   ]
 }

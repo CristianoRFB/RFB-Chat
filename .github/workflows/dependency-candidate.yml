@@ -1,0 +1,24 @@
+name: RFB — Candidate dependency lock (read-only)
+on:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  candidate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Resolve reviewed candidate without executing install scripts
+        run: |
+          npm pkg set 'devDependencies.firebase-tools=15.37.0' 'devDependencies.vitest=5.1.2'
+          npm pkg set 'overrides.tar=^7.5.21' 'overrides.@grpc/grpc-js=^1.13.6'
+          npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+      - name: Export public candidate files in bounded chunks
+        run: |
+          node --input-type=module -e "import fs from 'node:fs'; for(const name of ['package.json','package-lock.json']) {const b=fs.readFileSync(name).toString('base64'); for(let i=0;i<b.length;i+=4096) console.log('RFB_CANDIDATE '+name+' '+String(i/4096)+' '+b.slice(i,i+4096));}"
+      - name: Candidate security gate
+        run: npm audit --audit-level=critical
