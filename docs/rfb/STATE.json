@@ -2,8 +2,8 @@
   "schema": 1,
   "repo": "CristianoRFB/RFB-Chat",
   "goal": "RFBChat — implementar 12 AC com rastreabilidade, emuladores e custo adicional R$0/mês",
-  "phase": "EVOLVE_04_VISUAL_PASS_FULL_CI_PENDING",
-  "slice": "S025-S027",
+  "phase": "EVOLVE_04_REGRESSION_FIX_PENDING",
+  "slice": "S028",
   "baseline_sha": "b20f3887d9192ad10371ba8e8f0888ee93d09da4",
   "last_commit_sha": "b2ad72c3bffa73f34ae2af0ae5f27ed5437e3d8e",
   "last_verified_sha": "954a31ba6a6f0e346cfe5b08a4506e814ee4dc3b",
@@ -14,7 +14,7 @@
     "last_known_green_run": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45912658637",
     "last_known_green_results": "11 unit, 31 Rules, 14 E2E PASS S025; S027 visual PASS",
     "current_head_ci": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45912988561",
-    "current_head_ci_status": "IN_PROGRESS",
+    "current_head_ci_status": "FAIL_1_E2E",
     "lockfile": "package-lock.json generated in CI and versioned, npm ci used",
     "runtime_environment": "demo-rfb-chat Firebase Auth + Firestore Emulators; Node 22/Java21",
     "production_deploy": "NOT_DONE",
@@ -109,8 +109,8 @@
     "11/12 funcionalidades com fluxo local foram escritas, mas definição de 90% integral não pode ser homologada com ausência de QA externa e produção",
     "11/12 somente como cobertura de fluxos de laboratório; 58 telas conceituais não foram implementadas individualmente."
   ],
-  "next_action": "Check CI 45912988561 and fix proven regressions before EVOLVE 05.",
-  "revision": 10,
+  "next_action": "Reopen collapsed native disclosure after pin and verify delete synchronization in CI; no change to application behavior.",
+  "revision": 11,
   "updated_at": "2026-11-26",
   "history": [
     {
@@ -388,6 +388,15 @@
       "visual_run_id": 45912988546,
       "screenshots": 6,
       "status": "VISUAL_PASS_FULL_CI_PENDING"
+    },
+    {
+      "at": "2026-11-26",
+      "event": "BEFORE_WRITE",
+      "slice": "S028",
+      "baseline_sha": "600855b639d9f3b1a9d8edad67ee3b44df59fd1b",
+      "regression_run": 45912988561,
+      "artifact_id": 15160334841,
+      "diagnosis": "Trace: pin and all search assertions passed; click Excluir waited 90s because native message details collapsed after pin snapshot. Reopen through summary, assert visible, then delete; preserve all assertions."
     }
   ]
 }
