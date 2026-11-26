@@ -2,7 +2,7 @@
   "schema_version": 2,
   "product": "RFBChat",
   "repository": "CristianoRFB/RFB-Chat",
-  "stage": "LOCAL_FUNCTIONAL_COVERAGE_ABOVE_90_PERCENT_G5_PARTIAL",
+  "stage": "EVOLVE_01_PARTIAL_CI_PENDING_PUSH_BLOCKED",
   "source_imported": true,
   "modules_documented": 10,
   "features_documented": 12,
@@ -17,8 +17,8 @@
     "build": "PASS",
     "npm_ci": "PASS"
   },
-  "latest_code_sha": "3dc7e7b4f1175509ae32476dd219ad8215c8be36",
-  "latest_qa": "SUCCESS_9_UNIT_20_RULES_10_E2E",
+  "latest_code_sha": "727782ce3de7c6c31393311b5e38d135b4a46f12",
+  "latest_qa": "CI_IN_PROGRESS_S016",
   "production": false,
   "real_payments": false,
   "firebase": "EMULATOR_ONLY",
@@ -31,11 +31,23 @@
     "No physical TTL purge, quotas/rate limits or full LGPD/OWASP/WCAG release audit",
     "58 conceptual screens not separately built"
   ],
-  "next_action": "Review RELEASE-GATES.md, verify live media path, privacy retention, quotas and accessible UX before production sign-off.",
+  "next_action": "Verificar CI S016 e corrigir falhas antes de encerrar EVOLVE 01 local; manter push Issue #3 para EVOLVE 05/07; continuar Media Engine somente com gates registrados.",
   "functional_coverage": {
     "local_tested_flows": 11,
     "total": 12,
     "percent": 91.7,
     "interpretation": "MVP/emulator feature coverage only; not overall system completion or production acceptance"
+  },
+  "evolve01": {
+    "status": "PARTIAL",
+    "slices": [
+      "S014",
+      "S015",
+      "S016"
+    ],
+    "push": "BLOCKED_ISSUE_3",
+    "offline": "MEMORY_CACHE_ONLY",
+    "history_window_max": 500,
+    "ci": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45760633858"
   }
 }

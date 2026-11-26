@@ -1,3 +1,20 @@
+# Roadmap atual — RFB Chat (26/11/2026)
+
+Fonte de verdade: [STATE](rfb/STATE.json), [COVERAGE](rfb/COVERAGE.md), [FINAL-EVOLUTION-ROADMAP](rfb/FINAL-EVOLUTION-ROADMAP.md). O plano histórico abaixo foi preservado; os estados antigos não são atuais.
+
+| Gate | Situação atual |
+|---|---|
+| G0 | Especificação e catálogo preservados; revisão de assets/público pendente |
+| G1/G2 | Ambiente local e fluxo central verificados no checkpoint 23/11 |
+| G3 | 11/12 fluxos originais no laboratório; EVOLVE 01 adiciona recursos com CI em execução |
+| G4 | WebRTC e push real pendentes |
+| G5 | QA automatizada parcial; revisão integral pendente |
+| G6 | Bloqueado até aprovação de release |
+
+---
+
+## Histórico da importação (não usar como status atual)
+
 # Roadmap específico — RFBChat (RFB Method)
 
 > **Estado atualizado, 22/11/2026:** O trecho abaixo é o plano original de importação e seus checkboxes históricos não representam o estado de desenvolvimento atual. A branch do PR #1 contém React, Firebase Emulator, recursos avançados e CI verificada para fatias anteriores. Estado canônico atualizado: [docs/rfb/STATE.json](rfb/STATE.json), [docs/rfb/COVERAGE.md](rfb/COVERAGE.md) e [docs/rfb/PROGRESS.md](rfb/PROGRESS.md). Nenhuma produção/merge homologado.

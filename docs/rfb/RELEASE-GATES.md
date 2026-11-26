@@ -23,3 +23,9 @@ Versão: 23/11/2026. Este documento distingue laboratório funcional de produç�
 - [ ] PR aprovado, sem bloqueios; plano de deploy assinado. **Não foi realizado merge, deploy ou cobrança**.
 
 **Cobertura atual:** 11/12 fluxos funcionais no emulador; 12ª chamada somente sinalização. Não existe percentual comprovado de conclusão geral do produto ou de homologação para produção.
+
+
+## Gate EVOLVE 01
+- [ ] CI integral verde no SHA S016 ou sucessor; QA de presença/reconexão e testes manuais.
+- [ ] Resolver [Issue #3](https://github.com/CristianoRFB/RFB-Chat/issues/3) de push real no staging autorizado.
+- [ ] Revisar cota da janela de 500 mensagens e heartbeat, retenção/purga de tombstones e presença; cache em memória não cobre recarga offline.

@@ -2,19 +2,19 @@
   "schema": 1,
   "repo": "CristianoRFB/RFB-Chat",
   "goal": "RFBChat — implementar 12 AC com rastreabilidade, emuladores e custo adicional R$0/mês",
-  "phase": "EVOLVE_01_IN_PROGRESS",
-  "slice": "S016",
+  "phase": "EVOLVE_01_PARTIAL_CI_PENDING_PUSH_BLOCKED",
+  "slice": "S014-S016",
   "baseline_sha": "b20f3887d9192ad10371ba8e8f0888ee93d09da4",
-  "last_commit_sha": "6d27b77f15ace44a0747a0518eb193fefd98cb55",
+  "last_commit_sha": "727782ce3de7c6c31393311b5e38d135b4a46f12",
   "last_verified_sha": "3dc7e7b4f1175509ae32476dd219ad8215c8be36",
   "evidence": {
     "github_pr": "https://github.com/CristianoRFB/RFB-Chat/pull/1",
-    "open_issues": 0,
+    "open_issues": 1,
     "open_prs": 1,
     "last_known_green_run": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45302857809",
     "last_known_green_results": "npm ci/typecheck/build PASS; 9 unit, 20 Firestore Rules, 10 Chromium E2E sem retries; SHA 3dc7e7b",
-    "current_head_ci": null,
-    "current_head_ci_status": "PENDING",
+    "current_head_ci": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45760633858",
+    "current_head_ci_status": "IN_PROGRESS",
     "lockfile": "package-lock.json generated in CI and versioned, npm ci used",
     "runtime_environment": "demo-rfb-chat Firebase Auth + Firestore Emulators; Node 22/Java21",
     "production_deploy": "NOT_DONE",
@@ -23,7 +23,13 @@
     "qa_profile_stability": "3/3 successful job attempts on 1639d52 run 45097362021; issue #2 closed",
     "security_hardening_sha": "57b0adc51d662fa331b6ff9bc992e62bc32c2f26",
     "reaction_perf_sha": "3dc7e7b4f1175509ae32476dd219ad8215c8be36",
-    "last_checked_production": "No deployment (Firebase Emulator only)"
+    "last_checked_production": "No deployment (Firebase Emulator only)",
+    "evolve01_push_issue": "https://github.com/CristianoRFB/RFB-Chat/issues/3",
+    "evolve01_partial_ci": [
+      "S014 npm ci/typecheck/unit/build/rules PASS, E2E pending",
+      "S015 npm ci/typecheck/unit/build/rules PASS, E2E pending",
+      "S016 CI in progress"
+    ]
   },
   "completed": [
     "Preservados 10 módulos, 12 features e catálogo histórico de 58 telas conceituais e 7 diagramas",
@@ -49,16 +55,17 @@
     "Limites de quota/rate limit antiabuso, LGPD/retencão, backups, exclusão, moderadores de verdade e política de conteúdo",
     "Validar produção somente após autorização explícita: Firebase Spark, domínio Cloudflare e regras/backup revisados",
     "WebRTC sem TURN/SFU não garante chamadas fora da rede; fluxo sinalizado em CI não prova transporte real de áudio",
-    "Revogação manual de link disponível, mas expiração lógica NÃO apaga automaticamente os bytes; projetar TTL/retencão antes de uso real."
+    "Revogação manual de link disponível, mas expiração lógica NÃO apaga automaticamente os bytes; projetar TTL/retencão antes de uso real.",
+    "EVOLVE 01: homologar CI por SHA final, E2E e presença em sessões reais; push bloqueado Issue #3; cache persistente não habilitado."
   ],
   "blockers": [
     "PR DRAFT não está mesclado e nenhum deploy/projeto Firebase real foi autorizado",
     "11/12 funcionalidades com fluxo local foram escritas, mas definição de 90% integral não pode ser homologada com ausência de QA externa e produção",
     "11/12 somente como cobertura de fluxos de laboratório; 58 telas conceituais não foram implementadas individualmente."
   ],
-  "next_action": "Consolidar S016, regressões e documentação; push real continua dependente de projeto autorizado.",
-  "revision": 6,
-  "updated_at": "2026-11-23",
+  "next_action": "Verificar CI S016 e corrigir falhas antes de encerrar EVOLVE 01 local; manter push Issue #3 para EVOLVE 05/07; continuar Media Engine somente com gates registrados.",
+  "revision": 7,
+  "updated_at": "2026-11-26",
   "history": [
     {
       "at": "2026-11-23T00:52:50.783Z",
@@ -128,6 +135,19 @@
       "slice": "S016",
       "baseline_sha": "6d27b77f15ace44a0747a0518eb193fefd98cb55",
       "goal": "fortalecer presença e testar encaminhamento/reconexão; consolidar documentação"
+    },
+    {
+      "event": "SLICE_COMMITTED",
+      "slice": "S016",
+      "sha": "727782ce3de7c6c31393311b5e38d135b4a46f12",
+      "status": "IMPLEMENTED_UNVERIFIED",
+      "ci_run_id": 45760633858
+    },
+    {
+      "event": "EVOLVE_01_CHECKPOINT",
+      "at": "2026-11-26",
+      "status": "PARTIAL_CI_PENDING_PUSH_BLOCKED",
+      "push_issue": 3
     }
   ]
 }

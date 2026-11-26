@@ -37,7 +37,9 @@ Outros arquivos do original: `design/desktop.svg`, `design/mobile.svg`, 8 PNG de
 - **Acessibilidade:** HTML semântico, foco visível, labels reais, mensagens de erro associadas, teclado, leitor de tela, skip link e `prefers-reduced-motion`.
 - **Copy:** dados sintéticos identificados, sem reviews, métricas ou promessas de produto fictícias.
 
-## Catálogo de T001 a T058 — todos da fonte original
+## Catálogo de T001 a T058 — blueprint histórico, não status atual
+
+O marcador NOT_IMPLEMENTED a seguir pertence à importação original. Existem fluxos locais implementados em React para cadastro/login, conversas, grupos, canais, privacidade, mídia e moderação. A correspondência tela a tela e o QA visual manual serão reconciliados no EVOLVE 04. Não inferir 58 telas prontas. Ver [COVERAGE](rfb/COVERAGE.md) e [STATE](rfb/STATE.json).
 
 | Tela | Especificação original | Estágio |
 |---|---|---|
