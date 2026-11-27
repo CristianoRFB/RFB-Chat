@@ -1,4 +1,5 @@
 import {test,expect,type Page} from '@playwright/test';
+import {mkdir} from 'node:fs/promises';
 import {execFile} from 'node:child_process';
 import {promisify} from 'node:util';
 async function register(page:Page,name:string,email:string){
@@ -28,6 +29,15 @@ test('admin local delega e revoga moderação, restringe conta e analisa solicit
   await expect(admin.locator('#admin-account option').filter({hasText:'Membro QA'})).toHaveAttribute('value',uidB);
   await admin.getByLabel('Conta',{exact:true}).selectOption({value:uidB},{timeout:15000});
   await expect(admin.getByLabel('Cargo',{exact:true})).toBeVisible();
+  await mkdir('visual-evidence',{recursive:true});
+  await admin.setViewportSize({width:1440,height:900});
+  await admin.getByLabel('Cargo',{exact:true}).scrollIntoViewIfNeeded();
+  await admin.screenshot({path:'visual-evidence/07-admin-desktop.png',animations:'disabled',caret:'hide'});
+  await admin.setViewportSize({width:390,height:844});
+  await admin.getByLabel('Cargo',{exact:true}).scrollIntoViewIfNeeded();
+  expect(await admin.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+  await admin.screenshot({path:'visual-evidence/08-admin-mobile.png',animations:'disabled',caret:'hide'});
+  await admin.setViewportSize({width:1440,height:900});
   async function change(role:string,status:string,reason:string){
    await admin.getByLabel('Cargo',{exact:true}).selectOption(role);
    await admin.getByLabel('Situação',{exact:true}).selectOption(status);

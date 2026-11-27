@@ -59,7 +59,10 @@ test('EVOLVE 04: evidência visual real, temas, filtros, teclado e responsividad
   await capture(alice,'03-chat-light-1440');
   await alice.reload();await expect(alice.locator('html')).toHaveAttribute('data-theme','light');
   await expect(alice.locator('.messages .message')).toHaveCount(3);
-  for(const width of [320,360,390,430,768,1024,1440]){
+  for(const theme of ['light','dark'] as const){
+   if(theme==='dark')await alice.getByRole('button',{name:'Ativar tema escuro'}).click();
+   await expect(alice.locator('html')).toHaveAttribute('data-theme',theme);
+   for(const width of [320,360,390,430,768,1024,1440]){
    await alice.setViewportSize({width,height:900});
    expect(await alice.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'sem overflow horizontal '+width).toBe(true);
    const ratios=await alice.evaluate(()=>{
@@ -67,8 +70,11 @@ test('EVOLVE 04: evidência visual real, temas, filtros, teclado e responsividad
     const lum=(h:string)=>{let hex=h.trim().slice(1);if(hex.length===3)hex=hex.split('').map(c=>c+c).join('');if(!/^[a-f0-9]{6}$/i.test(hex))throw new Error('Cor inválida: '+h);const v=hex.match(/.{2}/g)!.map(n=>parseInt(n,16)/255).map(c=>c<=.04045?c/12.92:((c+.055)/1.055)**2.4);return .2126*v[0]+.7152*v[1]+.0722*v[2];};
     return [['--ink','--panel'],['--muted','--panel'],['--primary-ink','--primary'],['--accent','--panel'],['--ink','--bubble-in'],['--ink','--bubble-out'],['--muted','--bubble-in'],['--muted','--bubble-out']].map(([x,y])=>{const a=lum(css.getPropertyValue(x)),b=lum(css.getPropertyValue(y));return (Math.max(a,b)+.05)/(Math.min(a,b)+.05);});
    });
+   console.log('RFB_CONTRAST '+JSON.stringify({theme,width,ratios}));
    for(const ratio of ratios)expect(ratio).toBeGreaterThanOrEqual(4.5);
   }
+  }
+  await alice.getByRole('button',{name:'Ativar tema claro'}).click();
   await alice.setViewportSize({width:390,height:844});
   await alice.evaluate(()=>window.scrollTo(0,0));await capture(alice,'04-list-light-390');
   await alice.getByRole('link',{name:'Abrir conversa selecionada'}).click();
