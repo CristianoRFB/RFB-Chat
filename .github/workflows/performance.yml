@@ -41,6 +41,11 @@ jobs:
               npm run build
               node scripts/build-size.mjs
               node scripts/instrument-perf.mjs
+              # Build measured above before benchmark-only port substitution.
+              # Separate loopback ports and demo project avoid orphaned baseline processes.
+              if [ "$variant" = after ]; then
+                node --input-type=module -e "import fs from 'node:fs';const p='firebase.json',j=JSON.parse(fs.readFileSync(p));j.emulators.auth.port=19099;j.emulators.firestore.port=18080;j.emulators.hub={host:'127.0.0.1',port:14400};j.emulators.logging={host:'127.0.0.1',port:14500};fs.writeFileSync(p,JSON.stringify(j));for(const f of ['src/firebase.ts','playwright.config.ts','package.json']){let s=fs.readFileSync(f,'utf8');s=s.replaceAll('9099','19099').replaceAll('8080','18080').replaceAll('5173','15173').replaceAll('demo-rfb-chat','demo-rfb-chat-perf-after');fs.writeFileSync(f,s);}"
+              fi
               npm run test:e2e -- e2e/performance.spec.ts
             ) || result=1
             mkdir -p "perf-evidence/$variant"
