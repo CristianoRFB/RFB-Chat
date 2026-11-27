@@ -3,9 +3,9 @@
   "repo": "CristianoRFB/RFB-Chat",
   "goal": "RFBChat — implementar 12 AC com rastreabilidade, emuladores e custo adicional R$0/mês",
   "phase": "EVOLVE_07_PREPARATION",
-  "slice": "S034",
+  "slice": "S035",
   "baseline_sha": "b20f3887d9192ad10371ba8e8f0888ee93d09da4",
-  "last_commit_sha": "67df48c2ae028a0da3e53e624719a1c7dfd92a58",
+  "last_commit_sha": "4368f7127f45b8e0934363a6898f6fe6390f1fb5",
   "last_verified_sha": "119f2df4d9c730d208a5a66c32d66872918c2840",
   "evidence": {
     "github_pr": "https://github.com/CristianoRFB/RFB-Chat/pull/1",
@@ -162,8 +162,8 @@
     "11/12 funcionalidades com fluxo local foram escritas, mas definição de 90% integral não pode ser homologada com ausência de QA externa e produção",
     "11/12 somente como cobertura de fluxos de laboratório; 58 telas conceituais não foram implementadas individualmente."
   ],
-  "next_action": "S035 release readiness controls; collect S034 evidence",
-  "revision": 19,
+  "next_action": "S036 canonical DM security regression; collect previous CI evidence",
+  "revision": 20,
   "updated_at": "2026-11-26",
   "history": [
     {
@@ -559,6 +559,20 @@
       "slice": "S035",
       "baseline_sha": "67df48c2ae028a0da3e53e624719a1c7dfd92a58",
       "goal": "Release preflight read-only fail closed; no publish or billing; dependency compatibility probe isolated"
+    },
+    {
+      "event": "SLICE_COMMITTED",
+      "slice": "S035",
+      "sha": "4368f7127f45b8e0934363a6898f6fe6390f1fb5",
+      "ci": 45932789870,
+      "dependencyProbe": 45932790030,
+      "status": "RELEASE_GATE_TEST_PASS_OTHER_CI_PENDING"
+    },
+    {
+      "event": "BEFORE_WRITE",
+      "slice": "S036",
+      "baseline_sha": "4368f7127f45b8e0934363a6898f6fe6390f1fb5",
+      "goal": "Probe reversed member order against baseline Rules, enforce canonical order on create only, and retest positive and negative in same isolated emulator; no changes to existing DM reads or production"
     }
   ],
   "status": "IN_PROGRESS_RELEASE_BLOCKED"
