@@ -202,3 +202,7 @@ Próximo EVOLVE 06: verificar CI final, amostra maior de latência/carga, concor
 
 
 **Homologação final EVOLVE 05:** CI https://github.com/CristianoRFB/RFB-Chat/actions/runs/45915281418 integralmente PASS para 81dd87d6cd651fcf3d2d7fbdf61e8edeb497d30c: 13 unitários, 31 Rules, 15 E2E (59 testes), 1 benchmark explicitamente SKIP na suíte comum, executado separadamente com PASS em 45915281421. Auditoria PASS. Visual e infraestrutura PASS. Gates externos e latência permanecem em revisão; próximo EVOLVE 06 Total QA.
+
+
+### EVOLVE 06 — Total QA (laboratório)
+Five CI workflows passed on candidate `3142ef4`: 13 unit, 31 Rules, 15 E2E; 100/100 messages observed with 10 synthetic accounts in two bounded phases. Eight real screenshots inspected, both-theme contrast checks and runtime audit 0 vulnerabilities reported; 14 moderate dev alerts remain. [Detailed results and limitations](docs/rfb/EVOLVE-06.md). No production, no full WCAG/OWASP/LGPD certification.

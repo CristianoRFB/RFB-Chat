@@ -2,11 +2,11 @@
   "schema": 1,
   "repo": "CristianoRFB/RFB-Chat",
   "goal": "RFBChat — implementar 12 AC com rastreabilidade, emuladores e custo adicional R$0/mês",
-  "phase": "EVOLVE_05_LOCAL_CI_PERF_INFRA_PASS_EXTERNAL_GATES_OPEN",
-  "slice": "S029-S032",
+  "phase": "EVOLVE_06_LOCAL_QA_PASS_RELEASE_GATES_OPEN",
+  "slice": "S033",
   "baseline_sha": "b20f3887d9192ad10371ba8e8f0888ee93d09da4",
-  "last_commit_sha": "81dd87d6cd651fcf3d2d7fbdf61e8edeb497d30c",
-  "last_verified_sha": "81dd87d6cd651fcf3d2d7fbdf61e8edeb497d30c",
+  "last_commit_sha": "3142ef40c4fa9e4409d90e8d7bc538a204653f00",
+  "last_verified_sha": "3142ef40c4fa9e4409d90e8d7bc538a204653f00",
   "evidence": {
     "github_pr": "https://github.com/CristianoRFB/RFB-Chat/pull/1",
     "open_issues": 4,
@@ -95,6 +95,25 @@
         "median_ms_before": 142,
         "median_ms_after": 160
       }
+    },
+    "evolve06": {
+      "candidate": "3142ef40c4fa9e4409d90e8d7bc538a204653f00",
+      "run": 45930727651,
+      "ci": 45930727446,
+      "visual": 45930727489,
+      "infra": 45930727501,
+      "benchmark": 45930727464,
+      "raw": "docs/rfb/benchmarks/EVOLVE-06.json",
+      "screenshots": "docs/rfb/QA06-VISUAL-EVIDENCE.json",
+      "status": "LOCAL_PASS_EXTERNAL_GATES_OPEN",
+      "tests": {
+        "unit": 13,
+        "rules": 31,
+        "e2e": 15,
+        "loadMessages": 100,
+        "adversarialCases": 5,
+        "reportRace": "1 accepted / 1 denied"
+      }
     }
   },
   "completed": [
@@ -120,7 +139,8 @@
     "EVOLVE 03 correction S025 56 tests PASS.",
     "EVOLVE 04 S025-S027 design, themes, filters, 58 IDs and 6 reviewed screenshots; dedicated visual PASS.",
     "EVOLVE 04 S028 CI and visual PASS.",
-    "EVOLVE 05 performance benchmark, public guard/backup QA, lazy subscriptions and local diagnostics implemented; production gates open."
+    "EVOLVE 05 performance benchmark, public guard/backup QA, lazy subscriptions and local diagnostics implemented; production gates open.",
+    "EVOLVE 06 S033: five candidate CI workflows passed; 100/100 SDK messages, 5 canonical DM races, 5 negative checks, report race, 112 contrast assertions; 8 real screenshots inspected."
   ],
   "pending": [
     "Validar transporte RTP real e conectividade WebRTC fora de localhost (sem STUN/TURN isso não é garantido).",
@@ -134,15 +154,16 @@
     "EVOLVE 02: gate externo #4 e QA manual; CI local PASS.",
     "EVOLVE 03: #5 privacidade integral/antiabuso global/admin real, #6 alertas moderados; validar E2E da correção de cadastro se pendente.",
     "EVOLVE 04: formal brand approval, original PNGs absent, admin/group screenshots, full WCAG, devices; full CI if pending.",
-    "EVOLVE 05: latency median +12.7% in 5-sample local test; repeat with larger workload E06; real FCM/backup/quota monitoring blocked #3–#5; real production bundle not measured."
+    "EVOLVE 05: latency median +12.7% in 5-sample local test; repeat with larger workload E06; real FCM/backup/quota monitoring blocked #3–#5; real production bundle not measured.",
+    "EVOLVE 06 external release gates: screen reader/device/full WCAG and independent OWASP/LGPD, randomized browser latency profiling, sustained load, dedicated group screenshots, #3–#6."
   ],
   "blockers": [
     "PR DRAFT não está mesclado e nenhum deploy/projeto Firebase real foi autorizado",
     "11/12 funcionalidades com fluxo local foram escritas, mas definição de 90% integral não pode ser homologada com ausência de QA externa e produção",
     "11/12 somente como cobertura de fluxos de laboratório; 58 telas conceituais não foram implementadas individualmente."
   ],
-  "next_action": "S033: execute bounded authenticated SDK load/concurrency, adversarial Rules, browser accessibility and visual QA; preserve external gates",
-  "revision": 16,
+  "next_action": "Complete outstanding EVOLVE 06 release acceptance checks; EVOLVE 07 production remains blocked pending authorization and external gates.",
+  "revision": 17,
   "updated_at": "2026-11-26",
   "history": [
     {
@@ -501,7 +522,15 @@
       "baseline_sha": "a8c3d67b64bb21decc5a323ce4707d0833af8d74",
       "method_sha": "5f73ee2b48507234431706e4c6313773bae72a5a",
       "goal": "S033: execute bounded authenticated SDK load/concurrency, adversarial Rules, browser accessibility and visual QA; preserve external gates"
+    },
+    {
+      "at": "2026-11-26",
+      "event": "EVOLVE_06_LOCAL_QA_VERIFIED",
+      "slice": "S033",
+      "sha": "3142ef40c4fa9e4409d90e8d7bc538a204653f00",
+      "run_id": 45930727651,
+      "status": "LOCAL_PASS_EXTERNAL_GATES_OPEN"
     }
   ],
-  "status": "EVOLVE_06_QA_IN_PROGRESS"
+  "status": "EVOLVE_06_LOCAL_QA_PASS_RELEASE_GATES_OPEN"
 }

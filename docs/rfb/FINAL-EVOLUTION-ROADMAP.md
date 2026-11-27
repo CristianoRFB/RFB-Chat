@@ -9,7 +9,7 @@ Meta: release V1.0.0, zero custo recorrente adicional dentro das cotas, sem merg
 | 03 Administration & Security | gestão, denúncias, RBAC, antispam, auditoria, LGPD | CI local PASS após S025; #5/#6 abertas |
 | 04 Visual Excellence | benchmark, 58 T-IDs reconciliados, design system arredondado, temas, acessibilidade, logo/assinatura, Anti-AI Slop | CI + visual PASS; WCAG integral pendente |
 | 05 Performance & Infrastructure | listeners, cache, PWA, FCM autorizado, monitoramento, cotas, backup/rollback | LOCAL_CI_PERF_INFRA_PASS_EXTERNAL_GATES_OPEN; benchmark/infra PASS; gates externos |
-| 06 Total QA | unit, Rules, E2E, concorrência, carga, visual, WCAG, OWASP, LGPD, regressão | Pendente |
+| 06 Total QA | unit, Rules, E2E, concorrência, carga, visual, WCAG, OWASP, LGPD, regressão | LOCAL_QA_PASS; aceites externos abertos |
 | 07 Production Release | staging Firebase/Cloudflare, push real, revisão, merge/deploy autorizados, smoke/release | Pendente |
 | 08 Project Closure | README, screenshots reais, diagramas, manual, demo, portfólio, triagem e handoff | Pendente |
 
@@ -159,3 +159,7 @@ Próximo EVOLVE 06: verificar CI final, amostra maior de latência/carga, concor
 
 
 **Homologação final EVOLVE 05:** CI https://github.com/CristianoRFB/RFB-Chat/actions/runs/45915281418 integralmente PASS para 81dd87d6cd651fcf3d2d7fbdf61e8edeb497d30c: 13 unitários, 31 Rules, 15 E2E (59 testes), 1 benchmark explicitamente SKIP na suíte comum, executado separadamente com PASS em 45915281421. Auditoria PASS. Visual e infraestrutura PASS. Gates externos e latência permanecem em revisão; próximo EVOLVE 06 Total QA.
+
+
+## EVOLVE 06 — Total QA
+S033: five candidate workflows PASS. 59 regression tests, 100/100 SDK messages, 5 DM races, negative authorization, report race, both themes and 8 reviewed screenshots. [Report](EVOLVE-06.md) and [raw evidence](benchmarks/EVOLVE-06.json). External release gates remain open; no global completion claim.

@@ -2,13 +2,13 @@
   "schema_version": 2,
   "product": "RFBChat",
   "repository": "CristianoRFB/RFB-Chat",
-  "stage": "EVOLVE_05_LOCAL_CI_PERF_INFRA_PASS_EXTERNAL_GATES_OPEN",
+  "stage": "EVOLVE_06_LOCAL_QA_PASS_RELEASE_GATES_OPEN",
   "source_imported": true,
   "modules_documented": 10,
   "features_documented": 12,
   "implemented_code_slices": "11 original flows plus local synthetic bidirectional RTP; EVOLVE 03 security expanded, final QA tracked separately",
-  "last_verified_code_sha": "81dd87d6cd651fcf3d2d7fbdf61e8edeb497d30c",
-  "last_verified_ci_url": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45915281418",
+  "last_verified_code_sha": "3142ef40c4fa9e4409d90e8d7bc538a204653f00",
+  "last_verified_ci_url": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45930727446",
   "last_verified": {
     "unit": "PASS_13",
     "rules": "PASS_31",
@@ -17,8 +17,8 @@
     "build": "PASS",
     "npm_ci": "PASS"
   },
-  "latest_code_sha": "81dd87d6cd651fcf3d2d7fbdf61e8edeb497d30c",
-  "latest_qa": "SUCCESS",
+  "latest_code_sha": "3142ef40c4fa9e4409d90e8d7bc538a204653f00",
+  "latest_qa": "SUCCESS_LOCAL_ONLY",
   "production": false,
   "real_payments": false,
   "firebase": "EMULATOR_ONLY",
@@ -31,7 +31,7 @@
     "No physical TTL purge, quotas/rate limits or full LGPD/OWASP/WCAG release audit",
     "58 conceptual screens not separately built"
   ],
-  "next_action": "EVOLVE 06 Total QA: revalidate final CI, load/concurrency, latency, accessibility, security and external gates #3–#6; no merge/deploy without authorization.",
+  "next_action": "Complete outstanding EVOLVE 06 release acceptance checks; EVOLVE 07 production remains blocked pending authorization and external gates.",
   "functional_coverage": {
     "local_tested_flows": 11,
     "total": 12,
@@ -114,6 +114,25 @@
       "js_gzip_after": 69524,
       "median_ms_before": 142,
       "median_ms_after": 160
+    }
+  },
+  "evolve06": {
+    "candidate": "3142ef40c4fa9e4409d90e8d7bc538a204653f00",
+    "run": 45930727651,
+    "ci": 45930727446,
+    "visual": 45930727489,
+    "infra": 45930727501,
+    "benchmark": 45930727464,
+    "raw": "docs/rfb/benchmarks/EVOLVE-06.json",
+    "screenshots": "docs/rfb/QA06-VISUAL-EVIDENCE.json",
+    "status": "LOCAL_PASS_EXTERNAL_GATES_OPEN",
+    "tests": {
+      "unit": 13,
+      "rules": 31,
+      "e2e": 15,
+      "loadMessages": 100,
+      "adversarialCases": 5,
+      "reportRace": "1 accepted / 1 denied"
     }
   }
 }
