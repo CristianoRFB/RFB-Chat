@@ -5,6 +5,7 @@ import {
 } from 'firebase/auth';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { ensureLocalProfile } from './profile-data';
+import { DiagnosticsPanel, recordDiagnostic } from './DiagnosticsPanel';
 import { auth, db, isLocalEmulator } from './firebase';
 import { createConversation, lookupName, watchConversations, type ChatConversation } from './chat-data';
 import { MessageCenter } from './MessageCenter';
@@ -204,7 +205,7 @@ function Workspace({ user,suspended }: { user: User;suspended:boolean }) {
     }
   }
 
-  const onChildError = useCallback((error: unknown) => setError(errorText(error)), []);
+  const onChildError = useCallback((error: unknown) => {recordDiagnostic(error);setError(errorText(error));}, []);
 
   const filteredConversations=conversations.filter(item=>{
     const name=item.kind==='group'?(item.title??''):(names[otherMember(item.memberIds,user.uid)]??otherMember(item.memberIds,user.uid));
@@ -280,6 +281,7 @@ function Workspace({ user,suspended }: { user: User;suspended:boolean }) {
       <ModeratorDashboard user={user} onError={onChildError} />
       <NotificationsPanel conversations={conversations} uid={user.uid} enabled={privateSettings.notificationsEnabled}
         onError={onChildError} onOpen={setSelectedId} />
+        <DiagnosticsPanel />
       </div>
     </aside>
     <section className="chat-panel" id="conversation-panel" aria-label="Mensagens">
