@@ -2,23 +2,23 @@
   "schema_version": 2,
   "product": "RFBChat",
   "repository": "CristianoRFB/RFB-Chat",
-  "stage": "VISUAL_PASS_S028_CI_PENDING",
+  "stage": "EVOLVE_05_PERF_INFRA_VISUAL_PASS_FINAL_CI_PENDING",
   "source_imported": true,
   "modules_documented": 10,
   "features_documented": 12,
   "implemented_code_slices": "11 original flows plus local synthetic bidirectional RTP; EVOLVE 03 security expanded, final QA tracked separately",
-  "last_verified_code_sha": "954a31ba6a6f0e346cfe5b08a4506e814ee4dc3b",
-  "last_verified_ci_url": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45912658637",
+  "last_verified_code_sha": "61034de59229c398ef4eaae39043b1001e6d72bd",
+  "last_verified_ci_url": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45915144601",
   "last_verified": {
-    "unit": "PASS_11",
+    "unit": "PASS_13",
     "rules": "PASS_31",
-    "playwright": "PASS_14_S025",
+    "playwright": "PASS_15",
     "typecheck": "PASS",
     "build": "PASS",
     "npm_ci": "PASS"
   },
-  "latest_code_sha": "d5a64827e519ddf0c3430b56730ce17d83c438cd",
-  "latest_qa": "in_progress",
+  "latest_code_sha": "81dd87d6cd651fcf3d2d7fbdf61e8edeb497d30c",
+  "latest_qa": "IN_PROGRESS",
   "production": false,
   "real_payments": false,
   "firebase": "EMULATOR_ONLY",
@@ -31,7 +31,7 @@
     "No physical TTL purge, quotas/rate limits or full LGPD/OWASP/WCAG release audit",
     "58 conceptual screens not separately built"
   ],
-  "next_action": "Confirm CI S028 and diagnose only evidence-backed failures before EVOLVE 05.",
+  "next_action": "Check CI 45915281418 before EVOLVE 06 and fix proven regressions.",
   "functional_coverage": {
     "local_tested_flows": 11,
     "total": 12,
@@ -86,7 +86,7 @@
     ]
   },
   "evolve04": {
-    "status": "VISUAL_PASS_S028_CI_PENDING",
+    "status": "LOCAL_CI_AND_VISUAL_PASS_EXTERNAL_GATES_OPEN",
     "ci": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45913486070",
     "visual_ci": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45912988546",
     "visual_status": "PASS_REVIEWED",
@@ -94,5 +94,26 @@
     "screen_map_ids": 58,
     "manifest": "docs/screenshots/manifest.json",
     "regression_run": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45912988561"
+  },
+  "evolve05": {
+    "status": "PERF_INFRA_VISUAL_PASS_FINAL_CI_PENDING",
+    "benchmark": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45915281421",
+    "infra": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45915281448",
+    "visual": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45915281376",
+    "ci": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45915281418",
+    "metrics": {
+      "closed_before": 9,
+      "closed_after": 2,
+      "opened_before": 9,
+      "opened_after": 9,
+      "reclosed_before": 9,
+      "reclosed_after": 2,
+      "js_bytes_before": 627846,
+      "js_bytes_after": 222892,
+      "js_gzip_before": 191411,
+      "js_gzip_after": 69524,
+      "median_ms_before": 142,
+      "median_ms_after": 160
+    }
   }
 }

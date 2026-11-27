@@ -45,3 +45,8 @@ Versão: 23/11/2026. Este documento distingue laboratório funcional de produç�
 - [x] QA visual Chromium S027: 6 PNG reais, inspeção, correção e recaptura.
 - [ ] CI completa S028 (https://github.com/CristianoRFB/RFB-Chat/actions/runs/45913486070).
 - [ ] Leitor de tela, outros browsers/dispositivos reais, zoom, WCAG integral, aprovação da marca e screenshots admin/grupos.
+
+## EVOLVE 05
+- [x] Benchmark pareado, guard público e restauração local comprovados.
+- [ ] Validar métricas de latência/carga e consumo real, staging, cotas, DR, FCM, mídia externa e governança; #3–#6.
+- [ ] CI integral por SHA final.

@@ -2,19 +2,19 @@
   "schema": 1,
   "repo": "CristianoRFB/RFB-Chat",
   "goal": "RFBChat — implementar 12 AC com rastreabilidade, emuladores e custo adicional R$0/mês",
-  "phase": "EVOLVE_05_IN_PROGRESS",
-  "slice": "S031",
+  "phase": "EVOLVE_05_PERF_INFRA_VISUAL_PASS_FINAL_CI_PENDING",
+  "slice": "S029-S032",
   "baseline_sha": "b20f3887d9192ad10371ba8e8f0888ee93d09da4",
-  "last_commit_sha": "43f6af8a5e1bdbc82960377c921ad0b9cfff7c77",
-  "last_verified_sha": "6e36ddd9af19da00a427d4a73670d564ba572fc2",
+  "last_commit_sha": "81dd87d6cd651fcf3d2d7fbdf61e8edeb497d30c",
+  "last_verified_sha": "61034de59229c398ef4eaae39043b1001e6d72bd",
   "evidence": {
     "github_pr": "https://github.com/CristianoRFB/RFB-Chat/pull/1",
     "open_issues": 4,
     "open_prs": 1,
-    "last_known_green_run": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45913563737",
-    "last_known_green_results": "11 unit, 31 Rules, 14 E2E PASS S025; S027 visual PASS",
-    "current_head_ci": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45913486070",
-    "current_head_ci_status": "in_progress",
+    "last_known_green_run": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45915144601",
+    "last_known_green_results": "13 unit, 31 Rules, 15 E2E PASS; audit pass",
+    "current_head_ci": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45915281418",
+    "current_head_ci_status": "IN_PROGRESS",
     "lockfile": "package-lock.json generated in CI and versioned, npm ci used",
     "runtime_environment": "demo-rfb-chat Firebase Auth + Firestore Emulators; Node 22/Java21",
     "production_deploy": "NOT_DONE",
@@ -74,6 +74,27 @@
       "checkpoint": "6e36ddd9af19da00a427d4a73670d564ba572fc2",
       "checkpoint_ci": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45913563737",
       "status": "PASS"
+    },
+    "evolve04_final_ci": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45913486070",
+    "evolve05": {
+      "benchmark": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45915281421",
+      "infra": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45915281448",
+      "visual": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45915281376",
+      "raw": "docs/rfb/benchmarks/EVOLVE-05.json",
+      "metrics": {
+        "closed_before": 9,
+        "closed_after": 2,
+        "opened_before": 9,
+        "opened_after": 9,
+        "reclosed_before": 9,
+        "reclosed_after": 2,
+        "js_bytes_before": 627846,
+        "js_bytes_after": 222892,
+        "js_gzip_before": 191411,
+        "js_gzip_after": 69524,
+        "median_ms_before": 142,
+        "median_ms_after": 160
+      }
     }
   },
   "completed": [
@@ -97,7 +118,9 @@
     "EVOLVE 02 final CI 45762924505 PASS (11 unit, 28 Rules, 13 E2E); external #4 open.",
     "EVOLVE 03 S020-S024: administração, controles de acesso, auditoria, cooldown denúncia, solicitação de direitos, audit crítico corrigido; QA final por SHA.",
     "EVOLVE 03 correction S025 56 tests PASS.",
-    "EVOLVE 04 S025-S027 design, themes, filters, 58 IDs and 6 reviewed screenshots; dedicated visual PASS."
+    "EVOLVE 04 S025-S027 design, themes, filters, 58 IDs and 6 reviewed screenshots; dedicated visual PASS.",
+    "EVOLVE 04 S028 CI and visual PASS.",
+    "EVOLVE 05 performance benchmark, public guard/backup QA, lazy subscriptions and local diagnostics implemented; production gates open."
   ],
   "pending": [
     "Validar transporte RTP real e conectividade WebRTC fora de localhost (sem STUN/TURN isso não é garantido).",
@@ -110,15 +133,16 @@
     "EVOLVE 01: homologar CI por SHA final, E2E e presença em sessões reais; push bloqueado Issue #3; cache persistente não habilitado.",
     "EVOLVE 02: gate externo #4 e QA manual; CI local PASS.",
     "EVOLVE 03: #5 privacidade integral/antiabuso global/admin real, #6 alertas moderados; validar E2E da correção de cadastro se pendente.",
-    "EVOLVE 04: formal brand approval, original PNGs absent, admin/group screenshots, full WCAG, devices; full CI if pending."
+    "EVOLVE 04: formal brand approval, original PNGs absent, admin/group screenshots, full WCAG, devices; full CI if pending.",
+    "EVOLVE 05: latency median +12.7% in 5-sample local test; repeat with larger workload E06; real FCM/backup/quota monitoring blocked #3–#5; real production bundle not measured."
   ],
   "blockers": [
     "PR DRAFT não está mesclado e nenhum deploy/projeto Firebase real foi autorizado",
     "11/12 funcionalidades com fluxo local foram escritas, mas definição de 90% integral não pode ser homologada com ausência de QA externa e produção",
     "11/12 somente como cobertura de fluxos de laboratório; 58 telas conceituais não foram implementadas individualmente."
   ],
-  "next_action": "Verify corrected paired benchmark and infra/full CI, collect numeric evidence.",
-  "revision": 13,
+  "next_action": "Check CI 45915281418 before EVOLVE 06 and fix proven regressions.",
+  "revision": 14,
   "updated_at": "2026-11-26",
   "history": [
     {
@@ -447,6 +471,14 @@
       "benchmark_run": 45914960995,
       "ci_run": 45914905451,
       "diagnosis": "baseline benchmark delivery target not confirmed after panel navigation; assert both DM headings and send from fixed peer; initial candidate opened file deep link automatically while test clicks details closed, removed automatic open in 43f6af8; verify final E2E"
+    },
+    {
+      "event": "EVOLVE_05_CHECKPOINT",
+      "sha": "81dd87d6cd651fcf3d2d7fbdf61e8edeb497d30c",
+      "run_id": 45915281418,
+      "benchmark_run": 45915281421,
+      "infra_run": 45915281448,
+      "status": "PERF_INFRA_VISUAL_PASS_FINAL_CI_PENDING"
     }
   ]
 }
