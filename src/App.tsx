@@ -1,0 +1,343 @@
+import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
+import {
+  createUserWithEmailAndPassword, onAuthStateChanged,
+  signInWithEmailAndPassword, signOut, updateProfile, type User
+} from 'firebase/auth';
+import { doc, onSnapshot } from 'firebase/firestore';
+import { ensureLocalProfile } from './profile-data';
+import { DiagnosticsPanel, recordDiagnostic } from './DiagnosticsPanel';
+import { auth, db, isLocalEmulator } from './firebase';
+import { createConversation, lookupName, watchConversations, type ChatConversation } from './chat-data';
+import { MessageCenter } from './MessageCenter';
+import { watchAccountControl, type AccountControl } from './admin-data';
+import { PrivacyRights } from './PrivacyRights';
+import { GroupControls } from './GroupControls';
+import { PrivacyPanel } from './PrivacyPanel';
+import { ReportPanel } from './ReportPanel';
+import { FilePanel } from './FilePanel';
+import { CallPanel } from './CallPanel';
+import { GroupChannels } from './GroupChannels';
+import { ModeratorDashboard } from './ModeratorDashboard';
+import { NotificationsPanel } from './NotificationsPanel';
+import { DEFAULT_SETTINGS, type PrivateSettings } from './privacy-data';
+import { otherMember } from './chat-model';
+
+function errorText(error: unknown): string {
+  const code = (error as { code?: string })?.code;
+  if (code === 'auth/email-already-in-use') return 'E-mail já cadastrado no emulador.';
+  if (code === 'auth/invalid-email') return 'Informe um e-mail válido.';
+  if (code === 'auth/weak-password') return 'A senha precisa ter pelo menos 6 caracteres.';
+  if (code === 'auth/invalid-credential') return 'Credenciais não encontradas no emulador.';
+  if (code === 'permission-denied') return 'Acesso negado pelas regras de segurança.';
+  if (code === 'unavailable' || code === 'auth/network-request-failed') {
+    return 'Emulador indisponível. Inicie npm run emulators em outro terminal.';
+  }
+  return error instanceof Error ? error.message : 'Ocorreu uma falha inesperada.';
+}
+
+function Login({onRegistrationPending}:{onRegistrationPending:(value:boolean)=>void}) {
+  const [register, setRegister] = useState(false);
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [busy, setBusy] = useState(false);
+
+  async function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setError('');
+    setBusy(true);
+    if(register)onRegistrationPending(true);
+    try {
+      if (register) {
+        const displayName = name.trim();
+        if (displayName.length < 2 || displayName.length > 40) {
+          throw new Error('Use um nome entre 2 e 40 caracteres.');
+        }
+        const result = await createUserWithEmailAndPassword(auth, email.trim(), password);
+        // A gravação canônica vem ANTES do updateProfile; caso contrário
+        // onAuthStateChanged pode disparar recuperação simultânea e a segunda
+        // setDoc vira uma atualização proibida pelas Firestore Rules.
+        try {
+          await ensureLocalProfile(result.user.uid, displayName);
+        } finally {
+          // Se Firestore falhar, mantém o nome no Auth Emulator para reparo.
+          await updateProfile(result.user, { displayName }).catch(() => undefined);
+        }
+      } else {
+        await signInWithEmailAndPassword(auth, email.trim(), password);
+      }
+    } catch (err) {
+      setError(errorText(err));
+    } finally {
+      setBusy(false);
+      if(register)onRegistrationPending(false);
+    }
+  }
+
+  return <main className="auth-wrap" id="conteudo">
+    <section className="auth-card" aria-labelledby="auth-title">
+      <p className="eyebrow">RFB LABS / LABORATÓRIO LOCAL</p>
+      <h1 id="auth-title">{register ? 'Criar conta de teste' : 'Entrar no RFB Chat'}</h1>
+      <p className="muted">Converse entre duas sessões usando os emuladores do Firebase. Nenhuma conta real é criada.</p>
+      <form className="form" onSubmit={submit}>
+        {register && <label>Nome de exibição
+          <input autoComplete="nickname" value={name} minLength={2} maxLength={40} onChange={e => setName(e.target.value)} required />
+        </label>}
+        <label>E-mail de teste
+          <input type="email" autoComplete="email" value={email} onChange={e => setEmail(e.target.value)} required />
+        </label>
+        <label>Senha
+          <input type="password" autoComplete={register ? 'new-password' : 'current-password'} minLength={6} value={password} onChange={e => setPassword(e.target.value)} required />
+        </label>
+        {error && <p className="feedback error" role="alert">{error}</p>}
+        <button className="primary" type="submit" disabled={busy}>{busy ? 'Aguarde…' : register ? 'Criar conta local' : 'Entrar no laboratório'}</button>
+      </form>
+      <button className="link-button" disabled={busy} type="button" onClick={() => { setRegister(!register); setError(''); }}>
+        {register ? 'Já tenho conta — entrar' : 'Criar uma conta no emulador'}
+      </button>
+    </section>
+  </main>;
+}
+
+function AccountGate({user}:{user:User}) {
+  const [control,setControl]=useState<AccountControl|null>(null);
+  const [error,setError]=useState('');
+  const onRightsError=useCallback((e:unknown)=>setError(errorText(e)),[]);
+  useEffect(()=>watchAccountControl(user.uid,v=>{setControl(v);setError('');},e=>setError(errorText(e))),[user.uid]);
+  if(!control)return <main id="conteudo"><p role="status">{error||'Verificando situação da conta…'}</p></main>;
+  if(control.status==='banned')return <main id="conteudo" className="profile-sync"><h2>Conta banida da mensageria</h2><p>{control.reason}</p><p>O acesso às conversas está bloqueado pelas regras de segurança.</p><PrivacyRights uid={user.uid} onError={onRightsError}/>{error&&<p role="alert">{error}</p>}</main>;
+  return <>{control.status==='suspended'&&<p role="alert" className="feedback error">Conta suspensa: acesso de leitura. {control.reason}</p>}<Workspace user={user} suspended={control.status==='suspended'}/></>;
+}
+
+function Workspace({ user,suspended }: { user: User;suspended:boolean }) {
+  const [profileReady, setProfileReady] = useState(false);
+  const [profilePending, setProfilePending] = useState(false);
+  const [repairName, setRepairName] = useState(user.displayName || 'Pessoa de teste');
+  const [repairBusy, setRepairBusy] = useState(false);
+  const [privateSettings, setPrivateSettings] = useState<PrivateSettings>(DEFAULT_SETTINGS);
+  const [conversations, setConversations] = useState<ChatConversation[]>([]);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [names, setNames] = useState<Record<string, string>>({});
+  const nameRequests=useRef(new Set<string>());
+  const [target, setTarget] = useState('');
+  const [search, setSearch] = useState('');
+  const [conversationFilter,setConversationFilter]=useState<'all'|'dm'|'group'>('all');
+  const [error, setError] = useState('');
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    const profileRef = doc(db, 'profiles', user.uid);
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    let missing = true;
+    let attempts = 0;
+    let recovering = false;
+    let mounted = true;
+    // O cadastro Auth pode acontecer antes da gravação Firestore; recupera
+    // automaticamente no máximo duas vezes se displayName veio do Auth SDK.
+    const scheduleRecovery = () => {
+      const displayName = (auth.currentUser?.uid === user.uid ? auth.currentUser.displayName : user.displayName)?.trim();
+      if (!displayName || displayName.length < 2 || !missing ||
+        timer || recovering || attempts >= 2 || !mounted) return;
+      timer = setTimeout(() => {
+        timer = null;
+        if (!mounted || !missing) return;
+        attempts += 1;
+        recovering = true;
+        void ensureLocalProfile(user.uid, displayName).catch(error => {
+          if (mounted) setError(errorText(error));
+        }).finally(() => {
+          recovering = false;
+          if (missing && mounted) scheduleRecovery();
+        });
+      }, 1200);
+    };
+    const unsubscribe = onSnapshot(profileRef, { includeMetadataChanges: true }, snapshot => {
+      missing = !snapshot.exists();
+      // Não tratar escrita local ainda pendente como perfil confirmado.
+      setProfileReady(snapshot.exists() && !snapshot.metadata.hasPendingWrites);
+      setProfilePending(snapshot.metadata.hasPendingWrites);
+      if (missing) scheduleRecovery();
+      else if (timer) { clearTimeout(timer); timer = null; }
+    }, error => setError(errorText(error)));
+    return () => {
+      mounted = false;
+      if (timer) clearTimeout(timer);
+      unsubscribe();
+    };
+  }, [user.uid, user.displayName]);
+
+  useEffect(() => {
+    setConversations([]);
+    setSelectedId(null);
+    return watchConversations(user.uid, setConversations, err => setError(errorText(err)));
+  }, [user.uid]);
+
+  useEffect(() => {
+    if (!selectedId && conversations.length > 0) setSelectedId(conversations[0].id);
+  }, [conversations, selectedId]);
+
+  useEffect(() => {
+    for (const conversation of conversations) {
+      if(conversation.kind!=='dm')continue;
+      const uid=otherMember(conversation.memberIds,user.uid);
+      if(!uid||nameRequests.current.has(uid))continue;
+      nameRequests.current.add(uid);
+      void lookupName(uid).then(name=>setNames(previous=>({...previous,[uid]:name}))).catch(()=>{
+        // Falhas transitórias não entram como nomes canônicos; tentar na próxima alteração da lista.
+        nameRequests.current.delete(uid);
+      });
+    }
+  },[conversations,user.uid]);
+
+  async function newConversation(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setError('');
+    setBusy(true);
+    try {
+      const id = await createConversation(user.uid, target);
+      setTarget('');
+      setSelectedId(id);
+    } catch (err) {
+      setError(errorText(err));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const onChildError = useCallback((error: unknown) => {recordDiagnostic(error);setError(errorText(error));}, []);
+
+  const filteredConversations=conversations.filter(item=>{
+    const name=item.kind==='group'?(item.title??''):(names[otherMember(item.memberIds,user.uid)]??otherMember(item.memberIds,user.uid));
+    const fold=(s:string)=>s.normalize('NFD').replace(/\p{Diacritic}/gu,'').toLocaleLowerCase('pt-BR');
+    return (conversationFilter==='all'||item.kind===conversationFilter)&&fold(name).includes(fold(search.trim()));
+  });
+  const current = conversations.find(item => item.id === selectedId);
+  const other = current ? otherMember(current.memberIds, user.uid) : '';
+  const title = current?.kind === 'group' ? (current.title ?? 'Grupo') : names[other] ?? (other ? other.slice(0, 12) : 'Selecione uma conversa');
+
+  if (!profileReady) return <main className="profile-sync" id="conteudo">
+    <h2>Concluir perfil local</h2>
+    <p>Sua conta de autenticação existe, mas o perfil ainda não foi confirmado no Firestore Emulator.</p>
+    <form className="repair-form" onSubmit={event => {
+      event.preventDefault();
+      const displayName = repairName.trim();
+      if (displayName.length < 2 || displayName.length > 40) {
+        setError('Use um nome entre 2 e 40 caracteres.'); return;
+      }
+      setRepairBusy(true); setError('');
+      void ensureLocalProfile(user.uid, displayName)
+        .catch(error => setError(errorText(error)))
+        .finally(() => setRepairBusy(false));
+    }}>
+      <label htmlFor="repair-profile-name">Nome de exibição</label>
+      <input id="repair-profile-name" minLength={2} maxLength={40} required value={repairName}
+        onChange={e => setRepairName(e.target.value)}/>
+      <button type="submit" disabled={repairBusy}>Recriar perfil local</button>
+    </form>
+    {error && <p className="feedback error" role="alert">{error}</p>}
+  </main>;
+
+  return <main className="chat-layout" id="conteudo">
+    <aside className="chat-sidebar" aria-label="Contas e conversas">
+      <div className="sidebar-head"><h2>Conversas</h2><span className="count">{conversations.length}</span></div>
+      <form className="new-chat" onSubmit={newConversation}>
+        <label htmlFor="target-uid">Iniciar conversa usando UID</label>
+        <input id="target-uid" value={target} onChange={e => setTarget(e.target.value)} placeholder="UID da outra conta" required />
+        <button type="submit" disabled={busy || profilePending || !target.trim()}>Criar conversa</button>
+      </form>
+      <label className="sidebar-search" htmlFor="search-conversations">Buscar conversa
+        <input id="search-conversations" placeholder="Nome da pessoa ou grupo" value={search}
+          onChange={e => setSearch(e.target.value)} />
+      </label>
+      <div className="conversation-filters" role="group" aria-label="Filtrar conversas">
+        {([["all","Todas"],["dm","Pessoas"],["group","Grupos"]] as const).map(([value,label])=><button key={value} type="button" aria-pressed={conversationFilter===value} onClick={()=>setConversationFilter(value)}>{label}</button>)}
+      </div>
+      <div className="conversation-list" role="group" aria-label="Suas conversas">
+        {conversations.length>0&&filteredConversations.length===0&&<p className="empty-side" role="status">Nenhuma conversa corresponde ao filtro.</p>}
+        {conversations.length === 0 && <p className="empty-side">Nenhuma conversa ainda. Crie duas contas em navegadores separados e compartilhe o UID.</p>}
+        {filteredConversations.map(item => {
+          const recipient = otherMember(item.memberIds, user.uid);
+          return <button key={item.id} type="button" className={'conversation' + (item.id === selectedId ? ' active' : '')}
+            aria-pressed={item.id === selectedId} onClick={() => setSelectedId(item.id)}>
+            <span className="avatar" aria-hidden="true">{(item.kind === 'group' ? item.title ?? 'G' : names[recipient] ?? recipient).slice(0, 1).toUpperCase()}</span>
+            <span><strong>{item.kind === 'group' ? item.title : names[recipient] ?? recipient.slice(0, 12)}</strong>
+              <small>{item.kind === 'group' ? item.memberIds.length + ' participantes' : 'Conversa individual'}</small></span>
+          </button>;
+        })}
+      </div>
+      {current&&<a className="mobile-jump" href="#conversation-panel">Abrir conversa selecionada <span aria-hidden="true">↓</span></a>}
+      <div className="account-box">
+        <p className="mini-label">Conta de teste</p>
+        <p className="account-email">{user.email}</p>
+        <label className="mini-label" htmlFor="own-uid">Seu UID (compartilhe com a outra sessão)</label>
+        <input className="uid-input" id="own-uid" value={user.uid} readOnly onFocus={event => event.currentTarget.select()} />
+        {profilePending && <p className="mini-label" role="status">Perfil ainda sincronizando com o emulador. Aguarde para convidar outra pessoa.</p>}
+      </div>
+      <div className="workspace-tools"><h3>Espaço de trabalho</h3>
+      <GroupControls uid={user.uid} current={current} onCreated={setSelectedId} onError={onChildError} />
+      <PrivacyPanel uid={user.uid} onSettings={setPrivateSettings} onError={onChildError} />
+      <PrivacyRights uid={user.uid} onError={onChildError}/>
+      <ModeratorDashboard user={user} onError={onChildError} />
+      <NotificationsPanel conversations={conversations} uid={user.uid} enabled={privateSettings.notificationsEnabled}
+        onError={onChildError} onOpen={setSelectedId} />
+        <DiagnosticsPanel />
+      </div>
+    </aside>
+    <section className="chat-panel" id="conversation-panel" aria-label="Mensagens">
+      <header className="chat-header">
+        <a className="mobile-back" href="#conteudo" aria-label="Voltar à lista de conversas">←</a>
+        <span className="avatar" aria-hidden="true">{title.slice(0, 1).toUpperCase()}</span>
+        <div><h2>{title}</h2><p>{current?.kind === 'group' ? current.memberIds.length + ' membros · Grupo local' : selectedId ? 'Conversa individual · histórico local' : 'Escolha uma pessoa ou grupo'}</p></div>
+      </header>
+      {error && <div className="feedback error" role="alert">{error} <button className="dismiss" type="button" onClick={() => setError('')}>Fechar</button></div>}
+      {current?.kind === 'group' && <GroupChannels groupId={current.id} uid={user.uid}
+        admin={!!current.adminIds?.includes(user.uid)} onError={onChildError} />}
+      <MessageCenter key={selectedId ?? 'empty'} conversationId={selectedId} uid={user.uid} otherUid={current?.kind === 'group' ? '' : other}
+        readEnabled={privateSettings.readReceiptsEnabled} conversations={conversations} canPin={current?.kind === 'dm' || !!current?.adminIds?.includes(user.uid)} onError={onChildError} />
+      <div className="conversation-utilities" aria-label="Ferramentas da conversa">
+      {!suspended && current?.kind === 'dm' && other && <CallPanel key={current.id} conversationId={current.id} uid={user.uid} otherUid={other} onError={onChildError} />}
+        <FilePanel uid={user.uid} conversationId={selectedId} onError={onChildError} />
+        <ReportPanel uid={user.uid} conversation={current} onError={onChildError} />
+      </div>
+    </section>
+  </main>;
+}
+
+function LocalChat() {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [fatal, setFatal] = useState('');
+  const [registering,setRegistering]=useState(false);
+  const [theme,setTheme]=useState<'dark'|'light'>(()=>{try{return localStorage.getItem('rfb-chat-theme')==='light'?'light':'dark';}catch{return 'dark';}});
+  useEffect(()=>{document.documentElement.dataset.theme=theme;try{localStorage.setItem('rfb-chat-theme',theme);}catch{}},[theme]);
+  useEffect(() => onAuthStateChanged(auth, next => {
+    setUser(next);
+    setLoading(false);
+  }, err => {
+    setFatal(errorText(err));
+    setLoading(false);
+  }), []);
+
+  return <div className="app-shell">
+    <a href="#conteudo" className="skip">Pular para conteúdo</a>
+    <header className="topbar">
+      <div className="brand"><img src="/brand/icone.svg" width="40" height="40" alt=""/><span>RFB<strong>Chat</strong><small>Espaço de conversas</small></span></div>
+      <span className="badge-local"><span aria-hidden="true" className="local-dot"/> Laboratório local · não publicado</span>
+      <button className="theme-toggle" type="button" aria-label={theme==='dark'?'Ativar tema claro':'Ativar tema escuro'} onClick={()=>setTheme(v=>v==='dark'?'light':'dark')}><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" aria-hidden="true">{theme==='dark'?<><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></>:<path d="M20 15a8 8 0 0 1-11-11A9 9 0 1 0 20 15Z"/>}</svg></button>
+      {user && !registering && <button className="logout" type="button" onClick={() => void signOut(auth)}>Sair</button>}
+    </header>
+    {fatal ? <main id="conteudo" className="feedback error" role="alert">{fatal}</main>
+      : loading ? <main id="conteudo" className="loading">Conectando ao emulador…</main>
+      : user && !registering ? <AccountGate key={user.uid} user={user} /> : <Login onRegistrationPending={setRegistering} />}
+    <footer className="product-footer"><span>RFB Chat · Ambiente de teste</span><span className="rfb-signature"><img src="/brand/assinatura-rfb.svg" width="24" height="24" alt="Assinatura RFB"/> RFB Labs</span></footer>
+  </div>;
+}
+
+export default function App() {
+  if (!isLocalEmulator) return <main className="production-stop">
+    <h1>RFB Chat — laboratório não publicado</h1>
+    <p>Este build não se conecta a serviços reais. Consulte o README para iniciar os emuladores locais.</p>
+  </main>;
+  return <LocalChat />;
+}

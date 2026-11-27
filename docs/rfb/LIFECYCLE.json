@@ -1,0 +1,345 @@
+{
+  "profile": "product",
+  "scope": "RFB Chat V1 — local implementation and release preparation only; no merge/publish/billing authorization",
+  "targetSha": "44aea22c6ed07d6a6fd0781da10804ee72c17173",
+  "targetLevel": "L11",
+  "nextStep": "Verify S036 full CI, resolve external gates #3–#6, seek separate staging approval only when appropriate",
+  "stages": [
+    {
+      "id": "L01",
+      "status": "PASS",
+      "evidence": "docs/ESPECIFICACAO-RFB.txt: problem, audience, value and restrictions",
+      "sha": "4368f7127f45b8e0934363a6898f6fe6390f1fb5",
+      "environment": "Firebase Emulator / GitHub Actions; historical documents where indicated",
+      "executor": "GitHub Actions and sequential agent review"
+    },
+    {
+      "id": "L02",
+      "status": "NOT_RUN",
+      "reason": "Real user discovery/market validation not established"
+    },
+    {
+      "id": "L03",
+      "status": "NOT_RUN",
+      "reason": "Blueprint exists; complete ADR/threat/rollback acceptance not independently audited"
+    },
+    {
+      "id": "L04",
+      "status": "NOT_RUN",
+      "reason": "Real local captures available; user task validation and owner feedback pending"
+    },
+    {
+      "id": "L05",
+      "status": "PASS",
+      "evidence": "EVOLVE-02.md: local media/Firestore/P2P proof; external networks excluded",
+      "sha": "4368f7127f45b8e0934363a6898f6fe6390f1fb5",
+      "environment": "Firebase Emulator / GitHub Actions; historical documents where indicated",
+      "executor": "GitHub Actions and sequential agent review"
+    },
+    {
+      "id": "L06",
+      "status": "PASS",
+      "evidence": "CI 45931059985: functional isolated chat end-to-end",
+      "sha": "4368f7127f45b8e0934363a6898f6fe6390f1fb5",
+      "environment": "Firebase Emulator / GitHub Actions; historical documents where indicated",
+      "executor": "GitHub Actions and sequential agent review"
+    },
+    {
+      "id": "L07",
+      "status": "PASS",
+      "evidence": "CI 45932789870: integrated local feature tests and backlog",
+      "sha": "4368f7127f45b8e0934363a6898f6fe6390f1fb5",
+      "environment": "Firebase Emulator / GitHub Actions; historical documents where indicated",
+      "executor": "GitHub Actions and sequential agent review"
+    },
+    {
+      "id": "L08",
+      "status": "BLOCKED",
+      "reason": "No authorized real beta participants, full accessibility review pending"
+    },
+    {
+      "id": "L09",
+      "status": "BLOCKED",
+      "reason": "Required production scope #3–#6 unresolved"
+    },
+    {
+      "id": "L10",
+      "status": "BLOCKED",
+      "reason": "Candidate final verification and independent review pending"
+    },
+    {
+      "id": "L11",
+      "status": "BLOCKED",
+      "reason": "No real staging, approved backup/quotas/privacy/security"
+    },
+    {
+      "id": "L12",
+      "status": "BLOCKED",
+      "reason": "No authorization or deploy"
+    },
+    {
+      "id": "L13",
+      "status": "N_A",
+      "reason": "No commercial launch or payment scope",
+      "scopeDecision": "V1 communication portfolio product; no commercial or enterprise readiness requested in this preparation",
+      "evidence": "EVOLVE-07.md and FINAL-EVOLUTION-ROADMAP.md"
+    },
+    {
+      "id": "L14",
+      "status": "N_A",
+      "reason": "No enterprise/SLA/SSO scope",
+      "scopeDecision": "V1 communication portfolio product; no commercial or enterprise readiness requested in this preparation",
+      "evidence": "EVOLVE-07.md and FINAL-EVOLUTION-ROADMAP.md"
+    },
+    {
+      "id": "L15",
+      "status": "PASS",
+      "evidence": "EVOLVE-07.md: bounded evolution cycle with measured baseline/delta; continuous, not finished",
+      "sha": "4368f7127f45b8e0934363a6898f6fe6390f1fb5",
+      "environment": "Firebase Emulator / GitHub Actions; historical documents where indicated",
+      "executor": "GitHub Actions and sequential agent review"
+    }
+  ],
+  "areas": [
+    {
+      "id": "A01",
+      "status": "NOT_RUN",
+      "reason": "No external product discovery/owner acceptance"
+    },
+    {
+      "id": "A02",
+      "status": "BLOCKED",
+      "reason": "Full accessibility/device and user acceptance pending"
+    },
+    {
+      "id": "A03",
+      "status": "PASS",
+      "evidence": "CI 45932789870: local integrated TypeScript/build/unit/Rules/E2E",
+      "sha": "4368f7127f45b8e0934363a6898f6fe6390f1fb5",
+      "environment": "Firebase Emulator / GitHub Actions; historical documents where indicated",
+      "executor": "GitHub Actions and sequential agent review"
+    },
+    {
+      "id": "A04",
+      "status": "BLOCKED",
+      "reason": "Local restoration pass; production retention/backup unavailable"
+    },
+    {
+      "id": "A05",
+      "status": "BLOCKED",
+      "reason": "Local audit/canonical DM patch verified; independent review and #5/#6 remain"
+    },
+    {
+      "id": "A06",
+      "status": "BLOCKED",
+      "reason": "Real staging/plan and deployment not authorized"
+    },
+    {
+      "id": "A07",
+      "status": "BLOCKED",
+      "reason": "Local performance measured; production SLO/capacity unverified"
+    },
+    {
+      "id": "A08",
+      "status": "NOT_RUN",
+      "reason": "All local suites verified on prior SHA; latest candidate and external QA not complete"
+    },
+    {
+      "id": "A09",
+      "status": "BLOCKED",
+      "reason": "Local counters only; no live observability"
+    },
+    {
+      "id": "A10",
+      "status": "BLOCKED",
+      "reason": "Local RBAC flows verified; trusted real admin bootstrap/revocation not approved"
+    },
+    {
+      "id": "A11",
+      "status": "N_A",
+      "reason": "No billing, sales or payments in V1 scope",
+      "scopeDecision": "V1 communication portfolio product; no commercial or enterprise readiness requested in this preparation",
+      "evidence": "EVOLVE-07.md and FINAL-EVOLUTION-ROADMAP.md"
+    },
+    {
+      "id": "A12",
+      "status": "BLOCKED",
+      "reason": "Production operational responsibility, incident drills and DR pending"
+    },
+    {
+      "id": "A13",
+      "status": "PASS",
+      "evidence": "EVOLVE-07.md and STATE.json: evidence, decisions and backlog",
+      "sha": "4368f7127f45b8e0934363a6898f6fe6390f1fb5",
+      "environment": "Firebase Emulator / GitHub Actions; historical documents where indicated",
+      "executor": "GitHub Actions and sequential agent review"
+    }
+  ],
+  "requirements": [
+    {
+      "id": "R-AC01",
+      "status": "PASS",
+      "evidence": "CI 45931059985; local functional acceptance only",
+      "sha": "4368f7127f45b8e0934363a6898f6fe6390f1fb5",
+      "environment": "Firebase Emulator / GitHub Actions; historical documents where indicated",
+      "executor": "GitHub Actions and sequential agent review",
+      "area": "A03",
+      "level": "L06",
+      "acceptance": "DM and group membership, creation and persistence",
+      "essential": true
+    },
+    {
+      "id": "R-AC02",
+      "status": "PASS",
+      "evidence": "CI 45931059985; local functional acceptance only",
+      "sha": "4368f7127f45b8e0934363a6898f6fe6390f1fb5",
+      "environment": "Firebase Emulator / GitHub Actions; historical documents where indicated",
+      "executor": "GitHub Actions and sequential agent review",
+      "area": "A03",
+      "level": "L06",
+      "acceptance": "Text and reactions end-to-end",
+      "essential": true
+    },
+    {
+      "id": "R-AC03",
+      "status": "PASS",
+      "evidence": "CI 45931059985; local functional acceptance only",
+      "sha": "4368f7127f45b8e0934363a6898f6fe6390f1fb5",
+      "environment": "Firebase Emulator / GitHub Actions; historical documents where indicated",
+      "executor": "GitHub Actions and sequential agent review",
+      "area": "A03",
+      "level": "L06",
+      "acceptance": "Reply and edit own text",
+      "essential": true
+    },
+    {
+      "id": "R-AC04",
+      "status": "PASS",
+      "evidence": "CI 45931059985; local functional acceptance only",
+      "sha": "4368f7127f45b8e0934363a6898f6fe6390f1fb5",
+      "environment": "Firebase Emulator / GitHub Actions; historical documents where indicated",
+      "executor": "GitHub Actions and sequential agent review",
+      "area": "A03",
+      "level": "L06",
+      "acceptance": "Sent, delivered, read status",
+      "essential": true
+    },
+    {
+      "id": "R-AC05",
+      "status": "PASS",
+      "evidence": "CI 45931059985; local functional acceptance only",
+      "sha": "4368f7127f45b8e0934363a6898f6fe6390f1fb5",
+      "environment": "Firebase Emulator / GitHub Actions; historical documents where indicated",
+      "executor": "GitHub Actions and sequential agent review",
+      "area": "A04",
+      "level": "L06",
+      "acceptance": "History pagination",
+      "essential": true
+    },
+    {
+      "id": "R-AC06",
+      "status": "PASS",
+      "evidence": "CI 45931059985; local functional acceptance only",
+      "sha": "4368f7127f45b8e0934363a6898f6fe6390f1fb5",
+      "environment": "Firebase Emulator / GitHub Actions; historical documents where indicated",
+      "executor": "GitHub Actions and sequential agent review",
+      "area": "A02",
+      "level": "L06",
+      "acceptance": "Conversation and loaded text search",
+      "essential": true
+    },
+    {
+      "id": "R-AC07",
+      "status": "PASS",
+      "evidence": "CI 45931059985; local functional acceptance only",
+      "sha": "4368f7127f45b8e0934363a6898f6fe6390f1fb5",
+      "environment": "Firebase Emulator / GitHub Actions; historical documents where indicated",
+      "executor": "GitHub Actions and sequential agent review",
+      "area": "A10",
+      "level": "L07",
+      "acceptance": "Invite, accept, roles and channels",
+      "essential": true
+    },
+    {
+      "id": "R-AC08",
+      "status": "BLOCKED",
+      "reason": "Release acceptance needs external evidence; see Issues #3–#6",
+      "area": "A05",
+      "level": "L09",
+      "acceptance": "Audio consent and approved retention",
+      "essential": true
+    },
+    {
+      "id": "R-AC09",
+      "status": "BLOCKED",
+      "reason": "Release acceptance needs external evidence; see Issues #3–#6",
+      "area": "A04",
+      "level": "L09",
+      "acceptance": "Private files and physical deletion policy",
+      "essential": true
+    },
+    {
+      "id": "R-AC10",
+      "status": "BLOCKED",
+      "reason": "Release acceptance needs external evidence; see Issues #3–#6",
+      "area": "A06",
+      "level": "L09",
+      "acceptance": "Real push and preferences",
+      "essential": true
+    },
+    {
+      "id": "R-AC11",
+      "status": "BLOCKED",
+      "reason": "Release acceptance needs external evidence; see Issues #3–#6",
+      "area": "A05",
+      "level": "L09",
+      "acceptance": "Blocking, reports, antiabuse and moderation",
+      "essential": true
+    },
+    {
+      "id": "R-AC12",
+      "status": "BLOCKED",
+      "reason": "Release acceptance needs external evidence; see Issues #3–#6",
+      "area": "A06",
+      "level": "L09",
+      "acceptance": "Call external media or approved scope exclusion",
+      "essential": true
+    },
+    {
+      "id": "R-RELEASE",
+      "status": "BLOCKED",
+      "reason": "Release acceptance needs external evidence; see Issues #3–#6",
+      "area": "A12",
+      "level": "L11",
+      "acceptance": "Independent security/QA, authorized staging, backup, quotas, review",
+      "essential": true
+    }
+  ],
+  "blockers": [
+    {
+      "id": "GH-3",
+      "severity": "P1",
+      "open": true
+    },
+    {
+      "id": "GH-4",
+      "severity": "P1",
+      "open": true
+    },
+    {
+      "id": "GH-5",
+      "severity": "P0",
+      "open": true
+    },
+    {
+      "id": "GH-6",
+      "severity": "P2",
+      "open": true
+    },
+    {
+      "id": "RELEASE-AUTH",
+      "severity": "P0",
+      "open": true
+    }
+  ]
+}

@@ -1,0 +1,680 @@
+{
+  "schema": 1,
+  "repo": "CristianoRFB/RFB-Chat",
+  "goal": "RFBChat — implementar 12 AC com rastreabilidade, emuladores e custo adicional R$0/mês",
+  "phase": "EVOLVE_07_PREPARED_RELEASE_BLOCKED",
+  "slice": "S036",
+  "baseline_sha": "b20f3887d9192ad10371ba8e8f0888ee93d09da4",
+  "last_commit_sha": "44aea22c6ed07d6a6fd0781da10804ee72c17173",
+  "last_verified_sha": "4368f7127f45b8e0934363a6898f6fe6390f1fb5",
+  "evidence": {
+    "github_pr": "https://github.com/CristianoRFB/RFB-Chat/pull/1",
+    "open_issues": 4,
+    "open_prs": 1,
+    "last_known_green_run": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45915281418",
+    "last_known_green_results": "13 unit +31 Rules +15 E2E PASS; paired benchmark, visual, infra and audit PASS",
+    "current_head_ci": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45915281418",
+    "current_head_ci_status": "SUCCESS",
+    "lockfile": "package-lock.json generated in CI and versioned, npm ci used",
+    "runtime_environment": "demo-rfb-chat Firebase Auth + Firestore Emulators; Node 22/Java21",
+    "production_deploy": "NOT_DONE",
+    "media_transport": "LOCAL_SYNTHETIC_RTP_BIDIRECTIONAL_PASS_EXTERNAL_NETWORK_NOT_RUN",
+    "qa_issue": "https://github.com/CristianoRFB/RFB-Chat/issues/2",
+    "qa_profile_stability": "3/3 successful job attempts on 1639d52 run 45097362021; issue #2 closed",
+    "security_hardening_sha": "57b0adc51d662fa331b6ff9bc992e62bc32c2f26",
+    "reaction_perf_sha": "3dc7e7b4f1175509ae32476dd219ad8215c8be36",
+    "last_checked_production": "No deployment (Firebase Emulator only)",
+    "evolve01_push_issue": "https://github.com/CristianoRFB/RFB-Chat/issues/3",
+    "evolve01_partial_ci": [
+      "S014 npm ci/typecheck/unit/build/rules PASS, E2E pending",
+      "S015 npm ci/typecheck/unit/build/rules PASS, E2E pending",
+      "S016 CI in progress"
+    ],
+    "evolve02_issue": "https://github.com/CristianoRFB/RFB-Chat/issues/4",
+    "evolve02_code_ci": "CI final PASS 45762924505",
+    "evolve03_audit": {
+      "baseline": {
+        "critical": 3,
+        "high": 11,
+        "moderate": 16,
+        "total": 30
+      },
+      "updated": {
+        "critical": 0,
+        "high": 0,
+        "moderate": 14,
+        "total": 14
+      },
+      "run": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45911480690",
+      "issue": "https://github.com/CristianoRFB/RFB-Chat/issues/6"
+    },
+    "evolve03_security_issue": "https://github.com/CristianoRFB/RFB-Chat/issues/5",
+    "evolve03_code_ci": "S025 all green: https://github.com/CristianoRFB/RFB-Chat/actions/runs/45912658637",
+    "evolve04_visual": {
+      "run": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45912988546",
+      "artifact_id": 15160977197,
+      "code_sha": "b2ad72c3bffa73f34ae2af0ae5f27ed5437e3d8e",
+      "screenshots": 6,
+      "viewports": [
+        320,
+        360,
+        390,
+        430,
+        768,
+        1024,
+        1440
+      ],
+      "status": "PASS_REVIEWED",
+      "manifest": "docs/screenshots/manifest.json"
+    },
+    "s028_visual": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45913486069",
+    "evolve04_final": {
+      "ci": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45913486070",
+      "visual": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45913486069",
+      "checkpoint": "6e36ddd9af19da00a427d4a73670d564ba572fc2",
+      "checkpoint_ci": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45913563737",
+      "status": "PASS"
+    },
+    "evolve04_final_ci": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45913486070",
+    "evolve05": {
+      "benchmark": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45915281421",
+      "infra": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45915281448",
+      "visual": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45915281376",
+      "raw": "docs/rfb/benchmarks/EVOLVE-05.json",
+      "metrics": {
+        "closed_before": 9,
+        "closed_after": 2,
+        "opened_before": 9,
+        "opened_after": 9,
+        "reclosed_before": 9,
+        "reclosed_after": 2,
+        "js_bytes_before": 627846,
+        "js_bytes_after": 222892,
+        "js_gzip_before": 191411,
+        "js_gzip_after": 69524,
+        "median_ms_before": 142,
+        "median_ms_after": 160
+      }
+    },
+    "evolve06": {
+      "candidate": "3142ef40c4fa9e4409d90e8d7bc538a204653f00",
+      "run": 45930727651,
+      "ci": 45930727446,
+      "visual": 45930727489,
+      "infra": 45930727501,
+      "benchmark": 45930727464,
+      "raw": "docs/rfb/benchmarks/EVOLVE-06.json",
+      "screenshots": "docs/rfb/QA06-VISUAL-EVIDENCE.json",
+      "status": "LOCAL_PASS_EXTERNAL_GATES_OPEN",
+      "tests": {
+        "unit": 13,
+        "rules": 31,
+        "e2e": 15,
+        "loadMessages": 100,
+        "adversarialCases": 5,
+        "reportRace": "1 accepted / 1 denied"
+      }
+    },
+    "evolve07": {
+      "candidate": "44aea22c6ed07d6a6fd0781da10804ee72c17173",
+      "latestFullyVerified": "4368f7127f45b8e0934363a6898f6fe6390f1fb5",
+      "benchmark": [
+        45932655779,
+        45932789882
+      ],
+      "sustainedLoad": 45932655760,
+      "releaseGate": 45932789870,
+      "dependencyProbe": 45932790030,
+      "securityReplay": 45932967467,
+      "candidateRuns": [
+        {
+          "id": 45932967400,
+          "name": "RFB Chat — paired performance benchmark",
+          "status": "in_progress",
+          "conclusion": null
+        },
+        {
+          "id": 45932967467,
+          "name": "RFB Chat — CI de validação local",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 45932967634,
+          "name": "RFB Chat — Real visual QA",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 45932967483,
+          "name": "RFB Chat — compatible dependency remediation probe",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 45932967501,
+          "name": "RFB Chat — EVOLVE 06 total QA",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 45932967528,
+          "name": "RFB Chat — infrastructure safety QA",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ],
+      "raw": "docs/rfb/benchmarks/EVOLVE-07.json",
+      "releaseManifest": "docs/rfb/RELEASE-MANIFEST.json",
+      "lifecycle": "docs/rfb/LIFECYCLE.json",
+      "status": "PREPARED_RELEASE_BLOCKED"
+    }
+  },
+  "completed": [
+    "Preservados 10 módulos, 12 features e catálogo histórico de 58 telas conceituais e 7 diagramas",
+    "S002-S003: duas contas, conversa individual, mensagens onSnapshot com histórico",
+    "S004: resposta, edição, reações, envio/entrega/leitura, paginação e busca por conversas",
+    "S005: grupos com convites aceitos, admins e canais com mensagens por grupo",
+    "S006: privacidade individual, bloqueio, denúncias e painel de moderação protegido por custom claims",
+    "S007: microfone com consentimento, mensagem WebM curta no emulador",
+    "S008: anexos inline limitados a 60KB, links privados com expiração verificada por Rules",
+    "S009: notificações internas de não lidas e preferências de privacidade",
+    "S010: chamada de voz P2P local experimental com offer/answer/ICE, sem TURN/SFU",
+    "S011: package-lock.json gerado no runner GH e versionado; npm ci determinístico",
+    "S012: bloqueio server-side passa a impedir chamadas, ICE, reações e anexos de DM; áudio não é editável",
+    "S012: transições de moderação auditadas, resolvedAt no servidor, revogação manual de anexos apenas pelo autor",
+    "S013: E2E revogação de arquivo, mobile 320/390/768/1440px, reações carregadas somente perto do viewport",
+    "G5 laboratório: 9 unit + 20 Firestore Rules + 10 Playwright E2E aprovados sem retries, SHA 3dc7e7b.",
+    "Issue #2 de concorrência no perfil fechada depois de 3 execuções consecutivas aprovadas sem retry.",
+    "EVOLVE 01: CI final 45760719067 PASS; push externo ainda bloqueado #3.",
+    "S017-S019: mídia local expandida, galeria, áudio, RTP diagnóstico, purga local implementados; evidência de CI em EVOLVE-02.md.",
+    "EVOLVE 02 final CI 45762924505 PASS (11 unit, 28 Rules, 13 E2E); external #4 open.",
+    "EVOLVE 03 S020-S024: administração, controles de acesso, auditoria, cooldown denúncia, solicitação de direitos, audit crítico corrigido; QA final por SHA.",
+    "EVOLVE 03 correction S025 56 tests PASS.",
+    "EVOLVE 04 S025-S027 design, themes, filters, 58 IDs and 6 reviewed screenshots; dedicated visual PASS.",
+    "EVOLVE 04 S028 CI and visual PASS.",
+    "EVOLVE 05 performance benchmark, public guard/backup QA, lazy subscriptions and local diagnostics implemented; production gates open.",
+    "EVOLVE 06 S033: five candidate CI workflows passed; 100/100 SDK messages, 5 canonical DM races, 5 negative checks, report race, 112 contrast assertions; 8 real screenshots inspected.",
+    "EVOLVE 07 prep S034/S035 all CI PASS, 200 browser observations, sustained 480 messages, release safety tests, compatible audit probe unchanged; S036 canonical DM focused Rules/replay PASS."
+  ],
+  "pending": [
+    "Validar transporte RTP real e conectividade WebRTC fora de localhost (sem STUN/TURN isso não é garantido).",
+    "Completar G5: QA manual leitor de tela e navegadores reais, revisão OWASP/LGPD e de fluxo concorrente com carga moderada.",
+    "Validar arquivos PNG conceituais originais, licenças, fidelidade das 58 telas e público real",
+    "Limites de quota/rate limit antiabuso, LGPD/retencão, backups, exclusão, moderadores de verdade e política de conteúdo",
+    "Validar produção somente após autorização explícita: Firebase Spark, domínio Cloudflare e regras/backup revisados",
+    "WebRTC sem TURN/SFU não garante chamadas fora da rede; fluxo sinalizado em CI não prova transporte real de áudio",
+    "Revogação manual de link disponível, mas expiração lógica NÃO apaga automaticamente os bytes; projetar TTL/retencão antes de uso real.",
+    "EVOLVE 01: homologar CI por SHA final, E2E e presença em sessões reais; push bloqueado Issue #3; cache persistente não habilitado.",
+    "EVOLVE 02: gate externo #4 e QA manual; CI local PASS.",
+    "EVOLVE 03: #5 privacidade integral/antiabuso global/admin real, #6 alertas moderados; validar E2E da correção de cadastro se pendente.",
+    "EVOLVE 04: formal brand approval, original PNGs absent, admin/group screenshots, full WCAG, devices; full CI if pending.",
+    "EVOLVE 05: latency median +12.7% in 5-sample local test; repeat with larger workload E06; real FCM/backup/quota monitoring blocked #3–#5; real production bundle not measured.",
+    "EVOLVE 06 external release gates: screen reader/device/full WCAG and independent OWASP/LGPD, randomized browser latency profiling, sustained load, dedicated group screenshots, #3–#6.",
+    "S036 final E2E/all workflows if pending, external staging/security/LGPD/AT/FCM/media and no-cost actual quota/DR acceptance."
+  ],
+  "blockers": [
+    "PR DRAFT não está mesclado e nenhum deploy/projeto Firebase real foi autorizado",
+    "11/12 funcionalidades com fluxo local foram escritas, mas definição de 90% integral não pode ser homologada com ausência de QA externa e produção",
+    "11/12 somente como cobertura de fluxos de laboratório; 58 telas conceituais não foram implementadas individualmente."
+  ],
+  "next_action": "Verify all remaining CI for S036/checkpoint; keep public guard, address #3–#6, real-device/accessibility/independent review and obtain separate staging authorization; do not publish or bill.",
+  "revision": 21,
+  "updated_at": "2026-11-26",
+  "history": [
+    {
+      "at": "2026-11-23T00:52:50.783Z",
+      "event": "BEFORE_WRITE",
+      "sha": "b20f3887d9192ad10371ba8e8f0888ee93d09da4"
+    },
+    {
+      "at": "2026-11-23T00:56:44.718Z",
+      "event": "SLICE_COMMITTED",
+      "sha": "5ac833843306709f84bbd50c1e7a9ceb7ae6dddc",
+      "status": "IMPLEMENTED_UNVERIFIED"
+    },
+    {
+      "at": "2026-11-23T01:07:46.576Z",
+      "event": "VERIFIED_WITH_FLAKY_E2E",
+      "sha": "bf87e5988e02ea93b9c5082fb33686a7a211a0ca",
+      "run_id": 45092464389
+    },
+    {
+      "event": "S004_BACKEND_BEFORE_QA",
+      "baseline_sha": "ee94cb3b77b606f0aae731ad502c483538da9b15"
+    },
+    {
+      "event": "ADVANCED_SLICES_COMMITTED_AND_PARTIAL_QA_VERIFIED",
+      "at": "2026-11-23",
+      "code_sha": "f7958c4fc123109633d8b9f0cdf296001acac2e8",
+      "verified_sha": "60b0453e23dd850997aa1ec7223e39f878df4134"
+    },
+    {
+      "event": "G5_LOCAL_QA_PASS_AND_ISSUE_2_CLOSED",
+      "at": "2026-11-23",
+      "verified_sha": "3dc7e7b4f1175509ae32476dd219ad8215c8be36",
+      "run_id": 45302857809,
+      "tests": {
+        "unit": 9,
+        "rules": 20,
+        "e2e": 10
+      },
+      "issue_2": "closed"
+    },
+    {
+      "event": "BEFORE_WRITE",
+      "at": "2026-11-26",
+      "baseline_sha": "ade05565ce3d658ab24bc78ac1ef19f8396f9b90",
+      "goal": "EVOLVE 01: busca no histórico carregado, exclusão segura, fixação e encaminhamento de texto; presença, offline, grupos/canais e push com gates separados"
+    },
+    {
+      "event": "SLICE_COMMITTED",
+      "slice": "S014",
+      "sha": "69f52b1b5c505c798d5d6304fcca35b2dc89a621",
+      "status": "IMPLEMENTED_UNVERIFIED"
+    },
+    {
+      "event": "BEFORE_WRITE",
+      "slice": "S015",
+      "baseline_sha": "69f52b1b5c505c798d5d6304fcca35b2dc89a621",
+      "goal": "presence opt-in, offline cache feedback, channel management and E2E regression"
+    },
+    {
+      "event": "SLICE_COMMITTED",
+      "slice": "S015",
+      "sha": "6d27b77f15ace44a0747a0518eb193fefd98cb55",
+      "status": "IMPLEMENTED_UNVERIFIED"
+    },
+    {
+      "event": "BEFORE_WRITE",
+      "slice": "S016",
+      "baseline_sha": "6d27b77f15ace44a0747a0518eb193fefd98cb55",
+      "goal": "fortalecer presença e testar encaminhamento/reconexão; consolidar documentação"
+    },
+    {
+      "event": "SLICE_COMMITTED",
+      "slice": "S016",
+      "sha": "727782ce3de7c6c31393311b5e38d135b4a46f12",
+      "status": "IMPLEMENTED_UNVERIFIED",
+      "ci_run_id": 45760633858
+    },
+    {
+      "event": "EVOLVE_01_CHECKPOINT",
+      "at": "2026-11-26",
+      "status": "PARTIAL_CI_PENDING_PUSH_BLOCKED",
+      "push_issue": 3
+    },
+    {
+      "event": "BEFORE_WRITE",
+      "at": "2026-11-26",
+      "baseline_sha": "1974f774626da85a7c85eaedbf8d3e7bee7ac6c2",
+      "slice": "S017",
+      "goal": "Media Engine: anexos privados e galeria de metadados com escrita atômica, compressão e expiração; sem billing"
+    },
+    {
+      "event": "SLICE_COMMITTED",
+      "slice": "S017",
+      "sha": "a9f1afb32b4e1d5c7bb46332b81f0a5df14e1a30",
+      "status": "IMPLEMENTED_UNVERIFIED"
+    },
+    {
+      "event": "BEFORE_WRITE",
+      "slice": "S018",
+      "baseline_sha": "a9f1afb32b4e1d5c7bb46332b81f0a5df14e1a30",
+      "goal": "áudio com revisão e cancelamento, diagnóstico RTP, purga local manual"
+    },
+    {
+      "event": "SLICE_COMMITTED",
+      "slice": "S018",
+      "sha": "359f49011311766ea7b320ae7aaddfec14314093",
+      "status": "IMPLEMENTED_UNVERIFIED"
+    },
+    {
+      "event": "BEFORE_WRITE",
+      "slice": "S019",
+      "baseline_sha": "359f49011311766ea7b320ae7aaddfec14314093",
+      "goal": "revogação de prévia aberta, regressão de expiração/purga, teste de imagens e vídeos reais sintéticos"
+    },
+    {
+      "event": "SLICE_COMMITTED",
+      "slice": "S019",
+      "sha": "0b66538174cb725083dd4d25b36a7c71ab8ed306",
+      "status": "IMPLEMENTED_IN_PROGRESS"
+    },
+    {
+      "event": "EVOLVE_02_CHECKPOINT",
+      "at": "2026-11-26",
+      "status": "EVOLVE_02_PARTIAL_IN_PROGRESS_EXTERNAL_GATES_OPEN",
+      "issue": 4
+    },
+    {
+      "event": "REGRESSION",
+      "slice": "S019",
+      "sha": "0b66538174cb725083dd4d25b36a7c71ab8ed306",
+      "run_id": 45762723200,
+      "root_cause": "JS String.replace interpretou $' no literal regex, duplicando o sufixo das Rules; reconstruído a partir do S018 usando callback."
+    },
+    {
+      "event": "REGRESSION_FIX_COMMITTED",
+      "slice": "S019",
+      "sha": "284c09ce38b65092ccd11aa3667b03060decddfe",
+      "run_id": 45762857318,
+      "status": "CI_PENDING"
+    },
+    {
+      "event": "BEFORE_WRITE",
+      "at": "2026-11-26",
+      "baseline_sha": "957c93baa461cf1d508c10f24f4c247d2eb44130",
+      "slice": "S020",
+      "goal": "admin RBAC, account restrictions enforced in Rules and audit; no production"
+    },
+    {
+      "event": "SLICE_COMMITTED",
+      "slice": "S020",
+      "sha": "e8dc077d52b5fd611f5b2d95d1443e061d0ac8a5",
+      "status": "IMPLEMENTED_UNVERIFIED"
+    },
+    {
+      "event": "BEFORE_WRITE",
+      "slice": "S021",
+      "baseline_sha": "e8dc077d52b5fd611f5b2d95d1443e061d0ac8a5",
+      "goal": "denúncias com auditoria atômica e cooldown, solicitações LGPD e exportação parcial"
+    },
+    {
+      "event": "SLICE_COMMITTED",
+      "slice": "S021",
+      "sha": "e32f78f5940ea2c978abd5a7c8c5883b4ce27018",
+      "status": "IMPLEMENTED_UNVERIFIED"
+    },
+    {
+      "event": "BEFORE_WRITE",
+      "slice": "S022",
+      "baseline_sha": "e32f78f5940ea2c978abd5a7c8c5883b4ce27018",
+      "goal": "provisionamento confiável somente emulador, E2E admin/moderador/privacidade, audit de dependências e testes negativos"
+    },
+    {
+      "event": "SLICE_COMMITTED",
+      "slice": "S022",
+      "sha": "f0a5ab9aa305b1b14505cd18748045f937a6c934",
+      "status": "CI_PENDING_AUDIT_FAILED",
+      "run_id": 45911258964
+    },
+    {
+      "event": "BEFORE_WRITE",
+      "slice": "S023",
+      "baseline_sha": "f0a5ab9aa305b1b14505cd18748045f937a6c934",
+      "goal": "security dependency candidate: fix critical tar/tinypool via controlled upgrades; preserve critical audit gate; no force, no production",
+      "audit": {
+        "moderate": 16,
+        "high": 11,
+        "critical": 3,
+        "total": 30
+      }
+    },
+    {
+      "event": "DEPENDENCY_LOCK_COMMITTED",
+      "slice": "S023",
+      "sha": "afa75e67a9c26e860233c488b5929182de537e2e",
+      "candidate_run_id": 45911379524,
+      "audit": {
+        "moderate": 14,
+        "high": 0,
+        "critical": 0
+      },
+      "status": "CANDIDATE_PASS_LOCK_CI_PENDING"
+    },
+    {
+      "event": "REGRESSION_FIX",
+      "slice": "S024",
+      "baseline_sha": "afa75e67a9c26e860233c488b5929182de537e2e",
+      "run_id": 45911111067,
+      "diagnosis": "3 E2E failure snapshots show profile repair instead of workspace; retain Login until Auth+Firestore registration completes; server profile read; no timeout increase"
+    },
+    {
+      "event": "EVOLVE_03_CHECKPOINT",
+      "at": "2026-11-26",
+      "sha": "a0d544a0104ed19c8b3b2a51aea7af8ccc10ed27",
+      "ci_run_id": 45911585835,
+      "status": "LOCAL_E2E_PENDING_EXTERNAL_GATES_OPEN",
+      "issues": [
+        3,
+        4,
+        5,
+        6
+      ]
+    },
+    {
+      "event": "BEFORE_WRITE",
+      "slice": "S025",
+      "baseline_sha": "abe0fa1599a4a6f6fb62325bba3efd11f4f86041",
+      "goal": "fix admin label selection from trace; design system, themes, filters, genuine screenshot QA; no fake data",
+      "regression_run": 45911757898
+    },
+    {
+      "event": "SLICE_COMMITTED",
+      "slice": "S025",
+      "sha": "954a31ba6a6f0e346cfe5b08a4506e814ee4dc3b",
+      "status": "IMPLEMENTED_UNVERIFIED"
+    },
+    {
+      "event": "BEFORE_WRITE",
+      "slice": "S026",
+      "baseline_sha": "954a31ba6a6f0e346cfe5b08a4506e814ee4dc3b",
+      "goal": "real visual QA in Chromium, synthetic data through UI, capture inspect correct and version proof"
+    },
+    {
+      "event": "REGRESSION_VERIFIED",
+      "slice": "S025",
+      "sha": "954a31ba6a6f0e346cfe5b08a4506e814ee4dc3b",
+      "run_id": 45912658637,
+      "status": "PASS_ALL"
+    },
+    {
+      "event": "VISUAL_REVIEW",
+      "slice": "S026",
+      "sha": "09984cdb04b8ece116f25726c7eed497fdc9cdd9",
+      "run_id": 45912711678,
+      "artifact_id": 15160987607,
+      "status": "FAIL_CONTRAST_TEST_NAN",
+      "findings": [
+        "Três imagens reais desktop inspecionadas: login escuro, conversa escura e clara.",
+        "Histórico de 3 mensagens não cabe; última mensagem fora da área visível. Ações e reações sempre abertas, ferramentas consomem espaço.",
+        "UID local parcialmente fora do viewport; reposicionar antes das ferramentas.",
+        "NaN no cálculo de contraste: parser só suporta hex de 6 caracteres, tokens #fff/afins não são lidos."
+      ]
+    },
+    {
+      "event": "BEFORE_WRITE",
+      "slice": "S027",
+      "baseline_sha": "420e9eb087ab22ddadf469e67d116c820b7bc3e0",
+      "goal": "compactar mensagens com disclosure acessível, agrupar ferramentas, preservar rolagem recente, ajustar posição de conta e validar contraste em ambos temas"
+    },
+    {
+      "event": "EVOLVE_04_VISUAL_VERIFIED",
+      "at": "2026-11-26",
+      "sha": "b2ad72c3bffa73f34ae2af0ae5f27ed5437e3d8e",
+      "ci_run_id": 45912988561,
+      "visual_run_id": 45912988546,
+      "screenshots": 6,
+      "status": "VISUAL_PASS_FULL_CI_PENDING"
+    },
+    {
+      "at": "2026-11-26",
+      "event": "BEFORE_WRITE",
+      "slice": "S028",
+      "baseline_sha": "600855b639d9f3b1a9d8edad67ee3b44df59fd1b",
+      "regression_run": 45912988561,
+      "artifact_id": 15160334841,
+      "diagnosis": "Trace: pin and all search assertions passed; click Excluir waited 90s because native message details collapsed after pin snapshot. Reopen through summary, assert visible, then delete; preserve all assertions."
+    },
+    {
+      "at": "2026-11-26",
+      "event": "REGRESSION_FIX",
+      "slice": "S028",
+      "run_id": 45912988561,
+      "status": "IMPLEMENTED_UNVERIFIED",
+      "diagnosis": "Trace proved Excluir inaccessible while details closed; real UI reopens after pin, assert pinned and action visible; all deletion/reload asserts preserved."
+    },
+    {
+      "at": "2026-11-26",
+      "event": "S028_CI_CHECKPOINT",
+      "sha": "d5a64827e519ddf0c3430b56730ce17d83c438cd",
+      "run_id": 45913486070,
+      "visual_run_id": 45913486069,
+      "status": "VISUAL_PASS_S028_CI_PENDING"
+    },
+    {
+      "event": "BEFORE_WRITE",
+      "slice": "S029",
+      "baseline_sha": "6e36ddd9af19da00a427d4a73670d564ba572fc2",
+      "goal": "gate hidden notification/media subscriptions, eliminate duplicate group lookups, isolate production guard, benchmark actual subscriptions and build sizes in same runner; R$0 no deployment"
+    },
+    {
+      "event": "SLICE_COMMITTED",
+      "slice": "S029",
+      "sha": "c1e99d20c13152a9394880f2827e6e2f71cc4bd7",
+      "status": "IMPLEMENTED_UNVERIFIED"
+    },
+    {
+      "event": "BEFORE_WRITE",
+      "slice": "S030",
+      "baseline_sha": "43f6af8a5e1bdbc82960377c921ad0b9cfff7c77",
+      "goal": "Public offline fallback smoke, emulator backup and restore instructions, quota/monitoring operational runbook; no real integration or deploy."
+    },
+    {
+      "event": "REGRESSION",
+      "slice": "S030",
+      "sha": "61034de59229c398ef4eaae39043b1001e6d72bd",
+      "benchmark_run": 45914960995,
+      "ci_run": 45914905451,
+      "diagnosis": "baseline benchmark delivery target not confirmed after panel navigation; assert both DM headings and send from fixed peer; initial candidate opened file deep link automatically while test clicks details closed, removed automatic open in 43f6af8; verify final E2E"
+    },
+    {
+      "event": "EVOLVE_05_CHECKPOINT",
+      "sha": "81dd87d6cd651fcf3d2d7fbdf61e8edeb497d30c",
+      "run_id": 45915281418,
+      "benchmark_run": 45915281421,
+      "infra_run": 45915281448,
+      "status": "PERF_INFRA_VISUAL_PASS_FINAL_CI_PENDING"
+    },
+    {
+      "event": "EVOLVE_05_FINAL_CI_VERIFIED",
+      "sha": "81dd87d6cd651fcf3d2d7fbdf61e8edeb497d30c",
+      "run_id": 45915281418,
+      "status": "LOCAL_CI_PERF_INFRA_PASS_EXTERNAL_GATES_OPEN",
+      "tests": {
+        "unit": 13,
+        "rules": 31,
+        "e2e": 15
+      },
+      "benchmark": 45915281421,
+      "infra": 45915281448,
+      "visual": 45915281376
+    },
+    {
+      "event": "BEFORE_WRITE",
+      "at": "2026-11-26",
+      "slice": "S033",
+      "baseline_sha": "a8c3d67b64bb21decc5a323ce4707d0833af8d74",
+      "method_sha": "5f73ee2b48507234431706e4c6313773bae72a5a",
+      "goal": "S033: execute bounded authenticated SDK load/concurrency, adversarial Rules, browser accessibility and visual QA; preserve external gates"
+    },
+    {
+      "at": "2026-11-26",
+      "event": "EVOLVE_06_LOCAL_QA_VERIFIED",
+      "slice": "S033",
+      "sha": "3142ef40c4fa9e4409d90e8d7bc538a204653f00",
+      "run_id": 45930727651,
+      "status": "LOCAL_PASS_EXTERNAL_GATES_OPEN"
+    },
+    {
+      "event": "BEFORE_WRITE",
+      "slice": "S034",
+      "baseline_sha": "119f2df4d9c730d208a5a66c32d66872918c2840",
+      "method_sha": "5f73ee2b48507234431706e4c6313773bae72a5a",
+      "goal": "S034 balanced browser benchmark, S035 fail-closed release checklist and QA; no external changes",
+      "verified_runs": [
+        45931059934,
+        45931060072,
+        45931059983,
+        45931059980,
+        45931059985
+      ]
+    },
+    {
+      "event": "SLICE_COMMITTED",
+      "slice": "S034",
+      "sha": "67df48c2ae028a0da3e53e624719a1c7dfd92a58",
+      "ci": 45932655688,
+      "benchmark": 45932655779,
+      "totalQA": 45932655760,
+      "status": "IN_PROGRESS"
+    },
+    {
+      "event": "BEFORE_WRITE",
+      "slice": "S035",
+      "baseline_sha": "67df48c2ae028a0da3e53e624719a1c7dfd92a58",
+      "goal": "Release preflight read-only fail closed; no publish or billing; dependency compatibility probe isolated"
+    },
+    {
+      "event": "SLICE_COMMITTED",
+      "slice": "S035",
+      "sha": "4368f7127f45b8e0934363a6898f6fe6390f1fb5",
+      "ci": 45932789870,
+      "dependencyProbe": 45932790030,
+      "status": "RELEASE_GATE_TEST_PASS_OTHER_CI_PENDING"
+    },
+    {
+      "event": "BEFORE_WRITE",
+      "slice": "S036",
+      "baseline_sha": "4368f7127f45b8e0934363a6898f6fe6390f1fb5",
+      "goal": "Probe reversed member order against baseline Rules, enforce canonical order on create only, and retest positive and negative in same isolated emulator; no changes to existing DM reads or production"
+    },
+    {
+      "event": "SLICE_COMMITTED_VERIFICATION_PARTIAL",
+      "slice": "S036",
+      "sha": "44aea22c6ed07d6a6fd0781da10804ee72c17173",
+      "securityReplay": 45932967467,
+      "runs": [
+        {
+          "id": 45932967400,
+          "name": "RFB Chat — paired performance benchmark",
+          "status": "in_progress",
+          "conclusion": null
+        },
+        {
+          "id": 45932967467,
+          "name": "RFB Chat — CI de validação local",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 45932967634,
+          "name": "RFB Chat — Real visual QA",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 45932967483,
+          "name": "RFB Chat — compatible dependency remediation probe",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 45932967501,
+          "name": "RFB Chat — EVOLVE 06 total QA",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 45932967528,
+          "name": "RFB Chat — infrastructure safety QA",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ],
+      "latestVerified": "4368f7127f45b8e0934363a6898f6fe6390f1fb5"
+    }
+  ],
+  "status": "EVOLVE_07_PREPARED_RELEASE_BLOCKED"
+}

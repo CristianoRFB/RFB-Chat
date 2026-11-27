@@ -1,0 +1,48 @@
+{
+  "baseline": {
+    "sha": "a8c3d67b64bb21decc5a323ce4707d0833af8d74",
+    "artifact": 15162630698,
+    "reviewed": 6
+  },
+  "candidate": {
+    "sha": "3142ef40c4fa9e4409d90e8d7bc538a204653f00",
+    "run": 45930727651,
+    "artifact": 15168522517,
+    "reviewed": 8,
+    "screenshots": [
+      {
+        "name": "01-login-dark-1440.png",
+        "sha256": "71166ffb5807906b72ed20a03e2de8be1be34d09fb4c4a24636a6b2c7f237d6e"
+      },
+      {
+        "name": "02-chat-dark-1440.png",
+        "sha256": "cdaff2a71fe85f24b7153683ac4c23467bf922ebbddf62574ab116b5bc91997f"
+      },
+      {
+        "name": "03-chat-light-1440.png",
+        "sha256": "f0c8c8ead72a3eff1ff13d1bbfc43e897ea5085d06b382986505e8d77d7dd59c"
+      },
+      {
+        "name": "04-list-light-390.png",
+        "sha256": "f52bf522c41281990838ce09e8e6545550c6e5a7455d1e8a3e86962d71f23ef0"
+      },
+      {
+        "name": "05-chat-light-390.png",
+        "sha256": "4be20becd2581fbd55ca8d775cc97281767bfdad946a21ddb96f246861455690"
+      },
+      {
+        "name": "06-tablet-light-768.png",
+        "sha256": "b5e811c5256cd2f2debd3d347d14a28e1e3850b696fd8b31d63c4d4f26f03785"
+      },
+      {
+        "name": "07-admin-desktop.png",
+        "sha256": "33f2d2063175a94428a968cd38ad88e5e196d8d7c9997190636db10161ae1ba9"
+      },
+      {
+        "name": "08-admin-mobile.png",
+        "sha256": "40dc9baa795325152f338852229c6654e6fef511cd703babd1ce79df978a7f59"
+      }
+    ]
+  },
+  "scope": "Synthetic test identities; downloaded archive inspected; artifact retention 7 days; not full visual certification"
+}

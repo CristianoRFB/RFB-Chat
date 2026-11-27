@@ -1,0 +1,149 @@
+{
+  "schema": 1,
+  "date": "2026-11-26 America/Sao_Paulo (UTC logs 2026-11-27)",
+  "baseline_sha": "6e36ddd9af19da00a427d4a73670d564ba572fc2",
+  "candidate_sha": "81dd87d6cd651fcf3d2d7fbdf61e8edeb497d30c",
+  "run_id": 45915281421,
+  "artifact_id": 15161782942,
+  "job_id": 140232877753,
+  "environment": "GitHub Actions ubuntu-latest Node22 Java21 Chromium Firebase Emulator, same runner, distinct loopback ports and synthetic project IDs",
+  "method": "Proxy counts actual onSnapshot subscriptions in two files, no data or identifiers captured; excludes other modules; 3 conversations; 5 UI sends measured wall-clock; build before instrumentation",
+  "raw": {
+    "before": {
+      "build": {
+        "variant": "before",
+        "jsBytes": 627846,
+        "jsGzip": 191411,
+        "files": [
+          {
+            "name": "index-CFbqeen6.css",
+            "bytes": 17477,
+            "gzip": 4361
+          },
+          {
+            "name": "index-bTvHa0J2.js",
+            "bytes": 627846,
+            "gzip": 191411
+          }
+        ]
+      },
+      "browser": {
+        "variant": "before",
+        "conversations": 3,
+        "closed": {
+          "src/chat-extras.ts": {
+            "active": 8,
+            "started": 16
+          },
+          "src/attachments.ts": {
+            "active": 1,
+            "started": 1
+          }
+        },
+        "opened": {
+          "src/chat-extras.ts": {
+            "active": 8,
+            "started": 16
+          },
+          "src/attachments.ts": {
+            "active": 1,
+            "started": 1
+          }
+        },
+        "reclosed": {
+          "src/chat-extras.ts": {
+            "active": 8,
+            "started": 16
+          },
+          "src/attachments.ts": {
+            "active": 1,
+            "started": 1
+          }
+        },
+        "deliveryMs": [
+          142,
+          136,
+          124,
+          183,
+          145
+        ]
+      }
+    },
+    "after": {
+      "build": {
+        "variant": "after",
+        "jsBytes": 222892,
+        "jsGzip": 69524,
+        "files": [
+          {
+            "name": "index-CFbqeen6.css",
+            "bytes": 17477,
+            "gzip": 4361
+          },
+          {
+            "name": "index-DYUSZuD3.js",
+            "bytes": 222892,
+            "gzip": 69524
+          }
+        ]
+      },
+      "browser": {
+        "variant": "after",
+        "conversations": 3,
+        "closed": {
+          "src/chat-extras.ts": {
+            "active": 2,
+            "started": 4
+          }
+        },
+        "opened": {
+          "src/chat-extras.ts": {
+            "active": 8,
+            "started": 16
+          },
+          "src/attachments.ts": {
+            "active": 1,
+            "started": 1
+          }
+        },
+        "reclosed": {
+          "src/chat-extras.ts": {
+            "active": 2,
+            "started": 16
+          },
+          "src/attachments.ts": {
+            "active": 0,
+            "started": 1
+          }
+        },
+        "deliveryMs": [
+          160,
+          181,
+          156,
+          132,
+          170
+        ]
+      }
+    }
+  },
+  "summary": {
+    "closed_before": 9,
+    "closed_after": 2,
+    "opened_before": 9,
+    "opened_after": 9,
+    "reclosed_before": 9,
+    "reclosed_after": 2,
+    "js_bytes_before": 627846,
+    "js_bytes_after": 222892,
+    "js_gzip_before": 191411,
+    "js_gzip_after": 69524,
+    "median_ms_before": 142,
+    "median_ms_after": 160
+  },
+  "limitations": [
+    "Logical subscriptions, not Firestore billed reads or physical network requests",
+    "Five sends per variant, sequential cold sessions, no statistical significance; different local ports and project IDs",
+    "Public blocked shell only; not future production app bundle",
+    "No cloud deployment, no real traffic or usage billing measured"
+  ]
+}

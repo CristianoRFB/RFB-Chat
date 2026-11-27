@@ -1,0 +1,13 @@
+node_modules/
+dist/
+coverage/
+.env
+.env.*
+!.env.example
+*.local
+
+visual-evidence/
+
+.local-backup/
+perf-results/
+perf-evidence/

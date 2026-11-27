@@ -1,0 +1,41 @@
+name: RFB Chat — compatible dependency remediation probe
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/dependency-probe.yml'
+      - 'package.json'
+      - 'package-lock.json'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Probe compatible fixes in disposable runner (no force, no push)
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dependency-evidence
+          cp package-lock.json dependency-evidence/baseline-lock.json
+          set +e
+          npm audit --json > dependency-evidence/before.json
+          before=$?
+          npm audit fix --package-lock-only --ignore-scripts --no-fund > dependency-evidence/fix.txt 2>&1
+          fix=$?
+          npm audit --json > dependency-evidence/after.json
+          after=$?
+          set -e
+          cp package-lock.json dependency-evidence/candidate-lock.json
+          node --input-type=module -e "import fs from 'node:fs';const b=JSON.parse(fs.readFileSync('dependency-evidence/before.json'));const a=JSON.parse(fs.readFileSync('dependency-evidence/after.json'));if(!b.metadata?.vulnerabilities||!a.metadata?.vulnerabilities)throw Error('audit unavailable');console.log('RFB_DEP_PROBE '+JSON.stringify({before:b.metadata.vulnerabilities,after:a.metadata.vulnerabilities,beforeExit:$before,fixExit:$fix,afterExit:$after}));if(a.metadata.vulnerabilities.high||a.metadata.vulnerabilities.critical)process.exitCode=1;"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dependency-probe
+          path: dependency-evidence/
+          retention-days: 3

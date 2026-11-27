@@ -1,0 +1,28 @@
+name: RFB Chat — infrastructure safety QA
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  infra:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: Public guard and offline cache
+        run: node scripts/verify-public-shell.mjs
+      - name: Isolated Auth and Firestore backup restore
+        env:
+          RFB_BACKUP_QA: 'YES'
+        run: node scripts/emulator-backup-check.mjs

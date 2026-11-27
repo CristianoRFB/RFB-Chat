@@ -1,0 +1,109 @@
+{
+  "schema_version": 2,
+  "product": "RFB Chat",
+  "status": "CAPTURED_REVIEWED_REAL",
+  "run_id": 45912988546,
+  "artifact_id": 15160977197,
+  "environment": "Chromium GitHub Actions; Firebase Auth/Firestore Emulator demo-rfb-chat; localhost:5173; synthetic accounts @example.test",
+  "code_sha": "b2ad72c3bffa73f34ae2af0ae5f27ed5437e3d8e",
+  "captured_at_utc": "2026-11-26T23:48:18Z",
+  "review": "Six screenshots inspected; Git blob hashes verified against downloaded artifact; no real customer data or secrets.",
+  "screenshots": [
+    {
+      "id": "V01",
+      "caption": "Login escuro",
+      "kind": "REAL_CAPTURE",
+      "path": "evolve-04/01-login-dark-1440.png",
+      "status": "CAPTURED_REVIEWED",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "commit_sha": "b2ad72c3bffa73f34ae2af0ae5f27ed5437e3d8e",
+      "sha256": "71166ffb5807906b72ed20a03e2de8be1be34d09fb4c4a24636a6b2c7f237d6e",
+      "git_blob_sha": "d1c7d83e17ee6f792a0cff26d660a38cda4ea62a",
+      "privacy_checked": true
+    },
+    {
+      "id": "V02",
+      "caption": "Conversa escura",
+      "kind": "REAL_CAPTURE",
+      "path": "evolve-04/02-chat-dark-1440.png",
+      "status": "CAPTURED_REVIEWED",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "commit_sha": "b2ad72c3bffa73f34ae2af0ae5f27ed5437e3d8e",
+      "sha256": "90e335ee587c6d8dc0727e461897381a5b50494a3d2753064b4b4a3f43708717",
+      "git_blob_sha": "1fd5a95933f3caaf2b5cff656502cc17733cefa1",
+      "privacy_checked": true
+    },
+    {
+      "id": "V03",
+      "caption": "Conversa clara",
+      "kind": "REAL_CAPTURE",
+      "path": "evolve-04/03-chat-light-1440.png",
+      "status": "CAPTURED_REVIEWED",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "commit_sha": "b2ad72c3bffa73f34ae2af0ae5f27ed5437e3d8e",
+      "sha256": "298aebc0a9c98bbc108af5cb7739189995ef9439cd857b0cac29c1502dc4d11c",
+      "git_blob_sha": "abd05137dd663fe5d1b9c9e4b103d6f61a570c28",
+      "privacy_checked": true
+    },
+    {
+      "id": "V04",
+      "caption": "Lista mobile",
+      "kind": "REAL_CAPTURE",
+      "path": "evolve-04/04-list-light-390.png",
+      "status": "CAPTURED_REVIEWED",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "commit_sha": "b2ad72c3bffa73f34ae2af0ae5f27ed5437e3d8e",
+      "sha256": "8261bb3b1a34cc7c647e19839b5de00e8ac5ac2cd592774b1891254c3c3c8635",
+      "git_blob_sha": "4945ffd6a0af5125c12dd7774588502c6e537199",
+      "privacy_checked": true
+    },
+    {
+      "id": "V05",
+      "caption": "Conversa mobile",
+      "kind": "REAL_CAPTURE",
+      "path": "evolve-04/05-chat-light-390.png",
+      "status": "CAPTURED_REVIEWED",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "commit_sha": "b2ad72c3bffa73f34ae2af0ae5f27ed5437e3d8e",
+      "sha256": "fbc680452002c7c392646df6904cea8dbaabe78bc0b9ecf9631e6e1abaa673db",
+      "git_blob_sha": "2ce6aa9f69806f1aedd5dbe7fceae9ab07f23d6c",
+      "privacy_checked": true
+    },
+    {
+      "id": "V06",
+      "caption": "Lista tablet",
+      "kind": "REAL_CAPTURE",
+      "path": "evolve-04/06-tablet-light-768.png",
+      "status": "CAPTURED_REVIEWED",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "commit_sha": "b2ad72c3bffa73f34ae2af0ae5f27ed5437e3d8e",
+      "sha256": "8f111c468307a2441ddaf63607833b3b55121666ac4ba5be67a42bc910533d15",
+      "git_blob_sha": "bd6c7ab8aede5d6675f77209a8daf588716bfbb0",
+      "privacy_checked": true
+    }
+  ],
+  "pending": [
+    "Group and channel screenshots",
+    "Admin screenshots",
+    "Full WCAG and real devices",
+    "Original PNG comparison"
+  ]
+}

@@ -1,0 +1,216 @@
+import { test, expect, type Page } from '@playwright/test';
+
+test.beforeAll(async () => {
+  await expect.poll(async () => {
+    const ports = [8080, 9099];
+    const values = await Promise.all(ports.map(async port => {
+      try { await fetch('http://127.0.0.1:' + port + '/', { signal: AbortSignal.timeout(1000) }); return true; }
+      catch { return false; }
+    }));
+    return values.every(Boolean);
+  }, { timeout: 30_000 }).toBe(true);
+});
+
+async function register(page: Page, who: string, email: string): Promise<string> {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Criar uma conta no emulador' }).click();
+  await page.getByRole('textbox', { name: 'Nome de exibição' }).fill(who);
+  await page.getByRole('textbox', { name: 'E-mail de teste' }).fill(email);
+  await page.getByLabel('Senha').fill('senha-segura-local-2026');
+  await page.getByRole('button', { name: 'Criar conta local' }).click();
+  await expect(page.locator('#own-uid')).toBeVisible();
+  return page.locator('#own-uid').inputValue();
+}
+
+test('responder, editar, reagir, buscar, bloquear e denunciar com duas contas', async ({ browser }) => {
+  const a = await browser.newContext();
+  const b = await browser.newContext();
+  try {
+    const alice = await a.newPage();
+    const bob = await b.newPage();
+    const suffix = String(Date.now());
+    await register(alice, 'Pessoa Alfa', 'alfa-extras-' + suffix + '@example.test');
+    const uidB = await register(bob, 'Pessoa Beta', 'beta-extras-' + suffix + '@example.test');
+    await alice.locator('#target-uid').fill(uidB);
+    await alice.getByRole('button', { name: 'Criar conversa' }).click();
+    await expect(alice.getByRole('heading', { name: 'Pessoa Beta' })).toBeVisible();
+
+    await alice.locator('#message-text').fill('Olá único ' + suffix);
+    await alice.getByRole('button', { name: 'Enviar', exact: true }).click();
+    await expect(bob.getByText('Olá único ' + suffix, { exact: true })).toBeVisible();
+    await expect(alice.locator('.message.outgoing .message-meta')).toContainText('Lida');
+    await bob.locator('.message.incoming').getByLabel('Ações da mensagem').click();
+    await bob.locator('.message.incoming').getByRole('button', { name: 'Reagir com 👍' }).click();
+    await alice.locator('.message.outgoing').getByLabel('Ações da mensagem').click();
+    await expect(alice.locator('.message.outgoing').getByRole('button', { name: 'Reagir com 👍' })).toContainText('1');
+
+    await alice.locator('.message.outgoing').getByRole('button', { name: 'Editar' }).click();
+    await alice.locator('#edit-text').fill('Olá corrigido ' + suffix);
+    await alice.getByRole('button', { name: 'Salvar edição' }).click();
+    await expect(bob.getByText('Olá corrigido ' + suffix, { exact: true })).toBeVisible();
+
+    await bob.locator('.message.incoming').getByRole('button', { name: 'Responder' }).click();
+    await bob.locator('#message-text').fill('Resposta editada ' + suffix);
+    await bob.getByRole('button', { name: 'Enviar', exact: true }).click();
+    await expect(alice.getByText('Resposta editada ' + suffix, { exact: true })).toBeVisible();
+
+    await alice.locator('#search-conversations').fill('Pessoa inexistente');
+    await expect(alice.locator('.conversation-list .conversation')).toHaveCount(0);
+    await alice.locator('#search-conversations').fill('Pessoa Beta');
+    await expect(alice.locator('.conversation-list .conversation')).toHaveCount(1);
+
+    await alice.getByText('Perfil e privacidade', { exact: true }).click();
+    await alice.locator('#block-uid').fill(uidB);
+    await alice.getByRole('button', { name: 'Bloquear', exact: true }).click();
+    await expect(alice.getByText('Usuário bloqueado.')).toBeVisible();
+    await bob.locator('#message-text').fill('Mensagem impedida ' + suffix);
+    await bob.getByRole('button', { name: 'Enviar', exact: true }).click();
+    await expect(bob.getByRole('alert')).toContainText('Acesso negado');
+
+    await alice.getByText('Denunciar comportamento', { exact: true }).click();
+    await alice.getByPlaceholder('Descreva a ocorrência…').fill('Teste de denúncia sobre a mensagem acima');
+    await alice.getByRole('button', { name: 'Enviar denúncia' }).click();
+    await expect(alice.getByText('Denúncia registrada para revisão por moderador autorizado.')).toBeVisible();
+  } finally { await a.close(); await b.close(); }
+});
+
+test('arquivo TXT pequeno gera link temporário acessível só a um membro', async ({ browser }) => {
+  const a = await browser.newContext();
+  const b = await browser.newContext();
+  try {
+    const alice = await a.newPage();
+    const bob = await b.newPage();
+    const unique = String(Date.now());
+    await register(alice, 'Pessoa Arquivo A', 'file-a-' + unique + '@example.test');
+    const uidB = await register(bob, 'Pessoa Arquivo B', 'file-b-' + unique + '@example.test');
+    await alice.locator('#target-uid').fill(uidB);
+    await alice.getByRole('button', { name: 'Criar conversa' }).click();
+    await expect(alice.getByRole('heading', { name: 'Pessoa Arquivo B' })).toBeVisible();
+    await alice.getByText('Arquivos privados e links temporários', { exact: true }).click();
+    await alice.locator('#private-file').setInputFiles({
+      name: 'relatorio.txt', mimeType: 'text/plain',
+      buffer: Buffer.from('Texto de teste sem dados pessoais')
+    });
+    await alice.getByRole('button', { name: 'Criar link privado' }).click();
+    const url = await alice.locator('#generated-file-link').inputValue();
+    expect(url).toContain('file=');
+    await bob.goto(url);
+    await bob.getByText('Arquivos privados e links temporários', { exact: true }).click();
+    await expect(bob.getByRole('link', { name: 'Baixar arquivo privado' })).toBeVisible();
+    await expect(bob.getByRole('button',{name:'Abrir relatorio.txt'})).toBeVisible();
+    await expect(bob.getByRole('button', { name: 'Excluir arquivo e revogar link' })).toHaveCount(0);
+    await alice.getByRole('button', { name: 'Excluir arquivo e revogar link' }).click();
+    await expect(alice.getByText('Arquivo excluído e link revogado.')).toBeVisible();
+    await bob.reload();
+    await bob.getByText('Arquivos privados e links temporários', { exact: true }).click();
+    await expect(bob.getByText('Arquivo indisponível. Verifique o acesso, a sessão e a validade do link.')).toBeVisible();
+    await expect(bob.getByRole('link', { name: 'Baixar arquivo privado' })).toHaveCount(0);
+  } finally { await a.close(); await b.close(); }
+});
+
+
+test('paginação recupera mensagens fora da janela de 50 após recarga', async ({ browser }) => {
+  test.setTimeout(120_000);
+  const ctx = await browser.newContext();
+  try {
+    const page = await ctx.newPage();
+    const id = String(Date.now());
+    await register(page, 'Carga Paginada', 'page-' + id + '@example.test');
+    const other = await browser.newContext();
+    try {
+      const second = await other.newPage();
+      const uid = await register(second, 'Pessoa Destino', 'target-' + id + '@example.test');
+      await page.locator('#target-uid').fill(uid);
+      await page.getByRole('button', { name: 'Criar conversa' }).click();
+      await expect(page.getByRole('heading', { name: 'Pessoa Destino' })).toBeVisible();
+      for (let i = 1; i <= 52; i++) {
+        await page.locator('#message-text').fill('Item de paginação ' + i + '/' + id);
+        await page.getByRole('button', { name: 'Enviar', exact: true }).click();
+        await expect(page.locator('#message-text')).toHaveValue('');
+      }
+      await page.reload();
+      await expect(page.getByText('Item de paginação 52/' + id, { exact: true })).toBeVisible();
+      await expect(page.getByText('Item de paginação 1/' + id, { exact: true })).toHaveCount(0);
+      await page.getByRole('button', { name: 'Carregar mensagens anteriores' }).click();
+      await expect(page.getByText('Item de paginação 1/' + id, { exact: true })).toBeVisible();
+    } finally { await other.close(); }
+  } finally { await ctx.close(); }
+});
+
+test('EVOLVE 01: busca, fixação e remoção sincronizadas entre contas', async ({ browser }) => {
+  test.setTimeout(90_000);
+  const a = await browser.newContext(), b = await browser.newContext();
+  try {
+    const alice = await a.newPage(), bob = await b.newPage();
+    const suffix = String(Date.now());
+    await register(alice,'Evolve Alfa','evolve-a-'+suffix+'@example.test');
+    const uidB = await register(bob,'Evolve Beta','evolve-b-'+suffix+'@example.test');
+    await alice.locator('#target-uid').fill(uidB);
+    await alice.getByRole('button',{name:'Criar conversa'}).click();
+    await expect(bob.getByRole('heading',{name:'Evolve Alfa'})).toBeVisible();
+    await alice.locator('#message-text').fill('Olá evolução '+suffix);
+    await alice.getByRole('button',{name:'Enviar',exact:true}).click();
+    const sent = alice.locator('.message.outgoing');
+    const received = bob.locator('.message.incoming');
+    await expect(received).toContainText('Olá evolução '+suffix);
+    await sent.getByLabel('Ações da mensagem').click();
+    await sent.getByRole('button',{name:'Fixar',exact:true}).click();
+    await expect(received).toContainText('Mensagem fixada');
+    await bob.locator('#search-message-body').fill('ola evolucao');
+    await expect(received).toHaveCount(1);
+    await bob.locator('#search-message-body').fill('inexistente');
+    await expect(received).toHaveCount(0);
+    await bob.locator('#search-message-body').fill('');
+    await bob.getByRole('button',{name:'Somente fixadas'}).click();
+    await expect(received).toHaveCount(1);
+    // A pin snapshot can collapse the native disclosure; reopen through the real UI.
+    await expect(sent).toContainText('Mensagem fixada');
+    const deleteAction = sent.getByRole('button',{name:'Excluir',exact:true});
+    if (!(await deleteAction.isVisible())) await sent.getByLabel('Ações da mensagem').click({timeout:15_000});
+    await expect(deleteAction).toBeVisible();
+    alice.once('dialog', dialog => void dialog.accept());
+    await deleteAction.click({timeout:15_000});
+    await expect(received).toHaveCount(0);
+    await bob.getByRole('button',{name:'Somente fixadas'}).click();
+    await expect(received).toContainText('Mensagem excluída');
+    await bob.reload();
+    await expect(bob.getByText('Mensagem excluída',{exact:true})).toBeVisible();
+    await expect(bob.getByText('Olá evolução '+suffix,{exact:true})).toHaveCount(0);
+  } finally { await a.close(); await b.close(); }
+});
+
+test('EVOLVE 01: encaminhar entre conversas autorizadas e reconectar sem duplicar', async ({browser}) => {
+  test.setTimeout(90_000);
+  const a = await browser.newContext(), b = await browser.newContext(), c = await browser.newContext();
+  try {
+    const alice = await a.newPage(), bob = await b.newPage(), carol = await c.newPage();
+    const suffix = String(Date.now());
+    await register(alice,'Envio Alfa','forward-a-'+suffix+'@example.test');
+    const uidB = await register(bob,'Envio Beta','forward-b-'+suffix+'@example.test');
+    const uidC = await register(carol,'Envio Gama','forward-c-'+suffix+'@example.test');
+    for (const uid of [uidB, uidC]) {
+      await alice.locator('#target-uid').fill(uid);
+      await alice.getByRole('button',{name:'Criar conversa'}).click();
+      await expect(alice.locator('#target-uid')).toHaveValue('');
+    }
+    await expect(alice.getByRole('heading',{name:'Envio Gama'})).toBeVisible();
+    await alice.locator('.conversation-list .conversation').filter({hasText:'Envio Beta'}).click();
+    await expect(alice.getByRole('heading',{name:'Envio Beta'})).toBeVisible();
+    await alice.locator('#message-text').fill('Texto para encaminhar '+suffix);
+    await alice.getByRole('button',{name:'Enviar',exact:true}).click();
+    await expect(bob.getByText('Texto para encaminhar '+suffix,{exact:true})).toBeVisible();
+    await alice.locator('.message.outgoing').getByLabel('Ações da mensagem').click();
+    await alice.locator('.message.outgoing').getByRole('button',{name:'Encaminhar',exact:true}).click();
+    await alice.locator('#forward-destination').selectOption({label:uidC});
+    await alice.getByRole('button',{name:'Confirmar encaminhamento'}).click();
+    await expect(carol.locator('.message.incoming')).toContainText('Encaminhada');
+    await expect(carol.getByText('Texto para encaminhar '+suffix,{exact:true})).toBeVisible();
+    await a.setOffline(true);
+    await expect(alice.getByText(/Sem conexão. Mensagens pendentes/)).toBeVisible();
+    await alice.locator('#message-text').fill('Após reconexão '+suffix);
+    await alice.getByRole('button',{name:'Enviar',exact:true}).click();
+    await a.setOffline(false);
+    await expect(bob.getByText('Após reconexão '+suffix,{exact:true})).toHaveCount(1,{timeout:30000});
+    await expect(alice.locator('#message-text')).toHaveValue('');
+  } finally { await a.close(); await b.close(); await c.close(); }
+});

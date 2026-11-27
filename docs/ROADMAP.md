@@ -1,0 +1,150 @@
+# Roadmap atual — RFB Chat (26/11/2026)
+
+Fonte de verdade: [STATE](rfb/STATE.json), [COVERAGE](rfb/COVERAGE.md), [FINAL-EVOLUTION-ROADMAP](rfb/FINAL-EVOLUTION-ROADMAP.md). O plano histórico abaixo foi preservado; os estados antigos não são atuais.
+
+| Gate | Situação atual |
+|---|---|
+| G0 | Especificação e catálogo preservados; revisão de assets/público pendente |
+| G1/G2 | Ambiente local e fluxo central verificados no checkpoint 23/11 |
+| G3 | 11/12 fluxos originais no laboratório; EVOLVE 01 adiciona recursos com CI em execução |
+| G4 | WebRTC e push real pendentes |
+| G5 | QA automatizada parcial; revisão integral pendente |
+| G6 | Bloqueado até aprovação de release |
+
+---
+
+## Histórico da importação (não usar como status atual)
+
+# Roadmap específico — RFBChat (RFB Method)
+
+> **Estado atualizado, 22/11/2026:** O trecho abaixo é o plano original de importação e seus checkboxes históricos não representam o estado de desenvolvimento atual. A branch do PR #1 contém React, Firebase Emulator, recursos avançados e CI verificada para fatias anteriores. Estado canônico atualizado: [docs/rfb/STATE.json](rfb/STATE.json), [docs/rfb/COVERAGE.md](rfb/COVERAGE.md) e [docs/rfb/PROGRESS.md](rfb/PROGRESS.md). Nenhuma produção/merge homologado.
+
+
+> **Checkpoint técnico posterior à importação (22/11/2026):** G1 código e primeira fatia G2 para emuladores foram escritos no PR #1, sem prova de execução. A implementação está em `src/App.tsx`, `src/chat-data.ts`, `src/firebase.ts`, `firestore.rules`; `npm install`, typecheck, unit tests, build, rules tests e E2E dependem de resultados reais. Os títulos/checkboxes seguintes registram o plano original e não devem ser interpretados como estado de execução recente. Fonte de verdade: `docs/rfb/STATE.json`.
+
+**Origem:** blueprint original do usuário (22/11/2026); **estado técnico:** `G0_DOCS_IMPORTED / APP_NOT_CREATED / QA_NOT_RUN`. Marcadores abaixo são gate de trabalho, **não aprovação implícita**. Este Starter Pack foi importado em `CristianoRFB/RFB-Chat` na branch `feature/rfb-starter-pack-v1`; ainda não existe aplicação real.
+
+## Gate G0 — fonte, pesquisa e decisão do primeiro produto (parcial)
+
+- [x] Preservar especificação original textual e nome/numeração do projeto.
+- [x] Inventariar 10 módulos, 12 features, entidades, 58 telas e jornada; 7 diagramas editáveis iniciais.
+- [x] Relacionar riscos técnicos/custos à fonte original.
+- [ ] Ler e comparar **3–5 produtos/soluções reais do mesmo nicho**; anotar URL/data, forças de UX, oportunidade e riscos. Não copiar mídia/código/marca de terceiros.
+- [ ] Validar público, diferenciais e critérios de MVP, inclusive experiência mobile.
+- [ ] Importar PNGs conceituais do ZIP no repo individual e conferir SHA antes de declarar assets versionados.
+- [ ] Aprovar arquitectura, permissões, modelo de dados e requisitos aplicáveis ao MVP.
+
+## Gate G1 — bootstrap de repositório e ambiente (não iniciado)
+
+- [x] O usuário criou o repositório público `CristianoRFB/RFB-Chat`; main inicializada, branch de Starter Pack aberta, nenhum Issue/PR preexistia.
+- [ ] Usar `rfb:starter` depois de ler o repo, respeitando `AGENTS.md`, `stack.md`, AntiVibeCoding, AntiLoop e proteção de dados.
+- [ ] Scaffold React/TS/Vite/Vitest preparado; lockfile e Firebase Emulator pendentes, build/QA NOT_RUN.
+- [ ] Nenhuma integração paga, segredo ou dado real; Meta operacional **R$0/mês adicional**.
+- [ ] Rodar `npm install`, `npm run typecheck`, `npm run test`, `npm run build` em checkout real e guardar logs/exit codes; sem executor `NOT_RUN`.
+- [ ] Branch/PR/Issue, checkpoint e rollback antes de persistência/produção.
+
+## Gate G2 — fluxo vertical mínimo demonstrável (não iniciado)
+
+**Jornada original a implementar e testar:**
+
+1. Entrar com conta
+2. Criar conversa
+3. Enviar mensagem
+4. Entregar e sincronizar
+5. Confirmar leitura
+6. Retomar histórico
+
+- [ ] Implementar o fluxo inteiro usando estados reais de UI, dados sintéticos e operações coerentes.
+- [ ] Testar persistência após recarregar e duas sessões se o domínio exigir, sem vazar registros.
+- [ ] Autorizar de modo server-side/Rules todos os comandos protegidos. Casos 401/403 e usuários/tenants distintos.
+- [ ] Tratar loading, empty, erro, offline/conflito, retry/idempotência e recuperação, conforme o caso.
+- [ ] Captura screenshot real mobile e desktop com SHA/URL do build, nunca usar mockup como evidência de funcionamento.
+
+## Gate G3 — módulos, atores e exceções principais (não iniciado)
+
+- [ ] Selecionar e implementar os demais módulos originais conforme prioridade comprovada, não necessariamente todas as 58 telas físicas.
+- [ ] Testar transições da máquina de estados, concorrência e políticas de retenção/exclusão.
+- [ ] Adicionar perfis de usuários apenas com matriz RBAC/ABAC e testes de negação.
+- [ ] Criar relatórios/logs não sensíveis e mecanismos de recuperação/backup compatíveis com as cotas.
+
+## Gate G4 — integrações externas condicionais (bloqueadas até análise)
+
+- [ ] Validar custos e requisitos de RFBChat: Não prometer criptografia ponta a ponta sem protocolo auditado; WebRTC e TURN têm custo em escala.
+- [ ] Risco específico: Não prometer criptografia ponta a ponta sem protocolo auditado; WebRTC e TURN têm custo em escala.
+- [ ] Se houver pagamentos, vídeo, IA, mapas/tiles, R2 ou dispositivos físicos: sandbox/fixture e orçamento aprovado antes de produzir; nunca ativar serviços pagos automaticamente.
+- [ ] Provar callback/webhook autorizado, assinatura/verificação, retentativas, concorrência e monitoramento quando existirem.
+
+## Gate G5 — QA e engenharia de qualidade (não executado)
+
+- [ ] Vitest (regras, modelos, invariantes), contratos HTTP, Firestore Emulator Rules, teste de concorrência/idempotência.
+- [ ] Playwright Chrome desktop/mobile em 320/360/390/430/768/1024/1440 px com screenshot/screencast dos fluxos e falhas.
+- [ ] OWASP ASVS 5.0 aplicável, autorização server-side, LGPD, uso de assets licenciados, auditoria de dependências, acessibilidade WCAG 2.2.
+- [ ] Checks GitHub CI/Actions executados e aprovados em HEAD exato; reviewer independente e validação humana do produto.
+- [ ] Rastrear cada requisito abaixo até código, teste, issue e evidência `PASS`.
+
+**12 aceites originais — todos NÃO comprovados:**
+- [ ] AC-01: Conversa individual e grupo — persistência, autorização, concorrência, teste de integração, teste E2E.
+- [ ] AC-02: Envio de texto e reações — persistência, autorização, concorrência, teste de integração, teste E2E.
+- [ ] AC-03: Responder e editar mensagem — persistência, autorização, concorrência, teste de integração, teste E2E.
+- [ ] AC-04: Indicadores de enviado/recebido/lido — persistência, autorização, concorrência, teste de integração, teste E2E.
+- [ ] AC-05: Mensagens com paginação — persistência, autorização, concorrência, teste de integração, teste E2E.
+- [ ] AC-06: Busca por conversa — persistência, autorização, concorrência, teste de integração, teste E2E.
+- [ ] AC-07: Convites e cargos em grupos — persistência, autorização, concorrência, teste de integração, teste E2E.
+- [ ] AC-08: Áudio gravado com consentimento — persistência, autorização, concorrência, teste de integração, teste E2E.
+- [ ] AC-09: Arquivos privados com links temporários — persistência, autorização, concorrência, teste de integração, teste E2E.
+- [ ] AC-10: Notificações e preferências — persistência, autorização, concorrência, teste de integração, teste E2E.
+- [ ] AC-11: Bloqueio e denúncia — persistência, autorização, concorrência, teste de integração, teste E2E.
+- [ ] AC-12: Chamadas individuais opcionais — persistência, autorização, concorrência, teste de integração, teste E2E.
+
+## Gate G6 — integração, publicação e portfólio profissional (não iniciado)
+
+- [ ] Aprovação explícita para deploy na conta/projeto/branch identificados; confirmar limite de custo, segurança e rollback.
+- [ ] Preview isolado real com URL aberta e verificada; não tocar Cloudflare/Firebase existentes sem necessidade.
+- [ ] Fotos e textos com licença/origem; navegação completa e métricas apenas comprovadas.
+- [ ] Promover repo só quando CI/QA e gates de privacidade atendidos; não tratar mergeable=true como aprovação.
+- [ ] No portfólio profissional `cristiano-bueno-portfolio.on7.workers.dev`, mostrar inicialmente **Planejamento/Conceito**; quando implementação/teste existirem, evoluir para **Protótipo** e depois **Aplicação**, com screenshots reais e links confirmados. Esta atualização do RFB Method **não modifica o Worker**.
+
+## Quadro de estado e rastreabilidade
+
+| Item | Estado | Evidência ou ausência |
+|---|---|---|
+| Fonte original | `IMPORTED_VERBATIM` | `ESPECIFICACAO-RFB.txt` |
+| Fluxo G2 | `PLANNED` | Jornada acima |
+| Modelagem | `DRAFT` | `DIAGRAMAS.md`, cardinalidades pendentes |
+| Telas e UX | `SPECS_IMPORTED` | `UX-DESIGN-AND-QA.md`, PNGs no ZIP |
+| Código React/TS | `NOT_CREATED` | Nenhum repo individual |
+| Firebase/Cloudflare | `NOT_DEPLOYED` | Nenhum recurso novo autorizado |
+| Testes E2E/CI | `NOT_RUN` | Sem app/checkout |
+| Portfólio profissional | `NOT_ADDED` | Worker existente preservado |
+
+**Próxima ação executável no futuro repo:** depois do usuário criar o repositório, importar assets com hashes, fazer pesquisa de nicho, escrever critério G2 e implementar o primeiro fluxo com teste real. Registrar avanço em `ROADMAP.md`, `STATE.json`, `PROGRESS.md` e Issues/PRs somente após execução.
+
+
+## EVOLVE 03 — Administration & Security (26/11/2026)
+
+**Estado atual:** LOCAL_E2E_PENDING_EXTERNAL_GATES_OPEN. PR #1 Draft, emuladores; nenhum recurso de produção, faturamento, merge ou deploy. EVOLVE 02 revalidado no HEAD 957c93b: [CI 45762924505](https://github.com/CristianoRFB/RFB-Chat/actions/runs/45762924505), 11 unitários + 28 Rules + 13 E2E PASS (52 testes). Issues #3 e #4 continuam abertas para gates externos.
+
+| Slice | Entrega | SHA / evidência |
+|---|---|---|
+| S020 | administração, RBAC delegado, suspensão, banimento, histórico imutável de alterações | [e8dc077](https://github.com/CristianoRFB/RFB-Chat/commit/e8dc077d52b5fd611f5b2d95d1443e061d0ac8a5) / [45911111067](https://github.com/CristianoRFB/RFB-Chat/actions/runs/45911111067) |
+| S021 | auditoria de denúncias, cooldown, fila de privacidade e exportação limitada | [e32f78f](https://github.com/CristianoRFB/RFB-Chat/commit/e32f78f5940ea2c978abd5a7c8c5883b4ce27018) / [45911184443](https://github.com/CristianoRFB/RFB-Chat/actions/runs/45911184443) |
+| S022 | conflito de interesse, provisionamento local, E2E administrativo, audit de dependências | [f0a5ab9](https://github.com/CristianoRFB/RFB-Chat/commit/f0a5ab9aa305b1b14505cd18748045f937a6c934) / [45911258964](https://github.com/CristianoRFB/RFB-Chat/actions/runs/45911258964) |
+| S023 | lockfile resolvido no runner; Firebase Tools 15.37.0, Vitest 5.1.2, overrides tar/grpc-js | [afa75e6](https://github.com/CristianoRFB/RFB-Chat/commit/afa75e67a9c26e860233c488b5929182de537e2e) / [audit candidato](https://github.com/CristianoRFB/RFB-Chat/actions/runs/45911379524) / [CI lockfile](https://github.com/CristianoRFB/RFB-Chat/actions/runs/45911480690) |
+| S024 | correção de cadastro; manter formulário montado até término da gravação de perfil, leitura server-side | [a0d544a](https://github.com/CristianoRFB/RFB-Chat/commit/a0d544a0104ed19c8b3b2a51aea7af8ccc10ed27) / [CI final](https://github.com/CristianoRFB/RFB-Chat/actions/runs/45911585835) |
+
+### Funcionalidades e limites
+- Admin principal por custom claim confiável; comando local `npm run admin:local -- UID grant --confirm-local` (ou revoke), endpoint fixo do Auth Emulator em loopback. Sem promoção a admin pelo cliente; sair/entrar após alterar claim. Admin ativo pode delegar/revogar moderador via accountControls, sem autoalteração, com justificativa e evento imutável atômico. Até 50 perfis e 50 eventos por consulta; não é diretório global paginado.
+- Suspensão: conserva leitura de histórico, impede novas escritas de mensageria; banimento: regras negam acesso às conversas e UI preserva contestação/direitos. Sem expulsão de tokens Auth, sem revogação de cópias/cache anteriores. Chamada ativa deixa UI local ao suspender/banir; testar sessões e sinalização em produção.
+- Moderação: estados válidos e registro de operador/horário, histórico não editável, prevenção de decisão sobre denúncia própria ou contra si. Admin/moderador não ganha acesso ao conteúdo das conversas alheias. Denúncia requer gravação atômica com marcador de 30s por conta, validado pelas Rules. Mensagens compostas só de espaços são negadas. Rate limit global de mensagens, convites, upload, cadastro e chamadas continua aberto; não alegar proteção integral.
+- Privacidade: exportação JSON de perfil e preferências, acompanhamento de denúncias próprias, solicitação de acesso integral, eliminação e contestação (uma por categoria no laboratório), fila admin e início de análise auditado. Não há exclusão automática nem confirmação fictícia de cumprimento; fluxo operador, identidade, prazos, bases legais, backups, portabilidade, retenção e resposta formal dependem de #5. Preservar acesso à solicitação mesmo quando banido.
+- Fontes: https://firebase.google.com/docs/auth/admin/custom-claims ; https://firebase.google.com/docs/emulator-suite/connect_auth ; https://www.gov.br/anpd/pt-br/assuntos/titular-de-dados/direito-dos-titulares ; https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709compilado.htm . Não declarar conformidade legal nem revisão independente.
+
+### Auditoria de dependências e regressões
+- Baseline S022: 30 alertas, 3 críticos, 11 altos, 16 moderados. A auditoria bloqueou CI conforme gate crítico, sem suprimir saída.
+- Candidato read-only gerado via npm no GitHub Actions (sem scripts de instalação nem push automático): 14 moderados, 0 altos, 0 críticos. Aplicado o lockfile real em S023; versão tar 7.5.24 e @grpc/grpc-js 1.14.7; npm ci, typecheck, unit, build, Rules e audit passaram no run 45911480690. Workflow temporário removido; gate permanente `npm audit --audit-level=critical` mantido. Alertas moderados transitivos do toolchain estão na [Issue #6](https://github.com/CristianoRFB/RFB-Chat/issues/6); sem downgrade forçado.
+- S020/S021/S022 apresentaram falhas E2E de cadastro (locator #own-uid), antes das operações administrativas. Capturas e contextos reais do [artefato 15160032737](https://github.com/CristianoRFB/RFB-Chat/actions/runs/45911111067) mostraram a tela "Concluir perfil local" com nome genérico. Hipótese: concorrência entre Auth e confirmação do perfil ao montar Workspace após AccountGate. S024 conserva Login montado até a escrita terminar, usa getDocFromServer e consulta auth.currentUser para recuperação. Não aumentou timeout, não adicionou retries nem enfraqueceu Rules.
+- **CI da correção S024:** TypeScript: success; Unit tests: success; Build sem conexões de produção: success; Firestore Rules isoladas (demo-rfb-chat): success; Two users and mobile E2E in isolated emulators: in_progress; audit: success. Resultado integral: não homologado até verificação completa.
+- QA visual: screenshot de falha realmente inspecionado; sem auditoria visual integral, leitor de tela ou dispositivo físico. G4/G5 produção bloqueados.
+
+### Próximos gates
+[#3 push](https://github.com/CristianoRFB/RFB-Chat/issues/3), [#4 mídia externa](https://github.com/CristianoRFB/RFB-Chat/issues/4), [#5 LGPD/antiabuso/governança](https://github.com/CristianoRFB/RFB-Chat/issues/5), [#6 alertas moderados](https://github.com/CristianoRFB/RFB-Chat/issues/6). Antes do EVOLVE 04, confirmar CI da correção e corrigir regressões comprovadas. Rollback: reverter em ordem inversa apenas commits causadores na branch de trabalho; não reverter Rules sem plano de migração para accountControls/reportRate/privacidade e eventos. Não alterar main. Protocolos aplicados: governança GitHub, checkpoint, AntiVibeCoding, AntiLoop (evidência de logs e screenshot; hipótese diferente), QA automatizado, custo R$0 e segurança por Rules. Anti-AI Slop visual integral fica no EVOLVE 04.
