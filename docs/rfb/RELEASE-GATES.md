@@ -49,4 +49,7 @@ Versão: 23/11/2026. Este documento distingue laboratório funcional de produç�
 ## EVOLVE 05
 - [x] Benchmark pareado, guard público e restauração local comprovados.
 - [ ] Validar métricas de latência/carga e consumo real, staging, cotas, DR, FCM, mídia externa e governança; #3–#6.
-- [ ] CI integral por SHA final.
+- [x] CI integral por SHA final.
+
+
+**Homologação final EVOLVE 05:** CI https://github.com/CristianoRFB/RFB-Chat/actions/runs/45915281418 integralmente PASS para 81dd87d6cd651fcf3d2d7fbdf61e8edeb497d30c: 13 unitários, 31 Rules, 15 E2E (59 testes), 1 benchmark explicitamente SKIP na suíte comum, executado separadamente com PASS em 45915281421. Auditoria PASS. Visual e infraestrutura PASS. Gates externos e latência permanecem em revisão; próximo EVOLVE 06 Total QA.

@@ -1,6 +1,6 @@
 # EVOLVE 05 — Performance & Infrastructure
 
-Data: 26/11/2026 (São Paulo). Estado **PERF_INFRA_VISUAL_PASS_FINAL_CI_PENDING**. PR #1 Draft; main e produção intocadas. Nenhum recurso pago ativado. R$0 custo recorrente adicional criado.
+Data: 26/11/2026 (São Paulo). Estado **LOCAL_CI_PERF_INFRA_PASS_EXTERNAL_GATES_OPEN**. PR #1 Draft; main e produção intocadas. Nenhum recurso pago ativado. R$0 custo recorrente adicional criado.
 
 ## Baseline e regressões
 - EVOLVE 04 S028: [CI PASS](https://github.com/CristianoRFB/RFB-Chat/actions/runs/45913486070), [visual PASS](https://github.com/CristianoRFB/RFB-Chat/actions/runs/45913486069), [checkpoint CI PASS](https://github.com/CristianoRFB/RFB-Chat/actions/runs/45913563737). Sem regressão residual comprovada naquele SHA.
@@ -30,3 +30,6 @@ Amostras antes: 142,136,124,183,145 ms; depois: 160,181,156,132,170 ms. Não dem
 - Protocolos Anti-Preguiça: implementação, benchmark antes/depois e diagnóstico de falhas; AntiVibeCoding: testes reais, sem inventar resultados, preservação de Rules; AntiLoop: hipóteses diferentes para falha de alvo/porta; checkpoint e triagem, custo zero; QA visual reexecutado. Rollback: reverter commits S029–S032 na branch; preservar Rules e exports autorizados; não fazer reset de main. 
 
 Próximo EVOLVE 06: verificar CI final, amostra maior de latência/carga, concorrência, quota, WCAG/OWASP/LGPD e gates externos. Não declarar percentual global nem produção homologada.
+
+
+**Homologação final EVOLVE 05:** CI https://github.com/CristianoRFB/RFB-Chat/actions/runs/45915281418 integralmente PASS para 81dd87d6cd651fcf3d2d7fbdf61e8edeb497d30c: 13 unitários, 31 Rules, 15 E2E (59 testes), 1 benchmark explicitamente SKIP na suíte comum, executado separadamente com PASS em 45915281421. Auditoria PASS. Visual e infraestrutura PASS. Gates externos e latência permanecem em revisão; próximo EVOLVE 06 Total QA.

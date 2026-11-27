@@ -23,3 +23,6 @@ Entrada: 2 issues abertas (#3/#4), PR #1 Draft; saída: #3/#4/#5/#6 KEEP_OPEN, P
 
 ## EVOLVE 05
 Entrada/saída #3–#6 KEEP_OPEN, PR #1 Draft. Baseline S028 e checkpoint PASS. CI 61034de PASS, benchmark/infra/visual 81dd87d PASS, CI final pendente. Nenhum merge/deploy/faturamento. [Relatório](EVOLVE-05.md).
+
+
+**Homologação final EVOLVE 05:** CI https://github.com/CristianoRFB/RFB-Chat/actions/runs/45915281418 integralmente PASS para 81dd87d6cd651fcf3d2d7fbdf61e8edeb497d30c: 13 unitários, 31 Rules, 15 E2E (59 testes), 1 benchmark explicitamente SKIP na suíte comum, executado separadamente com PASS em 45915281421. Auditoria PASS. Visual e infraestrutura PASS. Gates externos e latência permanecem em revisão; próximo EVOLVE 06 Total QA.
