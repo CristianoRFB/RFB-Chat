@@ -26,11 +26,13 @@ export function NotificationsPanel({ conversations, enabled, uid, onOpen, onErro
   conversations: ChatConversation[]; enabled: boolean; uid: string;
   onOpen: (id: string) => void; onError: (error: unknown) => void;
 }) {
+  const [open,setOpen]=useState(false);
   if (!enabled) return <p className="mini-label" style={{ padding: 12 }}>Notificações desativadas nas preferências.</p>;
-  return <details className="notifications-panel">
+  return <details className="notifications-panel" open={open} onToggle={e=>setOpen(e.currentTarget.open)}>
     <summary>Notificações de mensagens</summary>
     <p className="mini-label">Até 10 conversas recentes, sem notificações push ou segundo plano.</p>
-    {conversations.slice(0, 10).map(conversation => <UnreadLine key={conversation.id}
+    {!open&&<p className="mini-label">Abra para atualizar as notificações.</p>}
+    {open&&conversations.slice(0, 10).map(conversation => <UnreadLine key={conversation.id}
       conversation={conversation} uid={uid} onError={onError} onOpen={onOpen}/>)}
     {conversations.length === 0 && <p className="mini-label">Sem conversas ainda.</p>}
   </details>;

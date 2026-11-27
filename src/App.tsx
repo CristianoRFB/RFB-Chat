@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
 import {
   createUserWithEmailAndPassword, onAuthStateChanged,
   signInWithEmailAndPassword, signOut, updateProfile, type User
@@ -118,6 +118,7 @@ function Workspace({ user,suspended }: { user: User;suspended:boolean }) {
   const [conversations, setConversations] = useState<ChatConversation[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [names, setNames] = useState<Record<string, string>>({});
+  const nameRequests=useRef(new Set<string>());
   const [target, setTarget] = useState('');
   const [search, setSearch] = useState('');
   const [conversationFilter,setConversationFilter]=useState<'all'|'dm'|'group'>('all');
@@ -177,18 +178,16 @@ function Workspace({ user,suspended }: { user: User;suspended:boolean }) {
 
   useEffect(() => {
     for (const conversation of conversations) {
-      const uid = otherMember(conversation.memberIds, user.uid);
-      if (!names[uid]) {
-        void lookupName(uid).then(name => {
-          setNames(previous => ({ ...previous, [uid]: name }));
-        }).catch(() => {
-          setNames(previous => ({ ...previous, [uid]: uid.slice(0, 10) }));
-        });
-      }
+      if(conversation.kind!=='dm')continue;
+      const uid=otherMember(conversation.memberIds,user.uid);
+      if(!uid||nameRequests.current.has(uid))continue;
+      nameRequests.current.add(uid);
+      void lookupName(uid).then(name=>setNames(previous=>({...previous,[uid]:name}))).catch(()=>{
+        // Falhas transitórias não entram como nomes canônicos; tentar na próxima alteração da lista.
+        nameRequests.current.delete(uid);
+      });
     }
-    // Nome resolve uma vez por alteração de lista; cache do estado impede exibição em branco.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [conversations, user.uid]);
+  },[conversations,user.uid]);
 
   async function newConversation(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

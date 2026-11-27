@@ -12,14 +12,15 @@ export function FilePanel({ uid, conversationId, onError }: {
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState('');
   const [failed, setFailed] = useState('');
+  const [open,setOpen]=useState(false);
   const [gallery, setGallery] = useState<MediaEntry[]>([]);
   const [now, setNow] = useState(Date.now());
-  useEffect(() => { const timer = window.setInterval(() => setNow(Date.now()),1000); return () => clearInterval(timer); },[]);
+  useEffect(() => { if(!open&&!loaded)return;setNow(Date.now());const timer = window.setInterval(() => setNow(Date.now()),1000); return () => clearInterval(timer); },[open,loaded]);
   useEffect(() => {
     setGallery([]);
-    if (!conversationId) return;
+    if (!conversationId||!open) return;
     return watchMediaIndex(conversationId,setGallery,error => {setGallery([]); onError(error);});
-  },[conversationId,onError]);
+  },[conversationId,onError,open]);
   useEffect(() => {
     if (loaded && loaded.expiresAt.getTime() <= now) { setLoaded(null); setFailed('Arquivo expirado.'); }
   },[loaded,now]);
@@ -47,6 +48,7 @@ export function FilePanel({ uid, conversationId, onError }: {
       if (active) {
         setLoaded(data);
         setCurrentRef(parsed);
+        setOpen(true);
       }
     }).catch(error => {
       if (active) setFailed('Arquivo indisponível. Verifique o acesso, a sessão e a validade do link.');
@@ -95,7 +97,7 @@ export function FilePanel({ uid, conversationId, onError }: {
     catch { setNotice('Copie o link manualmente no campo abaixo.'); }
   }
 
-  return <details className="file-panel">
+  return <details className="file-panel" open={open} onToggle={e=>setOpen(e.currentTarget.open)}>
     <summary>Arquivos privados e links temporários</summary>
     <p>Somente membros autenticados podem abrir o link. Limite local de 300 KB; TXT, PNG, JPG, PDF, WebM e MP4. Imagens maiores podem ser comprimidas automaticamente.</p>
     {conversationId && <form className="file-form" onSubmit={upload}>

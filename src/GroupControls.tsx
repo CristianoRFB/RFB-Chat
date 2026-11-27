@@ -22,12 +22,13 @@ export function GroupControls({ uid, current, onCreated, onError }: Props) {
   const isAdmin = !!group?.adminIds?.includes(uid);
   const isOwner = group?.createdBy === uid;
   const [memberNames, setMemberNames] = useState<Record<string,string>>({});
+  const memberKey=JSON.stringify(group?.memberIds??[]);
   useEffect(() => {
-    let active = true;
-    if (group) void Promise.all(group.memberIds.map(async member => [member, await lookupName(member).catch(() => member.slice(0,14))] as const))
-      .then(entries => { if (active) setMemberNames(Object.fromEntries(entries)); });
-    return () => { active = false; };
-  }, [group]);
+    let active=true;const members=JSON.parse(memberKey) as string[];
+    setMemberNames({});
+    if(members.length)void Promise.all(members.map(async member=>[member,await lookupName(member).catch(()=>member.slice(0,14))] as const)).then(entries=>{if(active)setMemberNames(Object.fromEntries(entries));});
+    return()=>{active=false;};
+  },[memberKey]);
 
   async function execute(job: () => Promise<void>, success: string) {
     setNotice('');
