@@ -2,11 +2,11 @@
   "schema": 1,
   "repo": "CristianoRFB/RFB-Chat",
   "goal": "RFBChat — implementar 12 AC com rastreabilidade, emuladores e custo adicional R$0/mês",
-  "phase": "EVOLVE_07_PREPARATION",
-  "slice": "S035",
+  "phase": "EVOLVE_07_PREPARED_RELEASE_BLOCKED",
+  "slice": "S036",
   "baseline_sha": "b20f3887d9192ad10371ba8e8f0888ee93d09da4",
-  "last_commit_sha": "4368f7127f45b8e0934363a6898f6fe6390f1fb5",
-  "last_verified_sha": "119f2df4d9c730d208a5a66c32d66872918c2840",
+  "last_commit_sha": "44aea22c6ed07d6a6fd0781da10804ee72c17173",
+  "last_verified_sha": "4368f7127f45b8e0934363a6898f6fe6390f1fb5",
   "evidence": {
     "github_pr": "https://github.com/CristianoRFB/RFB-Chat/pull/1",
     "open_issues": 4,
@@ -114,6 +114,60 @@
         "adversarialCases": 5,
         "reportRace": "1 accepted / 1 denied"
       }
+    },
+    "evolve07": {
+      "candidate": "44aea22c6ed07d6a6fd0781da10804ee72c17173",
+      "latestFullyVerified": "4368f7127f45b8e0934363a6898f6fe6390f1fb5",
+      "benchmark": [
+        45932655779,
+        45932789882
+      ],
+      "sustainedLoad": 45932655760,
+      "releaseGate": 45932789870,
+      "dependencyProbe": 45932790030,
+      "securityReplay": 45932967467,
+      "candidateRuns": [
+        {
+          "id": 45932967400,
+          "name": "RFB Chat — paired performance benchmark",
+          "status": "in_progress",
+          "conclusion": null
+        },
+        {
+          "id": 45932967467,
+          "name": "RFB Chat — CI de validação local",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 45932967634,
+          "name": "RFB Chat — Real visual QA",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 45932967483,
+          "name": "RFB Chat — compatible dependency remediation probe",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 45932967501,
+          "name": "RFB Chat — EVOLVE 06 total QA",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 45932967528,
+          "name": "RFB Chat — infrastructure safety QA",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ],
+      "raw": "docs/rfb/benchmarks/EVOLVE-07.json",
+      "releaseManifest": "docs/rfb/RELEASE-MANIFEST.json",
+      "lifecycle": "docs/rfb/LIFECYCLE.json",
+      "status": "PREPARED_RELEASE_BLOCKED"
     }
   },
   "completed": [
@@ -140,7 +194,8 @@
     "EVOLVE 04 S025-S027 design, themes, filters, 58 IDs and 6 reviewed screenshots; dedicated visual PASS.",
     "EVOLVE 04 S028 CI and visual PASS.",
     "EVOLVE 05 performance benchmark, public guard/backup QA, lazy subscriptions and local diagnostics implemented; production gates open.",
-    "EVOLVE 06 S033: five candidate CI workflows passed; 100/100 SDK messages, 5 canonical DM races, 5 negative checks, report race, 112 contrast assertions; 8 real screenshots inspected."
+    "EVOLVE 06 S033: five candidate CI workflows passed; 100/100 SDK messages, 5 canonical DM races, 5 negative checks, report race, 112 contrast assertions; 8 real screenshots inspected.",
+    "EVOLVE 07 prep S034/S035 all CI PASS, 200 browser observations, sustained 480 messages, release safety tests, compatible audit probe unchanged; S036 canonical DM focused Rules/replay PASS."
   ],
   "pending": [
     "Validar transporte RTP real e conectividade WebRTC fora de localhost (sem STUN/TURN isso não é garantido).",
@@ -155,15 +210,16 @@
     "EVOLVE 03: #5 privacidade integral/antiabuso global/admin real, #6 alertas moderados; validar E2E da correção de cadastro se pendente.",
     "EVOLVE 04: formal brand approval, original PNGs absent, admin/group screenshots, full WCAG, devices; full CI if pending.",
     "EVOLVE 05: latency median +12.7% in 5-sample local test; repeat with larger workload E06; real FCM/backup/quota monitoring blocked #3–#5; real production bundle not measured.",
-    "EVOLVE 06 external release gates: screen reader/device/full WCAG and independent OWASP/LGPD, randomized browser latency profiling, sustained load, dedicated group screenshots, #3–#6."
+    "EVOLVE 06 external release gates: screen reader/device/full WCAG and independent OWASP/LGPD, randomized browser latency profiling, sustained load, dedicated group screenshots, #3–#6.",
+    "S036 final E2E/all workflows if pending, external staging/security/LGPD/AT/FCM/media and no-cost actual quota/DR acceptance."
   ],
   "blockers": [
     "PR DRAFT não está mesclado e nenhum deploy/projeto Firebase real foi autorizado",
     "11/12 funcionalidades com fluxo local foram escritas, mas definição de 90% integral não pode ser homologada com ausência de QA externa e produção",
     "11/12 somente como cobertura de fluxos de laboratório; 58 telas conceituais não foram implementadas individualmente."
   ],
-  "next_action": "S036 canonical DM security regression; collect previous CI evidence",
-  "revision": 20,
+  "next_action": "Verify all remaining CI for S036/checkpoint; keep public guard, address #3–#6, real-device/accessibility/independent review and obtain separate staging authorization; do not publish or bill.",
+  "revision": 21,
   "updated_at": "2026-11-26",
   "history": [
     {
@@ -573,7 +629,52 @@
       "slice": "S036",
       "baseline_sha": "4368f7127f45b8e0934363a6898f6fe6390f1fb5",
       "goal": "Probe reversed member order against baseline Rules, enforce canonical order on create only, and retest positive and negative in same isolated emulator; no changes to existing DM reads or production"
+    },
+    {
+      "event": "SLICE_COMMITTED_VERIFICATION_PARTIAL",
+      "slice": "S036",
+      "sha": "44aea22c6ed07d6a6fd0781da10804ee72c17173",
+      "securityReplay": 45932967467,
+      "runs": [
+        {
+          "id": 45932967400,
+          "name": "RFB Chat — paired performance benchmark",
+          "status": "in_progress",
+          "conclusion": null
+        },
+        {
+          "id": 45932967467,
+          "name": "RFB Chat — CI de validação local",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 45932967634,
+          "name": "RFB Chat — Real visual QA",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 45932967483,
+          "name": "RFB Chat — compatible dependency remediation probe",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 45932967501,
+          "name": "RFB Chat — EVOLVE 06 total QA",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 45932967528,
+          "name": "RFB Chat — infrastructure safety QA",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ],
+      "latestVerified": "4368f7127f45b8e0934363a6898f6fe6390f1fb5"
     }
   ],
-  "status": "IN_PROGRESS_RELEASE_BLOCKED"
+  "status": "EVOLVE_07_PREPARED_RELEASE_BLOCKED"
 }

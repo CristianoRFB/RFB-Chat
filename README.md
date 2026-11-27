@@ -206,3 +206,7 @@ Próximo EVOLVE 06: verificar CI final, amostra maior de latência/carga, concor
 
 ### EVOLVE 06 — Total QA (laboratório)
 Five CI workflows passed on candidate `3142ef4`: 13 unit, 31 Rules, 15 E2E; 100/100 messages observed with 10 synthetic accounts in two bounded phases. Eight real screenshots inspected, both-theme contrast checks and runtime audit 0 vulnerabilities reported; 14 moderate dev alerts remain. [Detailed results and limitations](docs/rfb/EVOLVE-06.md). No production, no full WCAG/OWASP/LGPD certification.
+
+
+### EVOLVE 07 — preparation only
+Local balanced latency and sustained workload passed; canonical DM ordering hardening verified in isolated replay. [Evidence](docs/rfb/EVOLVE-07.md), [runbook](docs/rfb/PRODUCTION-RUNBOOK.md), [release manifest](docs/rfb/RELEASE-MANIFEST.json). Current public build deliberately remains blocked. No production, merge or billing authorization; no claim of final readiness.

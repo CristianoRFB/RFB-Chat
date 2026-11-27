@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "candidateSha": "67df48c2ae028a0da3e53e624719a1c7dfd92a58",
+  "candidateSha": "44aea22c6ed07d6a6fd0781da10804ee72c17173",
   "billingEnabled": null,
   "productionAuthorized": false,
   "mergeAuthorized": false,
@@ -9,13 +9,13 @@
     {
       "id": "ci",
       "status": "NOT_RUN",
-      "evidence": "S034 workflows still running; baseline 119f2df five PASS",
+      "evidence": "Candidate CI partial: 45932967467, security replay and Rules PASS; all pipelines not yet confirmed",
       "sha": null
     },
     {
       "id": "performance",
-      "status": "NOT_RUN",
-      "evidence": "S034 balanced 100 samples pending",
+      "status": "BLOCKED",
+      "evidence": "Prior S034 and S035 ABBA and sustained load PASS; production latency/quota unverified; candidate run 45932967400",
       "sha": null
     },
     {
@@ -27,7 +27,7 @@
     {
       "id": "security-review",
       "status": "BLOCKED",
-      "evidence": "Independent reviewer and live session controls missing",
+      "evidence": "Canonical DM replay PASS 45932967467; independent review still required",
       "sha": null
     },
     {

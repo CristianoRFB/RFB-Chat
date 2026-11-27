@@ -2,13 +2,13 @@
   "schema_version": 2,
   "product": "RFBChat",
   "repository": "CristianoRFB/RFB-Chat",
-  "stage": "EVOLVE_06_LOCAL_QA_PASS_RELEASE_GATES_OPEN",
+  "stage": "EVOLVE_07_PREPARED_RELEASE_BLOCKED",
   "source_imported": true,
   "modules_documented": 10,
   "features_documented": 12,
   "implemented_code_slices": "11 original flows plus local synthetic bidirectional RTP; EVOLVE 03 security expanded, final QA tracked separately",
-  "last_verified_code_sha": "3142ef40c4fa9e4409d90e8d7bc538a204653f00",
-  "last_verified_ci_url": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45930727446",
+  "last_verified_code_sha": "4368f7127f45b8e0934363a6898f6fe6390f1fb5",
+  "last_verified_ci_url": "https://github.com/CristianoRFB/RFB-Chat/actions/runs/45932789870",
   "last_verified": {
     "unit": "PASS_13",
     "rules": "PASS_31",
@@ -17,8 +17,8 @@
     "build": "PASS",
     "npm_ci": "PASS"
   },
-  "latest_code_sha": "3142ef40c4fa9e4409d90e8d7bc538a204653f00",
-  "latest_qa": "SUCCESS_LOCAL_ONLY",
+  "latest_code_sha": "44aea22c6ed07d6a6fd0781da10804ee72c17173",
+  "latest_qa": "FOCUSED_PASS_FULL_CANDIDATE_CI_PENDING",
   "production": false,
   "real_payments": false,
   "firebase": "EMULATOR_ONLY",
@@ -31,7 +31,7 @@
     "No physical TTL purge, quotas/rate limits or full LGPD/OWASP/WCAG release audit",
     "58 conceptual screens not separately built"
   ],
-  "next_action": "Complete outstanding EVOLVE 06 release acceptance checks; EVOLVE 07 production remains blocked pending authorization and external gates.",
+  "next_action": "Verify all remaining CI for S036/checkpoint; keep public guard, address #3–#6, real-device/accessibility/independent review and obtain separate staging authorization; do not publish or bill.",
   "functional_coverage": {
     "local_tested_flows": 11,
     "total": 12,
@@ -134,5 +134,59 @@
       "adversarialCases": 5,
       "reportRace": "1 accepted / 1 denied"
     }
+  },
+  "evolve07": {
+    "candidate": "44aea22c6ed07d6a6fd0781da10804ee72c17173",
+    "latestFullyVerified": "4368f7127f45b8e0934363a6898f6fe6390f1fb5",
+    "benchmark": [
+      45932655779,
+      45932789882
+    ],
+    "sustainedLoad": 45932655760,
+    "releaseGate": 45932789870,
+    "dependencyProbe": 45932790030,
+    "securityReplay": 45932967467,
+    "candidateRuns": [
+      {
+        "id": 45932967400,
+        "name": "RFB Chat — paired performance benchmark",
+        "status": "in_progress",
+        "conclusion": null
+      },
+      {
+        "id": 45932967467,
+        "name": "RFB Chat — CI de validação local",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 45932967634,
+        "name": "RFB Chat — Real visual QA",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 45932967483,
+        "name": "RFB Chat — compatible dependency remediation probe",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 45932967501,
+        "name": "RFB Chat — EVOLVE 06 total QA",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 45932967528,
+        "name": "RFB Chat — infrastructure safety QA",
+        "status": "completed",
+        "conclusion": "success"
+      }
+    ],
+    "raw": "docs/rfb/benchmarks/EVOLVE-07.json",
+    "releaseManifest": "docs/rfb/RELEASE-MANIFEST.json",
+    "lifecycle": "docs/rfb/LIFECYCLE.json",
+    "status": "PREPARED_RELEASE_BLOCKED"
   }
 }

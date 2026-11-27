@@ -10,7 +10,7 @@ Meta: release V1.0.0, zero custo recorrente adicional dentro das cotas, sem merg
 | 04 Visual Excellence | benchmark, 58 T-IDs reconciliados, design system arredondado, temas, acessibilidade, logo/assinatura, Anti-AI Slop | CI + visual PASS; WCAG integral pendente |
 | 05 Performance & Infrastructure | listeners, cache, PWA, FCM autorizado, monitoramento, cotas, backup/rollback | LOCAL_CI_PERF_INFRA_PASS_EXTERNAL_GATES_OPEN; benchmark/infra PASS; gates externos |
 | 06 Total QA | unit, Rules, E2E, concorrência, carga, visual, WCAG, OWASP, LGPD, regressão | LOCAL_QA_PASS; aceites externos abertos |
-| 07 Production Release | staging Firebase/Cloudflare, push real, revisão, merge/deploy autorizados, smoke/release | Pendente |
+| 07 Production Release | staging Firebase/Cloudflare, push real, revisão, merge/deploy autorizados, smoke/release | PREPARED_RELEASE_BLOCKED |
 | 08 Project Closure | README, screenshots reais, diagramas, manual, demo, portfólio, triagem e handoff | Pendente |
 
 Encerrar somente com aceites obrigatórios aprovados, nenhuma falha crítica conhecida, produção verificada, documentação completa e custos explicitados. Sem equiparar 91,7% da matriz local à conclusão integral.
@@ -163,3 +163,7 @@ Próximo EVOLVE 06: verificar CI final, amostra maior de latência/carga, concor
 
 ## EVOLVE 06 — Total QA
 S033: five candidate workflows PASS. 59 regression tests, 100/100 SDK messages, 5 DM races, negative authorization, report race, both themes and 8 reviewed screenshots. [Report](EVOLVE-06.md) and [raw evidence](benchmarks/EVOLVE-06.json). External release gates remain open; no global completion claim.
+
+
+## EVOLVE 07 — preparation only
+S034/S035 all local workflows PASS; 200 browser measurements, sustained 480/480, read-only release gate and dependency probe. S036 canonical DM focused replay PASS; see current CI and external gates. [Report](EVOLVE-07.md), [runbook](PRODUCTION-RUNBOOK.md), [manifest](RELEASE-MANIFEST.json). Release not authorized, EVOLVE 08 pending.

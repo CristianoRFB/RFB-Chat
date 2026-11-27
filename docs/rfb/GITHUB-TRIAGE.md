@@ -26,3 +26,7 @@ Entrada/saída #3–#6 KEEP_OPEN, PR #1 Draft. Baseline S028 e checkpoint PASS. 
 
 
 **Homologação final EVOLVE 05:** CI https://github.com/CristianoRFB/RFB-Chat/actions/runs/45915281418 integralmente PASS para 81dd87d6cd651fcf3d2d7fbdf61e8edeb497d30c: 13 unitários, 31 Rules, 15 E2E (59 testes), 1 benchmark explicitamente SKIP na suíte comum, executado separadamente com PASS em 45915281421. Auditoria PASS. Visual e infraestrutura PASS. Gates externos e latência permanecem em revisão; próximo EVOLVE 06 Total QA.
+
+
+## EVOLVE 07 (27 Nov UTC)
+PR #1 Draft, HEAD candidate 44aea22c6ed07d6a6fd0781da10804ee72c17173. Intake and final: #3 FCM BLOCKED_EXTERNAL; #4 media/retention BLOCKED_EXTERNAL; #5 security/governance OPEN_ACTIONABLE (canonical DM correction verified locally, no full closure); #6 KEEP_OPEN (compatible probe unchanged 14 moderate). No merge/close/deploy. Role QA/SECURITY/RELEASE, evidence EVOLVE-07.md. No independent reviewers claimed.
