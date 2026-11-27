@@ -48,7 +48,6 @@ export function FilePanel({ uid, conversationId, onError }: {
       if (active) {
         setLoaded(data);
         setCurrentRef(parsed);
-        setOpen(true);
       }
     }).catch(error => {
       if (active) setFailed('Arquivo indisponível. Verifique o acesso, a sessão e a validade do link.');
