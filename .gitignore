@@ -7,3 +7,7 @@ coverage/
 *.local
 
 visual-evidence/
+
+.local-backup/
+perf-results/
+perf-evidence/
