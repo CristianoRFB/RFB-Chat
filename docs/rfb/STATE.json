@@ -3,9 +3,9 @@
   "repo": "CristianoRFB/RFB-Chat",
   "goal": "RFBChat — implementar 12 AC com rastreabilidade, emuladores e custo adicional R$0/mês",
   "phase": "EVOLVE_05_IN_PROGRESS",
-  "slice": "S029",
+  "slice": "S030",
   "baseline_sha": "b20f3887d9192ad10371ba8e8f0888ee93d09da4",
-  "last_commit_sha": "d5a64827e519ddf0c3430b56730ce17d83c438cd",
+  "last_commit_sha": "43f6af8a5e1bdbc82960377c921ad0b9cfff7c77",
   "last_verified_sha": "6e36ddd9af19da00a427d4a73670d564ba572fc2",
   "evidence": {
     "github_pr": "https://github.com/CristianoRFB/RFB-Chat/pull/1",
@@ -117,7 +117,7 @@
     "11/12 funcionalidades com fluxo local foram escritas, mas definição de 90% integral não pode ser homologada com ausência de QA externa e produção",
     "11/12 somente como cobertura de fluxos de laboratório; 58 telas conceituais não foram implementadas individualmente."
   ],
-  "next_action": "Implement performance slice and paired benchmark; preserve gates #3-6.",
+  "next_action": "Inspect paired benchmark 45914960995; validate public guard and offline fallback; finalize evidence.",
   "revision": 13,
   "updated_at": "2026-11-26",
   "history": [
@@ -427,6 +427,18 @@
       "slice": "S029",
       "baseline_sha": "6e36ddd9af19da00a427d4a73670d564ba572fc2",
       "goal": "gate hidden notification/media subscriptions, eliminate duplicate group lookups, isolate production guard, benchmark actual subscriptions and build sizes in same runner; R$0 no deployment"
+    },
+    {
+      "event": "SLICE_COMMITTED",
+      "slice": "S029",
+      "sha": "c1e99d20c13152a9394880f2827e6e2f71cc4bd7",
+      "status": "IMPLEMENTED_UNVERIFIED"
+    },
+    {
+      "event": "BEFORE_WRITE",
+      "slice": "S030",
+      "baseline_sha": "43f6af8a5e1bdbc82960377c921ad0b9cfff7c77",
+      "goal": "Public offline fallback smoke, emulator backup and restore instructions, quota/monitoring operational runbook; no real integration or deploy."
     }
   ]
 }
