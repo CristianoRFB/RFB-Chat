@@ -1,0 +1,100 @@
+{
+  "schema": 1,
+  "candidateSha": "67df48c2ae028a0da3e53e624719a1c7dfd92a58",
+  "billingEnabled": null,
+  "productionAuthorized": false,
+  "mergeAuthorized": false,
+  "stagingAuthorized": false,
+  "gates": [
+    {
+      "id": "ci",
+      "status": "NOT_RUN",
+      "evidence": "S034 workflows still running; baseline 119f2df five PASS",
+      "sha": null
+    },
+    {
+      "id": "performance",
+      "status": "NOT_RUN",
+      "evidence": "S034 balanced 100 samples pending",
+      "sha": null
+    },
+    {
+      "id": "visual-accessibility",
+      "status": "BLOCKED",
+      "evidence": "Chromium local verified E06; real AT and devices required",
+      "sha": null
+    },
+    {
+      "id": "security-review",
+      "status": "BLOCKED",
+      "evidence": "Independent reviewer and live session controls missing",
+      "sha": null
+    },
+    {
+      "id": "privacy",
+      "status": "BLOCKED",
+      "evidence": "LGPD decisions and accountable operator #5",
+      "sha": null
+    },
+    {
+      "id": "antiabuse",
+      "status": "BLOCKED",
+      "evidence": "Global quotas and enforcement #5",
+      "sha": null
+    },
+    {
+      "id": "media-retention",
+      "status": "BLOCKED",
+      "evidence": "Physical deletion and real-network calling #4",
+      "sha": null
+    },
+    {
+      "id": "push",
+      "status": "BLOCKED",
+      "evidence": "FCM real authorized project #3",
+      "sha": null
+    },
+    {
+      "id": "staging",
+      "status": "BLOCKED",
+      "evidence": "No authorized real project; no deploy",
+      "sha": null
+    },
+    {
+      "id": "backup-restore",
+      "status": "BLOCKED",
+      "evidence": "Local restore PASS; no real DR approval",
+      "sha": null
+    },
+    {
+      "id": "quota-billing",
+      "status": "BLOCKED",
+      "evidence": "Free plan actual account/project and quotas not confirmed",
+      "sha": null
+    },
+    {
+      "id": "rollback",
+      "status": "BLOCKED",
+      "evidence": "Local rollback plan only; real version and data recovery untested",
+      "sha": null
+    },
+    {
+      "id": "owner-review",
+      "status": "BLOCKED",
+      "evidence": "No release acceptance",
+      "sha": null
+    },
+    {
+      "id": "merge-approval",
+      "status": "BLOCKED",
+      "evidence": "User has not authorized merge",
+      "sha": null
+    },
+    {
+      "id": "deploy-approval",
+      "status": "BLOCKED",
+      "evidence": "User explicitly forbids publishing without approval",
+      "sha": null
+    }
+  ]
+}

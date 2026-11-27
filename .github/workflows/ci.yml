@@ -19,6 +19,8 @@ jobs:
           java-version: '21'
       - name: Install locked dependencies
         run: npm ci --no-audit --no-fund
+      - name: Read-only release safety gate
+        run: node --test tests/release-gate.test.mjs
       - name: TypeScript
         run: npm run typecheck
       - name: Unit tests
