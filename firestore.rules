@@ -189,7 +189,7 @@ service cloud.firestore {
         && request.resource.data.memberIds.size() == 2
         && request.resource.data.memberIds[0] is string
         && request.resource.data.memberIds[1] is string
-        && request.resource.data.memberIds[0] != request.resource.data.memberIds[1]
+        && request.resource.data.memberIds[0] < request.resource.data.memberIds[1]
         && request.auth.uid in request.resource.data.memberIds
         && conversationId == 'dm_' + request.resource.data.memberIds[0] + '_' + request.resource.data.memberIds[1]
         && exists(/databases/$(database)/documents/profiles/$(request.resource.data.memberIds[0]))

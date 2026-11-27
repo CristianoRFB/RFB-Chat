@@ -67,6 +67,13 @@ describe('Firestore Rules: isolamento de conversas', () => {
       senderId: 'alice', body: '', createdAt: serverTimestamp()
     }));
   });
+  it('nega DM duplicada com membros em ordem inversa', async () => {
+    const alice = testEnv.authenticatedContext('alice').firestore();
+    await assertFails(setDoc(doc(alice, 'conversations', 'dm_bob_alice'), {
+      kind: 'dm', createdBy: 'alice', memberIds: ['bob','alice'], createdAt: serverTimestamp()
+    }));
+    await assertSucceeds(getDoc(doc(alice, 'conversations', conversationId)));
+  });
   it('cria conversa válida sem ler documento inexistente', async () => {
     const alice = testEnv.authenticatedContext('alice').firestore();
     const target = doc(alice, 'conversations', 'dm_alice_mallory');
