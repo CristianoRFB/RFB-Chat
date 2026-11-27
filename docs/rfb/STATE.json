@@ -3,7 +3,7 @@
   "repo": "CristianoRFB/RFB-Chat",
   "goal": "RFBChat — implementar 12 AC com rastreabilidade, emuladores e custo adicional R$0/mês",
   "phase": "EVOLVE_05_IN_PROGRESS",
-  "slice": "S030",
+  "slice": "S031",
   "baseline_sha": "b20f3887d9192ad10371ba8e8f0888ee93d09da4",
   "last_commit_sha": "43f6af8a5e1bdbc82960377c921ad0b9cfff7c77",
   "last_verified_sha": "6e36ddd9af19da00a427d4a73670d564ba572fc2",
@@ -117,7 +117,7 @@
     "11/12 funcionalidades com fluxo local foram escritas, mas definição de 90% integral não pode ser homologada com ausência de QA externa e produção",
     "11/12 somente como cobertura de fluxos de laboratório; 58 telas conceituais não foram implementadas individualmente."
   ],
-  "next_action": "Inspect paired benchmark 45914960995; validate public guard and offline fallback; finalize evidence.",
+  "next_action": "Verify corrected paired benchmark and infra/full CI, collect numeric evidence.",
   "revision": 13,
   "updated_at": "2026-11-26",
   "history": [
@@ -439,6 +439,14 @@
       "slice": "S030",
       "baseline_sha": "43f6af8a5e1bdbc82960377c921ad0b9cfff7c77",
       "goal": "Public offline fallback smoke, emulator backup and restore instructions, quota/monitoring operational runbook; no real integration or deploy."
+    },
+    {
+      "event": "REGRESSION",
+      "slice": "S030",
+      "sha": "61034de59229c398ef4eaae39043b1001e6d72bd",
+      "benchmark_run": 45914960995,
+      "ci_run": 45914905451,
+      "diagnosis": "baseline benchmark delivery target not confirmed after panel navigation; assert both DM headings and send from fixed peer; initial candidate opened file deep link automatically while test clicks details closed, removed automatic open in 43f6af8; verify final E2E"
     }
   ]
 }

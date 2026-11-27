@@ -28,21 +28,26 @@ jobs:
           git worktree add --detach "$RUNNER_TEMP/rfb-before" 6e36ddd9af19da00a427d4a73670d564ba572fc2
           git worktree add --detach "$RUNNER_TEMP/rfb-after" HEAD
           mkdir -p perf-evidence
+          result=0
           for variant in before after; do
             dir="$RUNNER_TEMP/rfb-$variant"
             ln -s "$GITHUB_WORKSPACE/node_modules" "$dir/node_modules"
             cp scripts/{instrument-perf,build-size}.mjs "$dir/scripts/"
             cp e2e/performance.spec.ts "$dir/e2e/"
             (
+              set -e
               cd "$dir"
               export RFB_PERF_VARIANT="$variant"
               npm run build
               node scripts/build-size.mjs
               node scripts/instrument-perf.mjs
               npm run test:e2e -- e2e/performance.spec.ts
-            )
-            cp -r "$dir/perf-results" "perf-evidence/$variant"
+            ) || result=1
+            mkdir -p "perf-evidence/$variant"
+            if [ -d "$dir/perf-results" ]; then cp -r "$dir/perf-results/." "perf-evidence/$variant/"; fi
+            if [ -d "$dir/test-results" ]; then cp -r "$dir/test-results" "perf-evidence/$variant/"; fi
           done
+          exit "$result"
       - uses: actions/upload-artifact@v4
         if: always()
         with:

@@ -41,13 +41,20 @@ test('benchmark pareado de assinaturas reais e entrega local',async({browser})=>
   await main.getByText('Arquivos privados e links temporários',{exact:true}).click();
   await main.waitForTimeout(1200);
   const reclosed=await stats(main);
+  // Garantir que ambas as sessões estão de fato na mesma DM após alternar os painéis.
+  await pages[1].locator('.conversation-list .conversation').filter({hasText:'Benchmark titular'}).click();
+  await expect(pages[1].getByRole('heading',{name:'Benchmark titular'})).toBeVisible();
+  await main.locator('.conversation-list .conversation').filter({hasText:'Benchmark 1'}).click();
+  await expect(main.getByRole('heading',{name:'Benchmark 1'})).toBeVisible();
+  console.log('RFB_PERF_SUBSCRIPTIONS '+JSON.stringify({variant:process.env.RFB_PERF_VARIANT,closed,opened,reclosed}));
   const deliveryMs:number[]=[];
   for(let i=0;i<5;i++){
    const msg='Mensagem de benchmark '+i+' '+suffix;
-   await main.locator('#message-text').fill(msg);
+   await pages[1].locator('#message-text').fill(msg);
    const start=performance.now();
-   await main.getByRole('button',{name:'Enviar',exact:true}).click();
-   await expect(pages[1].getByText(msg,{exact:true})).toBeVisible();
+   await pages[1].getByRole('button',{name:'Enviar',exact:true}).click();
+   await expect(main.locator('.message.incoming').filter({hasText:msg})).toBeVisible();
+   await expect(pages[1].locator('#message-text')).toHaveValue('');
    deliveryMs.push(Math.round(performance.now()-start));
   }
   const variant=process.env.RFB_PERF_VARIANT!;
