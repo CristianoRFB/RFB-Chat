@@ -2,7 +2,7 @@
   "schema": 1,
   "repo": "CristianoRFB/RFB-Chat",
   "goal": "RFBChat — implementar 12 AC com rastreabilidade, emuladores e custo adicional R$0/mês",
-  "phase": "EVOLVE_06_LOCAL_QA_PASS_RELEASE_GATES_OPEN",
+  "phase": "EVOLVE_07_PREPARATION",
   "slice": "S033",
   "baseline_sha": "b20f3887d9192ad10371ba8e8f0888ee93d09da4",
   "last_commit_sha": "3142ef40c4fa9e4409d90e8d7bc538a204653f00",
@@ -162,8 +162,8 @@
     "11/12 funcionalidades com fluxo local foram escritas, mas definição de 90% integral não pode ser homologada com ausência de QA externa e produção",
     "11/12 somente como cobertura de fluxos de laboratório; 58 telas conceituais não foram implementadas individualmente."
   ],
-  "next_action": "Complete outstanding EVOLVE 06 release acceptance checks; EVOLVE 07 production remains blocked pending authorization and external gates.",
-  "revision": 17,
+  "next_action": "S034 balanced browser benchmark, S035 fail-closed release checklist and QA; no external changes",
+  "revision": 18,
   "updated_at": "2026-11-26",
   "history": [
     {
@@ -530,7 +530,21 @@
       "sha": "3142ef40c4fa9e4409d90e8d7bc538a204653f00",
       "run_id": 45930727651,
       "status": "LOCAL_PASS_EXTERNAL_GATES_OPEN"
+    },
+    {
+      "event": "BEFORE_WRITE",
+      "slice": "S034",
+      "baseline_sha": "119f2df4d9c730d208a5a66c32d66872918c2840",
+      "method_sha": "5f73ee2b48507234431706e4c6313773bae72a5a",
+      "goal": "S034 balanced browser benchmark, S035 fail-closed release checklist and QA; no external changes",
+      "verified_runs": [
+        45931059934,
+        45931060072,
+        45931059983,
+        45931059980,
+        45931059985
+      ]
     }
   ],
-  "status": "EVOLVE_06_LOCAL_QA_PASS_RELEASE_GATES_OPEN"
+  "status": "IN_PROGRESS_RELEASE_BLOCKED"
 }
