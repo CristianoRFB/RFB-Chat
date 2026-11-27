@@ -22,6 +22,11 @@ jobs:
         env:
           RFB_QA_LOCAL: 'YES'
         run: npx firebase emulators:exec --project demo-rfb-chat --only auth,firestore "node scripts/total-qa-load.mjs"
+      - name: Sustained bounded load (fresh local emulators)
+        env:
+          RFB_QA_LOCAL: 'YES'
+          RFB_QA_SUSTAINED: 'YES'
+        run: npx firebase emulators:exec --project demo-rfb-chat --only auth,firestore "node scripts/total-qa-load.mjs"
       - name: Evidence
         if: always()
         uses: actions/upload-artifact@v4

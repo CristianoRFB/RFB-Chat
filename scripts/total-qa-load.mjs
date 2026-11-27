@@ -8,6 +8,7 @@ assert.equal(process.env.RFB_QA_LOCAL,'YES');
 const projectId='demo-rfb-chat';
 assert.equal(process.env.GCLOUD_PROJECT ?? projectId,projectId);
 const clients=[],unsubs=[], suffix=Date.now();
+const sustained=process.env.RFB_QA_SUSTAINED==='YES';
 const denied=async(fn)=>{await assert.rejects(fn,e=>e.code==='permission-denied');};
 async function client(i){
  const app=initializeApp({projectId,apiKey:'fake-api-key-for-emulator-only',authDomain:projectId+'.firebaseapp.com'},'qa-'+i);
@@ -20,7 +21,7 @@ async function client(i){
  return {uid,db};
 }
 const quantile=(values,p)=>[...values].sort((a,b)=>a-b)[Math.ceil(values.length*p)-1];
-async function runPhase(users,pairs,perSender,label){
+async function runPhase(users,pairs,perSender,label,intervalMs=0){
  const targets=[],sent=new Map(),received=new Map(),failures=[];
  let concurrentCreates=0;
  for(let i=0;i<pairs;i++){
@@ -40,18 +41,18 @@ async function runPhase(users,pairs,perSender,label){
   }
  }
  const start=performance.now();
- await Promise.all(targets.map(async({u,c,id})=>{for(let i=0;i<perSender;i++){const ref=doc(c),key=id+'/'+ref.id;sent.set(key,performance.now());await setDoc(ref,{senderId:u.uid,body:'QA '+label+' '+i,createdAt:serverTimestamp()});}}));
+ await Promise.all(targets.map(async({u,c,id})=>{for(let i=0;i<perSender;i++){const ref=doc(c),key=id+'/'+ref.id;sent.set(key,performance.now());await setDoc(ref,{senderId:u.uid,body:'QA '+label+' '+i,createdAt:serverTimestamp()});if(intervalMs&&i<perSender-1)await new Promise(r=>setTimeout(r,intervalMs));}}));
  const deadline=performance.now()+15000;
  while(received.size<sent.size&&performance.now()<deadline)await new Promise(r=>setTimeout(r,25));
  assert.equal(failures.length,0);assert.equal(received.size,sent.size,'peer received every sent document');
  for(const {c} of targets){const snap=await getDocsFromServer(c);assert.equal(snap.size,2*perSender);assert.equal(new Set(snap.docs.map(d=>d.id)).size,snap.size);}
  const dur=performance.now()-start;const ms=[...received.values()];
- return {label,pairs,clients:targets.length,concurrentCreates,sent:sent.size,received:received.size,duplicates:0,errors:failures.length,durationMs:Math.round(dur),messagesPerSecond:+(sent.size/(dur/1000)).toFixed(2),p50Ms:+quantile(ms,.5).toFixed(2),p95Ms:+quantile(ms,.95).toFixed(2),maxMs:+Math.max(...ms).toFixed(2),samplesMs:ms.map(x=>+x.toFixed(2))};
+ return {label,intervalMs,pairs,clients:targets.length,concurrentCreates,sent:sent.size,received:received.size,duplicates:0,errors:failures.length,durationMs:Math.round(dur),messagesPerSecond:+(sent.size/(dur/1000)).toFixed(2),p50Ms:+quantile(ms,.5).toFixed(2),p95Ms:+quantile(ms,.95).toFixed(2),maxMs:+Math.max(...ms).toFixed(2),samplesMs:ms.map(x=>+x.toFixed(2))};
 }
 try{
  const users=[];for(let i=0;i<10;i++)users.push(await client(i));
  const low=await runPhase(users.slice(0,2),1,10,'single-pair');
- const load=await runPhase(users.slice(2),4,10,'four-pairs');
+ const load=await runPhase(users.slice(2),4,sustained?60:10,sustained?'four-pairs-sustained':'four-pairs',sustained?1000:0);
  const a=users[0],b=users[1],outside=users[2],id='dm_'+[a.uid,b.uid].sort().join('_');
  const c=collection(a.db,'conversations',id,'messages');
  await denied(()=>getDocFromServer(doc(outside.db,'conversations',id)));
@@ -62,5 +63,5 @@ try{
  const report=async()=>{const ref=doc(collection(a.db,'reports')),batch=writeBatch(a.db);batch.set(ref,{reporterId:a.uid,reportedUid:b.uid,conversationId:id,reason:'Synthetic concurrency test',status:'open',createdAt:serverTimestamp()});batch.set(doc(a.db,'reportRate',a.uid),{reportId:ref.id,createdAt:serverTimestamp()});return batch.commit();};
  const race=await Promise.allSettled([report(),report()]);assert.equal(race.filter(x=>x.status==='fulfilled').length,1);assert.equal(race.filter(x=>x.status==='rejected'&&x.reason.code==='permission-denied').length,1);
  const result={environment:'Firebase Auth and Firestore emulators, authenticated Web SDK, no production',phases:[low,load],negativeChecks:5,reportRace:{accepted:1,denied:1},sha:process.env.GITHUB_SHA??null,run:process.env.GITHUB_RUN_ID??null};
- await mkdir('qa-evidence',{recursive:true});await writeFile('qa-evidence/load.json',JSON.stringify(result,null,2));console.log('RFB_QA_RESULT '+JSON.stringify(result));
+ await mkdir('qa-evidence',{recursive:true});await writeFile(sustained?'qa-evidence/load-sustained.json':'qa-evidence/load.json',JSON.stringify(result,null,2));console.log('RFB_QA_RESULT '+JSON.stringify(result));
 }finally{for(const off of unsubs)off();await Promise.allSettled(clients.map(async c=>{await terminate(c.db);await deleteApp(c.app);}));}

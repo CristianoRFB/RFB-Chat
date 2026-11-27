@@ -47,15 +47,35 @@ test('benchmark pareado de assinaturas reais e entrega local',async({browser})=>
   await main.locator('.conversation-list .conversation').filter({hasText:'Benchmark 1'}).click();
   await expect(main.getByRole('heading',{name:'Benchmark 1'})).toBeVisible();
   console.log('RFB_PERF_SUBSCRIPTIONS '+JSON.stringify({variant:process.env.RFB_PERF_VARIANT,closed,opened,reclosed}));
-  const deliveryMs:number[]=[];
-  for(let i=0;i<5;i++){
+  const deliveryMs:number[]=[],domMs:number[]=[],driverOverheadMs:number[]=[];
+  const samples=Number(process.env.RFB_PERF_SAMPLES??5);
+  if(!Number.isInteger(samples)||samples<5||samples>30)throw new Error('invalid bounded sample count');
+  for(let i=-3;i<samples;i++){
    const msg='Mensagem de benchmark '+i+' '+suffix;
    await pages[1].locator('#message-text').fill(msg);
+   // Install observer before sending. Browser-clock epoch values permit comparison
+   // across same-runner browser contexts, not arbitrary remote machines.
+   await main.evaluate(text=>{
+    const w=window as Window & {__rfbArrival?:number;__rfbObserver?:MutationObserver};
+    w.__rfbObserver?.disconnect();delete w.__rfbArrival;
+    const observe=()=>{if(Array.from(document.querySelectorAll('.message.incoming')).some(el=>el.textContent?.includes(text))){
+      w.__rfbArrival=performance.timeOrigin+performance.now();w.__rfbObserver?.disconnect();
+    }};
+    w.__rfbObserver=new MutationObserver(observe);w.__rfbObserver.observe(document.body,{subtree:true,childList:true,characterData:true});observe();
+   },msg);
+   await pages[1].getByRole('button',{name:'Enviar',exact:true}).evaluate(el=>{
+    const w=window as Window & {__rfbSent?:number};delete w.__rfbSent;
+    el.addEventListener('click',()=>{w.__rfbSent=performance.timeOrigin+performance.now();},{capture:true,once:true});
+   });
    const start=performance.now();
    await pages[1].getByRole('button',{name:'Enviar',exact:true}).click();
    await expect(main.locator('.message.incoming').filter({hasText:msg})).toBeVisible();
    await expect(pages[1].locator('#message-text')).toHaveValue('');
-   deliveryMs.push(Math.round(performance.now()-start));
+   const driver=performance.now()-start;
+   const sent=await pages[1].evaluate(()=>(window as Window & {__rfbSent?:number}).__rfbSent);
+   const arrival=await main.evaluate(()=>(window as Window & {__rfbArrival?:number}).__rfbArrival);
+   if(sent===undefined||arrival===undefined||arrival<sent)throw new Error('browser timestamp missing or nonmonotonic');
+   if(i>=0){deliveryMs.push(Math.round(driver));domMs.push(Math.round(arrival-sent));driverOverheadMs.push(Math.round(driver-(arrival-sent)));}
   }
   const variant=process.env.RFB_PERF_VARIANT!;
   if(variant==='after'){
@@ -66,7 +86,7 @@ test('benchmark pareado de assinaturas reais e entrega local',async({browser})=>
    expect(reclosed['src/chat-extras.ts'].active).toBe(2);
    expect(reclosed['src/attachments.ts'].active).toBe(0);
   }
-  const result={variant,conversations:3,closed,opened,reclosed,deliveryMs};
+  const result={variant,repetition:process.env.RFB_PERF_REPETITION??'1',conversations:3,warmupExcluded:3,closed,opened,reclosed,deliveryMs,domMs,driverOverheadMs};
   mkdirSync('perf-results',{recursive:true});writeFileSync('perf-results/browser.json',JSON.stringify(result,null,2));
   console.log('RFB_PERF_BROWSER '+JSON.stringify(result));
  }finally{await Promise.all(contexts.map(c=>c.close()));}

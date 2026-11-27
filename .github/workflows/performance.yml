@@ -25,32 +25,33 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          git worktree add --detach "$RUNNER_TEMP/rfb-before" 6e36ddd9af19da00a427d4a73670d564ba572fc2
-          git worktree add --detach "$RUNNER_TEMP/rfb-after" HEAD
           mkdir -p perf-evidence
           result=0
-          for variant in before after; do
-            dir="$RUNNER_TEMP/rfb-$variant"
+          n=0
+          # Balanced order controls position/warmup confounding; fresh worktrees
+          # and unique loopback ports per block; 25 measured + 3 warmup each.
+          for variant in before after after before; do
+            n=$((n+1))
+            dir="$RUNNER_TEMP/rfb-block-$n"
+            ref=HEAD
+            if [ "$variant" = before ]; then ref=6e36ddd9af19da00a427d4a73670d564ba572fc2; fi
+            git worktree add --detach "$dir" "$ref"
             ln -s "$GITHUB_WORKSPACE/node_modules" "$dir/node_modules"
             cp scripts/{instrument-perf,build-size}.mjs "$dir/scripts/"
             cp e2e/performance.spec.ts "$dir/e2e/"
             (
               set -e
               cd "$dir"
-              export RFB_PERF_VARIANT="$variant"
+              export RFB_PERF_VARIANT="$variant" RFB_PERF_REPETITION="$n" RFB_PERF_SAMPLES=25
               npm run build
               node scripts/build-size.mjs
               node scripts/instrument-perf.mjs
-              # Build measured above before benchmark-only port substitution.
-              # Separate loopback ports and demo project avoid orphaned baseline processes.
-              if [ "$variant" = after ]; then
-                node --input-type=module -e "import fs from 'node:fs';const p='firebase.json',j=JSON.parse(fs.readFileSync(p));j.emulators.auth.port=19099;j.emulators.firestore.port=18080;j.emulators.hub={host:'127.0.0.1',port:14400};j.emulators.logging={host:'127.0.0.1',port:14500};fs.writeFileSync(p,JSON.stringify(j));for(const f of ['src/firebase.ts','playwright.config.ts','package.json']){let s=fs.readFileSync(f,'utf8');s=s.replaceAll('9099','19099').replaceAll('8080','18080').replaceAll('5173','15173').replaceAll('demo-rfb-chat','demo-rfb-chat-perf-after');fs.writeFileSync(f,s);}"
-              fi
+              node --input-type=module -e "import fs from 'node:fs';const n=Number(process.env.RFB_PERF_REPETITION),auth=19099+n*100,db=18080+n*100,web=15173+n*100;const p='firebase.json',j=JSON.parse(fs.readFileSync(p));j.emulators.auth.port=auth;j.emulators.firestore.port=db;j.emulators.hub={host:'127.0.0.1',port:14400+n*100};j.emulators.logging={host:'127.0.0.1',port:14500+n*100+1};fs.writeFileSync(p,JSON.stringify(j));for(const f of ['src/firebase.ts','playwright.config.ts','package.json']){let s=fs.readFileSync(f,'utf8');s=s.replaceAll('9099',String(auth)).replaceAll('8080',String(db)).replaceAll('5173',String(web)).replaceAll('demo-rfb-chat','demo-rfb-chat-perf-'+n);fs.writeFileSync(f,s);}"
               npm run test:e2e -- e2e/performance.spec.ts
             ) || result=1
-            mkdir -p "perf-evidence/$variant"
-            if [ -d "$dir/perf-results" ]; then cp -r "$dir/perf-results/." "perf-evidence/$variant/"; fi
-            if [ -d "$dir/test-results" ]; then cp -r "$dir/test-results" "perf-evidence/$variant/"; fi
+            mkdir -p "perf-evidence/$n-$variant"
+            if [ -d "$dir/perf-results" ]; then cp -r "$dir/perf-results/." "perf-evidence/$n-$variant/"; fi
+            if [ -d "$dir/test-results" ]; then cp -r "$dir/test-results/." "perf-evidence/$n-$variant/"; fi
           done
           exit "$result"
       - uses: actions/upload-artifact@v4
